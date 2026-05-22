@@ -55,19 +55,45 @@ function determineMeetingStatus(date: string, startTime: string, endTime: string
   }
 }
 
+function getDefaultTimes() {
+  const now = new Date();
+  const start = new Date(now);
+  // Round to next hour
+  start.setHours(now.getHours() + 1, 0, 0, 0);
+  
+  const end = new Date(start);
+  end.setHours(start.getHours() + 2);
+  
+  const formatTime12 = (d: Date) => {
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+  };
+  
+  return {
+    startTime: formatTime12(start),
+    endTime: formatTime12(end)
+  };
+}
+
 export default function CreateMeetingScreen() {
   const router = useRouter();
   const { meetingId } = useLocalSearchParams<{ meetingId?: string }>();
   const isEditMode = !!meetingId;
   const [initialLoading, setInitialLoading] = useState(isEditMode);
 
+  const defaultTimes = getDefaultTimes();
+
   const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm({
     defaultValues: {
       title: '',
       venue: 'Marriott Madurai',
       date: new Date().toISOString().split('T')[0],
-      startTime: '08:00 AM',
-      endTime: '10:00 AM',
+      startTime: defaultTimes.startTime,
+      endTime: defaultTimes.endTime,
       entryFee: '500',
       maxCapacity: '100',
       description: '',
@@ -105,6 +131,50 @@ export default function CreateMeetingScreen() {
 
   const onSubmit = async (data: any) => {
     try {
+      // Validate time formats
+      const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$/i;
+      if (!timeRegex.test(data.startTime)) {
+        showAlert('Validation Error', 'Start time must be in HH:MM AM/PM format (e.g., 08:00 AM).');
+        return;
+      }
+      if (!timeRegex.test(data.endTime)) {
+        showAlert('Validation Error', 'End time must be in HH:MM AM/PM format (e.g., 10:00 AM).');
+        return;
+      }
+
+      const startMins = parseTimeToMinutes(data.startTime);
+      const endMins = parseTimeToMinutes(data.endTime);
+
+      if (endMins <= startMins) {
+        showAlert('Validation Error', 'Meeting end time must be after the start time.');
+        return;
+      }
+
+      // Check for past date/time validation
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+
+      const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      const currentTimeStr = timeFormatter.format(now);
+      const currentMinutes = parseTimeToMinutes(currentTimeStr);
+
+      if (data.date < todayStr) {
+        showAlert('Validation Error', 'Cannot schedule a meeting on a past date.');
+        return;
+      }
+
+      if (data.date === todayStr && endMins <= currentMinutes) {
+        showAlert('Validation Error', 'Cannot schedule a meeting that has already ended.');
+        return;
+      }
+
       const computedStatus = determineMeetingStatus(data.date, data.startTime, data.endTime);
       const payload = {
         ...data,
