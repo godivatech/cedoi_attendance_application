@@ -23,6 +23,6 @@ export default function Index() {
     return <Redirect href="/(admin)/dashboard" />;
   }
 
-  console.log('[Index] Declarative redirecting to staff...');
+  console.log('[Index] Declarative redirecting to member...');
   return <Redirect href="/(staff)/today" />;
 }

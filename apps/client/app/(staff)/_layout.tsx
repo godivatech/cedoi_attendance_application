@@ -65,7 +65,7 @@ export default function StaffLayout() {
               </View>
               <View className="ml-3">
                 <Text className="text-lg font-bold text-slate-800 dark:text-white leading-tight">CEDOI</Text>
-                <Text className="text-xs text-slate-400 dark:text-slate-500 font-medium">Staff Portal</Text>
+                <Text className="text-xs text-slate-400 dark:text-slate-500 font-medium">Member Portal</Text>
               </View>
             </View>
 
@@ -97,23 +97,6 @@ export default function StaffLayout() {
                   </Pressable>
                 );
               })}
-
-              <Pressable
-                onPress={() => setNotifOpen(true)}
-                className="flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-slate-50"
-              >
-                <View className="relative">
-                  <Bell size={20} color="#64748b" />
-                  {unreadCount > 0 && (
-                    <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#ef4444', minWidth: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 }}>
-                      <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800' }}>{unreadCount}</Text>
-                    </View>
-                  )}
-                </View>
-                <Text className="ml-3 font-semibold text-sm text-slate-600">
-                  Notifications
-                </Text>
-              </Pressable>
             </View>
           </View>
 
@@ -125,10 +108,10 @@ export default function StaffLayout() {
               </View>
               <View className="flex-1 min-w-0">
                 <Text className="text-sm font-semibold text-slate-800 truncate">
-                  {user?.name || 'Staff Member'}
+                  {user?.name === 'Staff Operator' ? 'Member' : (user?.name || 'Member')}
                 </Text>
                 <Text className="text-xs text-slate-400 capitalize">
-                  {user?.role?.toLowerCase() || 'staff'}
+                  {user?.role === 'STAFF' ? 'Member' : (user?.role || 'member')}
                 </Text>
               </View>
             </View>
@@ -146,8 +129,53 @@ export default function StaffLayout() {
         </View>
 
         {/* Content Area */}
-        <View style={{ flex: 1 }}>
-          <Slot />
+        <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+          {/* Sleek Top Header for Desktop */}
+          <View className="h-16 border-b border-slate-200 bg-white flex-row items-center justify-between px-8">
+            <View>
+              <Text className="text-lg font-bold text-slate-800 capitalize">
+                {pathname.split('/').pop()?.replace('-', ' ') || 'Today'}
+              </Text>
+            </View>
+            
+            <View className="flex-row items-center">
+              {/* Notification Bell */}
+              <Pressable 
+                onPress={() => setNotifOpen(true)}
+                style={{ marginRight: 20, position: 'relative' }}
+                className="p-2 rounded-lg hover:bg-slate-50 active:scale-[0.9] transition-all"
+              >
+                <Bell size={20} color="#475569" />
+                {unreadCount > 0 && (
+                  <View style={{ position: 'absolute', right: 2, top: 2, backgroundColor: '#ef4444', minWidth: 16, height: 16, borderRadius: 8, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 4, borderWidth: 2, borderColor: '#fff' }}>
+                    <Text style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>{unreadCount}</Text>
+                  </View>
+                )}
+              </Pressable>
+
+              <View className="h-5 w-px bg-slate-200 mr-5" />
+
+              {/* User Profile Info */}
+              <View className="flex-row items-center">
+                <View className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2.5">
+                  <UserIcon size={16} color="#4f46e5" />
+                </View>
+                <View>
+                  <Text className="text-sm font-semibold text-slate-800">
+                    {user?.name === 'Staff Operator' ? 'Member' : (user?.name || 'Member')}
+                  </Text>
+                  <Text className="text-[10px] text-slate-400 capitalize">
+                    {user?.role === 'STAFF' ? 'Member' : (user?.role || 'Member')}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Page Content */}
+          <View style={{ flex: 1 }}>
+            <Slot />
+          </View>
         </View>
         <NotificationCenterModal visible={notifOpen} onClose={() => setNotifOpen(false)} />
       </View>

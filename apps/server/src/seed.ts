@@ -38,24 +38,24 @@ async function seed() {
     console.log('⚠️ Admin user might already exist');
   }
 
-  // 2. Create Staff User
+  // 2. Create Member User
   try {
     const staffUser = await auth.createUser({
       email: 'staff@godivatech.com',
       password: 'Password@123',
-      displayName: 'Staff Operator',
+      displayName: 'Member',
     });
 
     await db.collection('users').doc(staffUser.uid).set({
       uid: staffUser.uid,
-      name: 'Staff Operator',
+      name: 'Member',
       email: 'staff@godivatech.com',
       role: 'STAFF',
       isActive: true,
     });
-    console.log('✅ Staff user created');
+    console.log('✅ Member user created');
   } catch (e) {
-    console.log('⚠️ Staff user might already exist');
+    console.log('⚠️ Member user might already exist');
   }
 
   // 3. Create Sample Members
