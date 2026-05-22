@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
-import { Slot } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../src/services/firebase';
@@ -15,8 +15,11 @@ NativeWindStyleSheet.setOutput({
 });
 
 export default function RootLayout() {
-  const { setAuth, logout, isLoading } = useAuthStore();
+  const { user, role, setAuth, logout, isLoading } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
 
+  // 1. Listen to auth state and fetch user details from Firestore
   useEffect(() => {
     console.log('[_layout] Setting up Auth listener...');
     // Safety timeout: if Firebase never responds within 5s, force out of loading
@@ -62,6 +65,32 @@ export default function RootLayout() {
       unsubscribe();
     };
   }, []);
+
+  // 2. Centralized Authentication Route Guard
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user) {
+      // If user is logged out and not on a login screen, redirect to login
+      if (!inAuthGroup) {
+        console.log('[_layout] Guard: Redirecting to login');
+        router.replace('/(auth)/login');
+      }
+    } else {
+      // If user is logged in but stuck on a login screen, redirect to their home
+      if (inAuthGroup || segments.length === 0 || segments[0] === '') {
+        if (role === 'ADMIN') {
+          console.log('[_layout] Guard: Redirecting Admin to dashboard');
+          router.replace('/(admin)/dashboard');
+        } else {
+          console.log('[_layout] Guard: Redirecting Staff to today');
+          router.replace('/(staff)/today');
+        }
+      }
+    }
+  }, [user, role, isLoading, segments]);
 
   return (
     <ErrorBoundary>
