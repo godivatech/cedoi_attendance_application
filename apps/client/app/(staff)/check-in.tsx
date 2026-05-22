@@ -31,11 +31,11 @@ export default function CheckInSearchScreen() {
     return () => unsub();
   }, [meetingId]);
 
-  const checkedInCount = Object.keys(attendanceMap).length;
+  const checkedInCount = Object.values(attendanceMap).filter(val => val !== 'ABSENT').length;
 
   const getStatusInfo = (memberId: string) => {
     if (!(memberId in attendanceMap)) return null;
-    return attendanceMap[memberId]; // PAID, PENDING, WAIVED
+    return attendanceMap[memberId]; // PAID, PENDING, WAIVED, ABSENT
   };
 
   return (
@@ -83,7 +83,22 @@ export default function CheckInSearchScreen() {
           contentContainerStyle={{ padding: 16, gap: 10 }}
           renderItem={({ item }) => {
             const status = getStatusInfo(item.id);
-            const isPresent = status !== null && status !== undefined;
+            const isAbsent = status === 'ABSENT';
+            const isPresent = status !== null && status !== undefined && !isAbsent;
+
+            let cardBorderColor = '#f1f5f9';
+            let avatarBg = '#f1f5f9';
+            let avatarColor = '#94a3b8';
+
+            if (isPresent) {
+              cardBorderColor = '#d1fae5';
+              avatarBg = '#d1fae5';
+              avatarColor = '#059669';
+            } else if (isAbsent) {
+              cardBorderColor = '#fee2e2';
+              avatarBg = '#fee2e2';
+              avatarColor = '#ef4444';
+            }
 
             return (
               <TouchableOpacity
@@ -97,7 +112,7 @@ export default function CheckInSearchScreen() {
                   backgroundColor: '#fff',
                   borderRadius: 14,
                   borderWidth: 1,
-                  borderColor: isPresent ? '#d1fae5' : '#f1f5f9',
+                  borderColor: cardBorderColor,
                   padding: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -110,10 +125,10 @@ export default function CheckInSearchScreen() {
                   {/* Avatar Circle */}
                   <View style={{
                     width: 44, height: 44, borderRadius: 22,
-                    backgroundColor: isPresent ? '#d1fae5' : '#f1f5f9',
+                    backgroundColor: avatarBg,
                     justifyContent: 'center', alignItems: 'center', marginRight: 14
                   }}>
-                    <Text style={{ fontSize: 16, fontWeight: '800', color: isPresent ? '#059669' : '#94a3b8' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: avatarColor }}>
                       {item.fullName.charAt(0).toUpperCase()}
                     </Text>
                   </View>
@@ -130,6 +145,13 @@ export default function CheckInSearchScreen() {
                       <UserCheck size={13} color="#059669" />
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#059669', marginLeft: 4 }}>
                         {status === 'PENDING' ? 'Present · Pending' : status === 'WAIVED' ? 'Present · Waived' : 'Present · Paid'}
+                      </Text>
+                    </View>
+                  ) : isAbsent ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fee2e2', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8 }}>
+                      <UserX size={13} color="#ef4444" />
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#ef4444', marginLeft: 4 }}>
+                        Absent
                       </Text>
                     </View>
                   ) : (

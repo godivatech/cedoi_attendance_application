@@ -12,7 +12,8 @@ export const useAttendanceActions = (meetingId: string) => {
     member: Member,
     paymentStatus: PaymentStatus = 'PENDING',
     paymentMode?: PaymentMode,
-    amountCollected: number = 0
+    amountCollected: number = 0,
+    prevAttendance?: { paymentStatus: PaymentStatus; amountCollected: number } | null
   ) => {
     if (!user) return;
     setProcessing(true);
@@ -43,12 +44,34 @@ export const useAttendanceActions = (meetingId: string) => {
 
       batch.set(attendanceRef, attendanceData);
 
-      // Only increment attendee count if member is NOT absent
-      if (paymentStatus !== 'ABSENT') {
-        batch.update(meetingRef, {
-          'metrics.totalAttendees': increment(1),
-          'metrics.totalCollected': increment(amountCollected),
-        });
+      // Calculate deltas
+      let attendeeDelta = 0;
+      let collectedDelta = 0;
+
+      const wasPresent = prevAttendance && prevAttendance.paymentStatus !== 'ABSENT';
+      const isPresent = paymentStatus !== 'ABSENT';
+
+      // 1. Calculate attendee delta
+      if (!wasPresent && isPresent) {
+        attendeeDelta = 1;
+      } else if (wasPresent && !isPresent) {
+        attendeeDelta = -1;
+      }
+
+      // 2. Calculate collected amount delta
+      const prevCollected = prevAttendance ? prevAttendance.amountCollected : 0;
+      collectedDelta = amountCollected - prevCollected;
+
+      const updates: any = {};
+      if (attendeeDelta !== 0) {
+        updates['metrics.totalAttendees'] = increment(attendeeDelta);
+      }
+      if (collectedDelta !== 0) {
+        updates['metrics.totalCollected'] = increment(collectedDelta);
+      }
+
+      if (Object.keys(updates).length > 0) {
+        batch.update(meetingRef, updates);
       }
 
       await batch.commit();
@@ -61,37 +84,5 @@ export const useAttendanceActions = (meetingId: string) => {
     }
   };
 
-  const updatePayment = async (
-    memberId: string,
-    paymentStatus: PaymentStatus,
-    paymentMode: PaymentMode,
-    amount: number
-  ) => {
-    setProcessing(true);
-    try {
-      const batch = writeBatch(db);
-      const attendanceRef = doc(db, `meetings/${meetingId}/attendance`, memberId);
-      const meetingRef = doc(db, 'meetings', meetingId);
-
-      batch.update(attendanceRef, {
-        paymentStatus,
-        paymentMode,
-        amountCollected: amount,
-      });
-
-      batch.update(meetingRef, {
-        'metrics.totalCollected': increment(amount),
-      });
-
-      await batch.commit();
-      return true;
-    } catch (error) {
-      console.error('Error updating payment:', error);
-      throw error;
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  return { markAttendance, updatePayment, processing };
+  return { markAttendance, processing };
 };
