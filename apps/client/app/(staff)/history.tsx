@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Pressable, Modal, TextInput } from 'react-native';
 import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
-import { Card } from '../../src/components/ui/Card';
-import { Calendar, Users, IndianRupee, X, Search as SearchIcon, CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { Calendar, Users, IndianRupee, X, Search as SearchIcon, CheckCircle2, AlertCircle, UserX } from 'lucide-react-native';
 import { collection, query, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { formatDate } from '../../src/utils/date';
@@ -17,11 +16,13 @@ export default function StaffHistory() {
   const [attendees, setAttendees] = useState<any[]>([]);
   const [loadingAttendees, setLoadingAttendees] = useState(false);
   const [attendeesSearch, setAttendeesSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'PRESENT' | 'PENDING' | 'ABSENT'>('ALL');
 
   const handleViewAttendees = async (meeting: any) => {
     setSelectedMeeting(meeting);
     setLoadingAttendees(true);
     setAttendeesSearch('');
+    setActiveTab('ALL');
     try {
       const q = query(collection(db, `meetings/${meeting.id}/attendance`));
       const snap = await getDocs(q);
@@ -77,7 +78,7 @@ export default function StaffHistory() {
 
       await batch.commit();
 
-      // Update state
+      // Update local state
       setAttendees(prev => prev.map(a => a.id === attendeeId ? { ...a, paymentStatus: 'PAID', paymentMode: mode, amountCollected: fee } : a));
       showAlert('Success', 'Payment status updated successfully!');
     } catch (error: any) {
@@ -86,57 +87,81 @@ export default function StaffHistory() {
     }
   };
 
+  // Helper counts for tabs
+  const allCount = attendees.length;
+  const presentCount = attendees.filter(a => a.paymentStatus !== 'ABSENT').length;
+  const pendingCount = attendees.filter(a => a.paymentStatus === 'PENDING').length;
+  const absentCount = attendees.filter(a => a.paymentStatus === 'ABSENT').length;
+
   const filteredAttendees = attendees.filter(a => {
     const term = attendeesSearch.toLowerCase();
-    return (
+    const matchesSearch = 
       (a.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
-      (a.memberSnapshot?.companyName || '').toLowerCase().includes(term)
-    );
+      (a.memberSnapshot?.companyName || '').toLowerCase().includes(term);
+
+    if (!matchesSearch) return false;
+
+    if (activeTab === 'PRESENT') {
+      return a.paymentStatus !== 'ABSENT';
+    }
+    if (activeTab === 'PENDING') {
+      return a.paymentStatus === 'PENDING';
+    }
+    if (activeTab === 'ABSENT') {
+      return a.paymentStatus === 'ABSENT';
+    }
+    return true;
   });
 
   if (loading) {
     return (
-      <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
+      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
 
+  const tabs = [
+    { key: 'ALL', label: 'All', count: allCount },
+    { key: 'PRESENT', label: 'Present', count: presentCount },
+    { key: 'PENDING', label: 'Unpaid', count: pendingCount },
+    { key: 'ABSENT', label: 'Absent', count: absentCount },
+  ] as const;
+
   return (
-    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
-      <Text className="text-2xl font-extrabold text-slate-800 mb-6">Meeting History</Text>
+    <View style={{ flex: 1, backgroundColor: '#f8fafc', padding: 24 }}>
+      <Text style={{ fontSize: 24, fontWeight: '800', color: '#1e293b', marginBottom: 20 }}>Meeting History</Text>
       
       <FlatList
         data={meetings}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Card className="mb-4 bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+          <View style={{ marginBottom: 16, backgroundColor: '#fff', borderColor: '#f1f5f9', borderWidth: 1, borderRadius: 16, elevation: 1, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8 }}>
             <Pressable
               onPress={() => handleViewAttendees(item)}
-              style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
-              className="p-5"
+              style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1, padding: 20 }]}
             >
-              <Text className="text-lg font-bold text-slate-800 leading-snug">{item.title}</Text>
-              <View className="flex-row items-center mt-3 border-t border-slate-50 pt-3 flex-wrap">
-                <View className="flex-row items-center mr-6 mb-1">
+              <Text style={{ fontSize: 17, fontWeight: '700', color: '#1e293b', lineHeight: 22 }}>{item.title}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 24 }}>
                   <Calendar size={14} color="#94a3b8" />
-                  <Text className="text-slate-500 text-xs ml-1.5 font-medium">{formatDate(item.date)}</Text>
+                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '500' }}>{formatDate(item.date)}</Text>
                 </View>
-                <View className="flex-row items-center mb-1">
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Users size={14} color="#94a3b8" />
-                  <Text className="text-slate-500 text-xs ml-1.5 font-medium">
+                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '500' }}>
                     {item.metrics?.totalAttendees || 0} attended
                   </Text>
                 </View>
               </View>
             </Pressable>
-          </Card>
+          </View>
         )}
         ListEmptyComponent={() => (
-          <Card className="items-center p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
-            <Text className="text-slate-500 text-center font-medium">No past meetings found.</Text>
-          </Card>
+          <View style={{ alignItems: 'center', padding: 32, backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#f1f5f9' }}>
+            <Text style={{ color: '#64748b', textAlign: 'center', fontWeight: '500' }}>No past meetings found.</Text>
+          </View>
         )}
       />
 
@@ -148,64 +173,96 @@ export default function StaffHistory() {
           transparent={false}
           onRequestClose={() => setSelectedMeeting(null)}
         >
-          <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+          <View style={{ flex: 1, backgroundColor: '#f8fafc', padding: 24 }}>
             {/* Modal Header */}
-            <View className="flex-row justify-between items-center mb-6">
-              <View className="flex-1 mr-4">
-                <Text className="text-2xl font-extrabold text-slate-800 tracking-tight">{selectedMeeting.title}</Text>
-                <Text className="text-slate-400 text-xs font-semibold uppercase tracking-wider mt-0.5">
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <View style={{ flex: 1, marginRight: 16 }}>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: '#1e293b', letterSpacing: -0.3 }}>{selectedMeeting.title}</Text>
+                <Text style={{ color: '#94a3b8', fontSize: 12, fontWeight: '600', marginTop: 4 }}>
                   {formatDate(selectedMeeting.date)} • {selectedMeeting.venue}
                 </Text>
               </View>
               <TouchableOpacity 
                 onPress={() => setSelectedMeeting(null)}
-                className="bg-slate-100 p-2 rounded-full active:scale-[0.9]"
+                style={{ backgroundColor: '#f1f5f9', padding: 8, borderRadius: 20 }}
               >
                 <X size={18} color="#475569" />
               </TouchableOpacity>
             </View>
 
             {/* Quick Metrics */}
-            <View className="flex-row -mx-1 mb-6">
-              <View className="flex-1 bg-white border border-slate-100 p-4 rounded-xl mx-1 shadow-sm flex-row items-center">
-                <View className="bg-indigo-50 p-2 rounded-lg mr-3">
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1f5f9', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+                <View style={{ backgroundColor: '#eff6ff', padding: 8, borderRadius: 10, marginRight: 12 }}>
                   <Users size={16} color="#4f46e5" />
                 </View>
                 <View>
-                  <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Checked In</Text>
-                  <Text className="text-lg font-extrabold text-slate-800">{attendees.length}</Text>
+                  <Text style={{ color: '#94a3b8', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Present</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#1e293b', marginTop: 2 }}>{presentCount}</Text>
                 </View>
               </View>
-              <View className="flex-1 bg-white border border-slate-100 p-4 rounded-xl mx-1 shadow-sm flex-row items-center">
-                <View className="bg-emerald-50 p-2 rounded-lg mr-3">
-                  <IndianRupee size={16} color="#10b981" />
+
+              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1f5f9', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+                <View style={{ backgroundColor: '#e6f4ea', padding: 8, borderRadius: 10, marginRight: 12 }}>
+                  <IndianRupee size={16} color="#059669" />
                 </View>
                 <View>
-                  <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Collected</Text>
-                  <Text className="text-lg font-extrabold text-emerald-600">
+                  <Text style={{ color: '#94a3b8', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Collected</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#059669', marginTop: 2 }}>
                     ₹{attendees.reduce((acc, curr) => acc + (curr.amountCollected || 0), 0)}
                   </Text>
                 </View>
               </View>
             </View>
 
-            {/* Search and Action Bar */}
-            <View className="mb-6">
-              <Card className="flex-row items-center px-3 py-1 bg-white border border-slate-100 rounded-xl shadow-sm">
+            {/* Search Input */}
+            <View style={{ marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 1 }}>
                 <SearchIcon size={16} color="#94a3b8" />
                 <TextInput
-                  className="flex-1 ml-2 text-slate-800 py-2.5 text-xs"
+                  style={{ flex: 1, marginLeft: 8, color: '#1e293b', paddingVertical: 10, fontSize: 13 }}
                   placeholder="Filter attendees by name..."
                   placeholderTextColor="#94a3b8"
                   value={attendeesSearch}
                   onChangeText={setAttendeesSearch}
                 />
-              </Card>
+              </View>
+            </View>
+
+            {/* Segmented Filter Tab */}
+            <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', padding: 4, borderRadius: 12, marginBottom: 16 }}>
+              {tabs.map(tab => (
+                <TouchableOpacity
+                  key={tab.key}
+                  onPress={() => setActiveTab(tab.key)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 8,
+                    borderRadius: 10,
+                    backgroundColor: activeTab === tab.key ? '#fff' : 'transparent',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    shadowColor: activeTab === tab.key ? '#000' : 'transparent',
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 2,
+                    elevation: activeTab === tab.key ? 1 : 0,
+                  }}
+                >
+                  <Text style={{
+                    fontSize: 11,
+                    fontWeight: '700',
+                    color: activeTab === tab.key ? '#1e293b' : '#64748b'
+                  }}>
+                    {tab.label} ({tab.count})
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
             {/* List */}
             {loadingAttendees ? (
-              <View className="flex-1 justify-center items-center">
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color="#4f46e5" />
               </View>
             ) : (
@@ -213,61 +270,92 @@ export default function StaffHistory() {
                 data={filteredAttendees}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <Card className="mb-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row justify-between items-center">
-                    <View className="flex-1 mr-4">
-                      <Text className="font-bold text-slate-800 text-sm">{item.memberSnapshot?.fullName}</Text>
-                      <Text className="text-xs text-slate-400 mt-0.5">{item.memberSnapshot?.companyName}</Text>
-                      {item.checkInTime?.seconds && (
-                        <Text className="text-[10px] text-slate-400 mt-1 font-medium">
-                          Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </Text>
-                      )}
-                    </View>
+                renderItem={({ item }) => {
+                  const isItemAbsent = item.paymentStatus === 'ABSENT';
+                  
+                  // Setup custom styling for row badges
+                  let badgeBg = '#fff7ed';
+                  let badgeText = '#ea580c';
+                  let badgeBorder = '#ffedd5';
+                  let badgeIcon = <AlertCircle size={10} color="#ea580c" />;
 
-                    <View className="items-end">
-                      {/* Payment Status Badge */}
-                      <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${
-                        item.paymentStatus === 'PAID'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                          : item.paymentStatus === 'WAIVED'
-                          ? 'bg-slate-50 text-slate-600 border border-slate-100'
-                          : 'bg-amber-50 text-amber-700 border border-amber-100'
-                      }`}>
-                        {item.paymentStatus === 'PAID' ? (
-                          <CheckCircle2 size={10} color="#059669" />
-                        ) : (
-                          <AlertCircle size={10} color={item.paymentStatus === 'WAIVED' ? '#64748b' : '#d97706'} />
+                  if (item.paymentStatus === 'PAID') {
+                    badgeBg = '#e6f4ea';
+                    badgeText = '#059669';
+                    badgeBorder = '#d1fae5';
+                    badgeIcon = <CheckCircle2 size={10} color="#059669" />;
+                  } else if (item.paymentStatus === 'WAIVED') {
+                    badgeBg = '#eff6ff';
+                    badgeText = '#1d4ed8';
+                    badgeBorder = '#bfdbfe';
+                    badgeIcon = <CheckCircle2 size={10} color="#1d4ed8" />;
+                  } else if (isItemAbsent) {
+                    badgeBg = '#fef2f2';
+                    badgeText = '#ef4444';
+                    badgeBorder = '#fee2e2';
+                    badgeIcon = <UserX size={10} color="#ef4444" />;
+                  }
+
+                  return (
+                    <View style={{ marginBottom: 10, backgroundColor: '#fff', borderColor: '#f1f5f9', borderWidth: 1, padding: 16, borderRadius: 14, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <View style={{ flex: 1, marginRight: 16 }}>
+                        <Text style={{ fontWeight: '700', color: '#1e293b', fontSize: 14 }}>{item.memberSnapshot?.fullName}</Text>
+                        <Text style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, fontWeight: '500' }}>{item.memberSnapshot?.companyName}</Text>
+                        {item.checkInTime?.seconds && !isItemAbsent && (
+                          <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 6, fontWeight: '600' }}>
+                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Text>
                         )}
-                        <Text className={`text-[9px] font-extrabold uppercase tracking-wider ${
-                          item.paymentStatus === 'PAID'
-                            ? 'text-emerald-700'
-                            : item.paymentStatus === 'WAIVED'
-                            ? 'text-slate-600'
-                            : 'text-amber-700'
-                        }`}>
-                          {item.paymentStatus}
-                        </Text>
                       </View>
 
-                      {item.paymentStatus === 'PENDING' ? (
-                        <TouchableOpacity
-                          onPress={() => handleMarkPaid(item.id)}
-                          className="mt-2 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-lg border border-indigo-100"
-                        >
-                          <Text className="text-[9px] font-extrabold text-indigo-600">COLLECT FEE</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <Text className="text-[10px] text-slate-400 mt-1.5 font-semibold">
-                          {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
-                        </Text>
-                      )}
+                      <View style={{ alignItems: 'flex-end' }}>
+                        {/* Custom status badge */}
+                        <View style={{
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                          borderRadius: 20,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          backgroundColor: badgeBg,
+                          borderColor: badgeBorder,
+                          borderWidth: 1,
+                          gap: 4
+                        }}>
+                          {badgeIcon}
+                          <Text style={{ fontSize: 9, fontWeight: '800', textTransform: 'uppercase', color: badgeText }}>
+                            {item.paymentStatus}
+                          </Text>
+                        </View>
+
+                        {item.paymentStatus === 'PENDING' ? (
+                          <TouchableOpacity
+                            onPress={() => handleMarkPaid(item.id)}
+                            style={{
+                              marginTop: 8,
+                              backgroundColor: '#eff6ff',
+                              paddingVertical: 4,
+                              paddingHorizontal: 10,
+                              borderRadius: 8,
+                              borderWidth: 1,
+                              borderColor: '#bfdbfe'
+                            }}
+                          >
+                            <Text style={{ fontSize: 9, fontWeight: '800', color: '#1d4ed8' }}>COLLECT FEE</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          !isItemAbsent && (
+                            <Text style={{ fontSize: 10, color: '#64748b', marginTop: 8, fontWeight: '700' }}>
+                              {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
+                            </Text>
+                          )
+                        )}
+                      </View>
                     </View>
-                  </Card>
-                )}
+                  );
+                }}
                 ListEmptyComponent={() => (
-                  <View className="flex-1 justify-center items-center py-10">
-                    <Text className="text-slate-400 text-sm font-medium">No check-in entries found.</Text>
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 40 }}>
+                    <Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: '600' }}>No matching records found.</Text>
                   </View>
                 )}
               />

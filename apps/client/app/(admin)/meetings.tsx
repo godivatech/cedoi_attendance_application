@@ -20,6 +20,7 @@ export default function AdminMeetings() {
   const [attendees, setAttendees] = useState<any[]>([]);
   const [loadingAttendees, setLoadingAttendees] = useState(false);
   const [attendeesSearch, setAttendeesSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'PRESENT' | 'PENDING' | 'ABSENT'>('ALL');
 
   // Helper to style status badges
   const getStatusStyle = (status: string) => {
@@ -38,6 +39,7 @@ export default function AdminMeetings() {
     setSelectedMeeting(meeting);
     setLoadingAttendees(true);
     setAttendeesSearch('');
+    setActiveTab('ALL');
     try {
       const q = query(collection(db, `meetings/${meeting.id}/attendance`));
       const snap = await getDocs(q);
@@ -287,8 +289,10 @@ export default function AdminMeetings() {
                   <Users size={16} color="#3b82f6" />
                 </View>
                 <View>
-                  <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Checked In</Text>
-                  <Text className="text-lg font-extrabold text-slate-800">{attendees.length}</Text>
+                  <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Present</Text>
+                  <Text className="text-lg font-extrabold text-slate-800">
+                    {attendees.filter(a => a.paymentStatus !== 'ABSENT').length}
+                  </Text>
                 </View>
               </View>
               <View className="flex-1 bg-white border border-slate-100 p-4 rounded-xl mx-1 shadow-sm flex-row items-center">
@@ -305,7 +309,7 @@ export default function AdminMeetings() {
             </View>
 
             {/* Search and Action Bar */}
-            <View className="flex-row space-x-3 mb-6 items-center">
+            <View className="flex-row space-x-3 mb-4 items-center">
               <Card className="flex-1 flex-row items-center px-3 py-1 bg-white border border-slate-100 rounded-xl shadow-sm">
                 <SearchIcon size={16} color="#94a3b8" />
                 <TextInput
@@ -324,6 +328,29 @@ export default function AdminMeetings() {
               </TouchableOpacity>
             </View>
 
+            {/* Segmented Filter Tabs */}
+            <View className="flex-row bg-slate-100 p-1 rounded-xl mb-4">
+              {[
+                { key: 'ALL', label: 'All', count: attendees.length },
+                { key: 'PRESENT', label: 'Present', count: attendees.filter(a => a.paymentStatus !== 'ABSENT').length },
+                { key: 'PENDING', label: 'Unpaid', count: attendees.filter(a => a.paymentStatus === 'PENDING').length },
+                { key: 'ABSENT', label: 'Absent', count: attendees.filter(a => a.paymentStatus === 'ABSENT').length },
+              ].map(tab => {
+                const isActive = activeTab === tab.key;
+                return (
+                  <TouchableOpacity
+                    key={tab.key}
+                    onPress={() => setActiveTab(tab.key as any)}
+                    className={`flex-1 py-2 rounded-lg items-center justify-center ${isActive ? 'bg-white shadow-sm' : ''}`}
+                  >
+                    <Text className={`text-[10px] font-bold ${isActive ? 'text-slate-800' : 'text-slate-500'}`}>
+                      {tab.label} ({tab.count})
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
             {/* List */}
             {loadingAttendees ? (
               <View className="flex-1 justify-center items-center">
@@ -331,64 +358,84 @@ export default function AdminMeetings() {
               </View>
             ) : (
               <FlatList
-                data={filteredAttendees}
+                data={attendees.filter(a => {
+                  const term = attendeesSearch.toLowerCase();
+                  const matchesSearch = 
+                    (a.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
+                    (a.memberSnapshot?.companyName || '').toLowerCase().includes(term);
+
+                  if (!matchesSearch) return false;
+                  if (activeTab === 'PRESENT') return a.paymentStatus !== 'ABSENT';
+                  if (activeTab === 'PENDING') return a.paymentStatus === 'PENDING';
+                  if (activeTab === 'ABSENT') return a.paymentStatus === 'ABSENT';
+                  return true;
+                })}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <Card className="mb-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row justify-between items-center">
-                    <View className="flex-1 mr-4">
-                      <Text className="font-bold text-slate-800 text-sm">{item.memberSnapshot?.fullName}</Text>
-                      <Text className="text-xs text-slate-400 mt-0.5">{item.memberSnapshot?.companyName}</Text>
-                      {item.checkInTime?.seconds && (
-                        <Text className="text-[10px] text-slate-400 mt-1 font-medium">
-                          Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </Text>
-                      )}
-                    </View>
-
-                    <View className="items-end">
-                      {/* Payment Status Badge */}
-                      <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${
-                        item.paymentStatus === 'PAID'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                          : item.paymentStatus === 'WAIVED'
-                          ? 'bg-slate-50 text-slate-600 border border-slate-100'
-                          : 'bg-amber-50 text-amber-700 border border-amber-100'
-                      }`}>
-                        {item.paymentStatus === 'PAID' ? (
-                          <CheckCircle2 size={10} color="#059669" />
-                        ) : (
-                          <AlertCircle size={10} color={item.paymentStatus === 'WAIVED' ? '#64748b' : '#d97706'} />
+                renderItem={({ item }) => {
+                  const isItemAbsent = item.paymentStatus === 'ABSENT';
+                  return (
+                    <Card className="mb-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row justify-between items-center">
+                      <View className="flex-1 mr-4">
+                        <Text className="font-bold text-slate-800 text-sm">{item.memberSnapshot?.fullName}</Text>
+                        <Text className="text-xs text-slate-400 mt-0.5">{item.memberSnapshot?.companyName}</Text>
+                        {item.checkInTime?.seconds && !isItemAbsent && (
+                          <Text className="text-[10px] text-slate-400 mt-1 font-medium">
+                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Text>
                         )}
-                        <Text className={`text-[9px] font-extrabold uppercase tracking-wider ${
-                          item.paymentStatus === 'PAID'
-                            ? 'text-emerald-700'
-                            : item.paymentStatus === 'WAIVED'
-                            ? 'text-slate-600'
-                            : 'text-amber-700'
-                        }`}>
-                          {item.paymentStatus}
-                        </Text>
                       </View>
 
-                      {item.paymentStatus === 'PENDING' ? (
-                        <TouchableOpacity
-                          onPress={() => handleMarkPaid(item.id)}
-                          className="mt-2 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-lg border border-indigo-100"
-                        >
-                          <Text className="text-[9px] font-extrabold text-indigo-600">COLLECT FEE</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <Text className="text-[10px] text-slate-400 mt-1.5 font-semibold">
-                          {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
-                        </Text>
-                      )}
-                    </View>
-                  </Card>
-                )}
+                      <View className="items-end">
+                        {/* Payment Status Badge */}
+                        <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${
+                          item.paymentStatus === 'PAID'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                            : item.paymentStatus === 'WAIVED'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                            : item.paymentStatus === 'ABSENT'
+                            ? 'bg-red-50 text-red-700 border border-red-100'
+                            : 'bg-amber-50 text-amber-700 border border-amber-100'
+                        }`}>
+                          {item.paymentStatus === 'PAID' ? (
+                            <CheckCircle2 size={10} color="#059669" />
+                          ) : (
+                            <AlertCircle size={10} color={item.paymentStatus === 'ABSENT' ? '#ef4444' : item.paymentStatus === 'WAIVED' ? '#2563eb' : '#d97706'} />
+                          )}
+                          <Text className={`text-[9px] font-extrabold uppercase tracking-wider ${
+                            item.paymentStatus === 'PAID'
+                              ? 'text-emerald-700'
+                              : item.paymentStatus === 'WAIVED'
+                              ? 'text-blue-700'
+                              : item.paymentStatus === 'ABSENT'
+                              ? 'text-red-700'
+                              : 'text-amber-700'
+                          }`}>
+                            {item.paymentStatus}
+                          </Text>
+                        </View>
+
+                        {item.paymentStatus === 'PENDING' ? (
+                          <TouchableOpacity
+                            onPress={() => handleMarkPaid(item.id)}
+                            className="mt-2 bg-indigo-50 hover:bg-indigo-100 py-1 px-2.5 rounded-lg border border-indigo-100"
+                          >
+                            <Text className="text-[9px] font-extrabold text-indigo-600">COLLECT FEE</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          !isItemAbsent && (
+                            <Text className="text-[10px] text-slate-400 mt-1.5 font-semibold">
+                              {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
+                            </Text>
+                          )
+                        )}
+                      </View>
+                    </Card>
+                  );
+                }}
                 ListEmptyComponent={() => (
                   <View className="flex-1 justify-center items-center py-10">
-                    <Text className="text-slate-400 text-sm font-medium">No check-in entries found.</Text>
+                    <Text className="text-slate-400 text-sm font-medium">No records found.</Text>
                   </View>
                 )}
               />
