@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 
 import memberRoutes from './routes/members';
 import { automateMeetingStatuses } from './services/statusAutomator';
+import { runNotificationAutomator } from './services/notificationAutomator';
 import logger from './utils/logger';
 
 import { errorHandler } from './middleware/errorHandler';
@@ -19,9 +20,12 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Run automation once on start, and every 10 minutes
+// Run automation once on start, and schedule intervals
 automateMeetingStatuses();
 setInterval(automateMeetingStatuses, 10 * 60 * 1000);
+
+runNotificationAutomator();
+setInterval(runNotificationAutomator, 60 * 60 * 1000);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -1,9 +1,12 @@
+import React, { useState } from 'react';
 import { Slot, Tabs, useRouter, usePathname } from 'expo-router';
-import { Clock, History, LogOut, User as UserIcon } from 'lucide-react-native';
+import { Clock, History, LogOut, Bell, User as UserIcon } from 'lucide-react-native';
 import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
 import { signOut } from 'firebase/auth';
+import { useNotifications } from '../../src/modules/notifications/useNotifications';
+import { NotificationCenterModal } from '../../src/components/ui/NotificationCenterModal';
 
 export default function StaffLayout() {
   const { width } = useWindowDimensions();
@@ -14,6 +17,9 @@ export default function StaffLayout() {
   
   const isDark = false; // Lock navigation to light mode for consistent SaaS aesthetic
   const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const menuItems = [
     {
@@ -76,7 +82,7 @@ export default function StaffLayout() {
                       active
                         ? 'bg-indigo-50 border-l-4 border-indigo-600'
                         : 'hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     <Icon size={20} color={active ? '#4f46e5' : '#64748b'} />
                     <Text
@@ -91,6 +97,23 @@ export default function StaffLayout() {
                   </Pressable>
                 );
               })}
+
+              <Pressable
+                onPress={() => setNotifOpen(true)}
+                className="flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-slate-50"
+              >
+                <View className="relative">
+                  <Bell size={20} color="#64748b" />
+                  {unreadCount > 0 && (
+                    <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#ef4444', minWidth: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 }}>
+                      <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800' }}>{unreadCount}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text className="ml-3 font-semibold text-sm text-slate-600">
+                  Notifications
+                </Text>
+              </Pressable>
             </View>
           </View>
 
@@ -126,71 +149,89 @@ export default function StaffLayout() {
         <View style={{ flex: 1 }}>
           <Slot />
         </View>
+        <NotificationCenterModal visible={notifOpen} onClose={() => setNotifOpen(false)} />
       </View>
     );
   }
 
   // Mobile navigation using Tabs
   return (
-    <Tabs
-      sceneContainerStyle={{ backgroundColor: '#f8fafc' }}
-      screenOptions={{
-        tabBarActiveTintColor: '#4f46e5',
-        tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
-        tabBarStyle: {
-          height: Platform.OS === 'web' ? 60 : 75,
-          paddingBottom: Platform.OS === 'web' ? 10 : 20,
-          backgroundColor: isDark ? '#1e293b' : '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: isDark ? '#334155' : '#e2e8f0',
-        },
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: isDark ? '#0f172a' : '#f8fafc',
-        },
-        headerTitleStyle: {
-          color: isDark ? '#ffffff' : '#0f172a',
-        },
-        headerShadowVisible: false,
-        headerRight: () => (
-          <Pressable 
-            onPress={handleLogout} 
-            style={{ marginRight: 20 }}
-            className="active:scale-[0.9] transition-transform duration-100"
-          >
-            <LogOut size={18} color="#ef4444" />
-          </Pressable>
-        ),
-      }}
-    >
-      <Tabs.Screen
-        name="today"
-        options={{
-          title: "Today",
-          tabBarIcon: ({ color }) => <Clock size={22} color={color} />,
+    <>
+      <Tabs
+        sceneContainerStyle={{ backgroundColor: '#f8fafc' }}
+        screenOptions={{
+          tabBarActiveTintColor: '#4f46e5',
+          tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
+          tabBarStyle: {
+            height: Platform.OS === 'web' ? 60 : 75,
+            paddingBottom: Platform.OS === 'web' ? 10 : 20,
+            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            borderTopWidth: 1,
+            borderTopColor: isDark ? '#334155' : '#e2e8f0',
+          },
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+          },
+          headerTitleStyle: {
+            color: isDark ? '#ffffff' : '#0f172a',
+          },
+          headerShadowVisible: false,
+          headerRight: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20 }}>
+              <Pressable 
+                onPress={() => setNotifOpen(true)}
+                style={{ marginRight: 16, position: 'relative' }}
+                className="active:scale-[0.9] transition-transform duration-100"
+              >
+                <Bell size={18} color="#475569" />
+                {unreadCount > 0 && (
+                  <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#ef4444', minWidth: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 }}>
+                    <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800' }}>{unreadCount}</Text>
+                  </View>
+                )}
+              </Pressable>
+              
+              <Pressable 
+                onPress={handleLogout} 
+                className="active:scale-[0.9] transition-transform duration-100"
+              >
+                <LogOut size={18} color="#ef4444" />
+              </Pressable>
+            </View>
+          ),
         }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: 'History',
-          tabBarIcon: ({ color }) => <History size={22} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="check-in"
-        options={{
-          href: null,
-          title: 'Search Member',
-        }}
-      />
-      <Tabs.Screen
-        name="member-detail"
-        options={{
-          href: null,
-          title: 'Check-in',
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="today"
+          options={{
+            title: "Today",
+            tabBarIcon: ({ color }) => <Clock size={22} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="history"
+          options={{
+            title: 'History',
+            tabBarIcon: ({ color }) => <History size={22} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="check-in"
+          options={{
+            href: null,
+            title: 'Search Member',
+          }}
+        />
+        <Tabs.Screen
+          name="member-detail"
+          options={{
+            href: null,
+            title: 'Check-in',
+          }}
+        />
+      </Tabs>
+      <NotificationCenterModal visible={notifOpen} onClose={() => setNotifOpen(false)} />
+    </>
   );
 }
