@@ -1,27 +1,42 @@
 import { Alert as RNAlert, Platform } from 'react-native';
 
-interface AlertButton {
+export interface AlertButton {
   text: string;
   onPress?: () => void;
   style?: 'default' | 'cancel' | 'destructive';
 }
 
+type AlertCallback = (title: string, message?: string, buttons?: AlertButton[]) => void;
+let globalAlertCallback: AlertCallback | null = null;
+
+export function registerAlertHandler(callback: AlertCallback) {
+  globalAlertCallback = callback;
+}
+
+export function unregisterAlertHandler() {
+  globalAlertCallback = null;
+}
+
 /**
  * Platform-agnostic alert dialog utility.
- * Avoids thread blocking window.alert behavior on Web where appropriate.
+ * Triggers the registered custom UI-based alert modal if available,
+ * otherwise falls back to platform default.
  */
 export function showAlert(
   title: string,
   message?: string,
   buttons?: AlertButton[]
 ): void {
+  if (globalAlertCallback) {
+    globalAlertCallback(title, message, buttons);
+    return;
+  }
+
   if (Platform.OS === 'web') {
-    // Web implementation
+    // Fallback console log
     console.log(`[Alert] ${title}: ${message}`);
     
-    // Fallback to simple alert/confirm for now
     if (buttons && buttons.length > 0) {
-      // Find default action or first button
       const confirmButton = buttons.find(b => b.style !== 'cancel') || buttons[0];
       const hasCancel = buttons.some(b => b.style === 'cancel');
       

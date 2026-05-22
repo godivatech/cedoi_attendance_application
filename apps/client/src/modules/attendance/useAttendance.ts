@@ -35,15 +35,18 @@ export const useAttendanceActions = (meetingId: string) => {
         paymentMode,
         amountCollected,
         checkedInBy: user.uid,
+        isAbsent: paymentStatus === 'ABSENT',
       };
 
       batch.set(attendanceRef, attendanceData);
 
-      // Increment total attendees and total collected
-      batch.update(meetingRef, {
-        'metrics.totalAttendees': increment(1),
-        'metrics.totalCollected': increment(amountCollected),
-      });
+      // Only increment attendee count if member is NOT absent
+      if (paymentStatus !== 'ABSENT') {
+        batch.update(meetingRef, {
+          'metrics.totalAttendees': increment(1),
+          'metrics.totalCollected': increment(amountCollected),
+        });
+      }
 
       await batch.commit();
       return true;

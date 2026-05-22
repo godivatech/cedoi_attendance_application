@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { Member, PaymentMode, PaymentStatus } from '@cedoi/shared';
-import { Card } from '../../src/components/ui/Card';
-import { Button } from '../../src/components/ui/Button';
 import { useAttendanceActions } from '../../src/modules/attendance/useAttendance';
-import { Check, CreditCard, Banknote, ShieldCheck } from 'lucide-react-native';
+import {
+  UserCheck, UserX, Banknote, CreditCard, ShieldCheck, ChevronLeft, Clock, Phone, Briefcase
+} from 'lucide-react-native';
 import { showAlert } from '../../src/utils/platformAlert';
 
 export default function MemberDetailScreen() {
@@ -16,27 +16,25 @@ export default function MemberDetailScreen() {
   const [meetingFee, setMeetingFee] = useState<number>(500);
   const [meetingTitle, setMeetingTitle] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState<'attendance' | 'payment'>('attendance');
   const { markAttendance, processing } = useAttendanceActions(meetingId);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch member
         const memberRef = doc(db, 'members', memberId);
         const memberSnap = await getDoc(memberRef);
         if (memberSnap.exists()) {
           setMember({ id: memberSnap.id, ...memberSnap.data() } as Member);
         }
-
-        // Fetch meeting fee dynamically
         if (meetingId) {
           const meetingRef = doc(db, 'meetings', meetingId);
           const meetingSnap = await getDoc(meetingRef);
           if (meetingSnap.exists()) {
-            const meetingData = meetingSnap.data();
-            setMeetingFee(meetingData.entryFee ?? 500);
-            setMeetingTitle(meetingData.title || '');
+            const d = meetingSnap.data();
+            setMeetingFee(d.entryFee ?? 500);
+            setMeetingTitle(d.title || '');
           }
         }
       } catch (err) {
@@ -48,127 +46,207 @@ export default function MemberDetailScreen() {
     fetchData();
   }, [memberId, meetingId]);
 
-  const handleCheckIn = async (status: PaymentStatus, mode?: PaymentMode, amount: number = 0) => {
+  const handleAbsent = async () => {
     if (!member) return;
     try {
-      await markAttendance(member, status, mode, amount);
-      showAlert('Success', 'Attendance marked successfully', [
-        { text: 'OK', onPress: () => router.replace('/(staff)/today') }
+      await markAttendance(member, 'ABSENT' as PaymentStatus, undefined, 0);
+      showAlert('Marked Absent', `${member.fullName} has been marked absent.`, [
+        { text: 'OK', onPress: () => router.back() }
       ]);
     } catch (error: any) {
       showAlert('Error', error.message);
     }
   };
 
-  const promptPendingPayment = () => {
-    showAlert(
-      'Collect payment now?',
-      `Would you like to collect the entry fee of ₹${meetingFee} now?`,
-      [
-        {
-          text: 'Pay Cash',
-          onPress: () => handleCheckIn('PAID', 'CASH', meetingFee)
-        },
-        {
-          text: 'Pay UPI',
-          onPress: () => handleCheckIn('PAID', 'UPI', meetingFee)
-        },
-        {
-          text: 'Keep Pending',
-          onPress: () => handleCheckIn('PENDING', undefined, 0),
-          style: 'destructive'
-        }
-      ]
-    );
+  const handlePayment = async (status: PaymentStatus, mode?: PaymentMode, amount: number = 0) => {
+    if (!member) return;
+    try {
+      await markAttendance(member, status, mode, amount);
+      showAlert('Check-in Complete', `${member.fullName} has been checked in successfully.`, [
+        { text: 'Done', onPress: () => router.back() }
+      ]);
+    } catch (error: any) {
+      showAlert('Error', error.message);
+    }
   };
 
   if (loading) {
     return (
-      <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563eb" />
+      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
 
   if (!member) {
     return (
-      <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center p-6">
-        <Text className="text-slate-500 font-medium">Member not found</Text>
+      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text style={{ color: '#94a3b8', fontWeight: '600' }}>Member not found</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
-      <Card className="mb-6 bg-white border border-slate-100 p-6 rounded-2xl shadow-sm">
-        <Text className="text-2xl font-extrabold text-slate-800 mb-1">{member.fullName}</Text>
-        <Text className="text-slate-400 font-medium mb-1">{member.companyName}</Text>
-        {meetingTitle ? (
-          <Text className="text-xs font-semibold text-blue-600">Event: {meetingTitle}</Text>
-        ) : null}
-        
-        <View className="flex-row items-center py-3 border-t border-slate-50 mt-4">
-          <Text className="text-slate-400 font-bold text-xs uppercase tracking-wider flex-1">Mobile</Text>
-          <Text className="font-semibold text-slate-800 text-sm">{member.mobileNumber}</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#f8fafc' }} contentContainerStyle={{ padding: 20 }}>
+      {/* Back button */}
+      <TouchableOpacity
+        onPress={() => step === 'payment' ? setStep('attendance') : router.back()}
+        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}
+      >
+        <ChevronLeft size={18} color="#4f46e5" />
+        <Text style={{ color: '#4f46e5', fontWeight: '600', fontSize: 14, marginLeft: 4 }}>
+          {step === 'payment' ? 'Back to Attendance' : 'Back to Members'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Member Card */}
+      <View style={{ backgroundColor: '#fff', borderRadius: 18, borderWidth: 1, borderColor: '#f1f5f9', padding: 20, marginBottom: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 2 }}>
+        {/* Avatar + Name */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#eff6ff', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#4f46e5' }}>{member.fullName.charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#0f172a' }}>{member.fullName}</Text>
+            <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '500', marginTop: 2 }}>{member.companyName}</Text>
+            {meetingTitle ? (
+              <View style={{ backgroundColor: '#eff6ff', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, alignSelf: 'flex-start' }}>
+                <Text style={{ fontSize: 11, color: '#4f46e5', fontWeight: '700' }}>📅 {meetingTitle}</Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-        <View className="flex-row items-center py-3 border-t border-slate-50">
-          <Text className="text-slate-400 font-bold text-xs uppercase tracking-wider flex-1">Category</Text>
-          <Text className="font-semibold text-slate-800 text-sm">{member.businessCategory}</Text>
+
+        <View style={{ borderTopWidth: 1, borderColor: '#f8fafc', gap: 10, paddingTop: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Phone size={14} color="#94a3b8" />
+            <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.mobileNumber}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Briefcase size={14} color="#94a3b8" />
+            <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.businessCategory}</Text>
+          </View>
         </View>
-      </Card>
-
-      <Text className="text-xl font-bold text-slate-800 mb-4">Mark Attendance & Payment</Text>
-      
-      <View className="space-y-4">
-        {/* Cash Check-in */}
-        <TouchableOpacity 
-          className="bg-emerald-600 hover:bg-emerald-700 p-4 rounded-xl flex-row items-center justify-between shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-          onPress={() => handleCheckIn('PAID', 'CASH', meetingFee)}
-          disabled={processing}
-        >
-          <View className="flex-row items-center">
-            <Banknote color="white" size={20} />
-            <Text className="text-white font-bold ml-3 text-base">Paid - Cash (₹{meetingFee})</Text>
-          </View>
-          <Check color="white" size={20} />
-        </TouchableOpacity>
-
-        {/* UPI Check-in */}
-        <TouchableOpacity 
-          className="bg-indigo-600 hover:bg-indigo-700 p-4 rounded-xl flex-row items-center justify-between shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-          onPress={() => handleCheckIn('PAID', 'UPI', meetingFee)}
-          disabled={processing}
-        >
-          <View className="flex-row items-center">
-            <CreditCard color="white" size={20} />
-            <Text className="text-white font-bold ml-3 text-base">Paid - UPI (₹{meetingFee})</Text>
-          </View>
-          <Check color="white" size={20} />
-        </TouchableOpacity>
-
-        {/* Waived Check-in */}
-        <TouchableOpacity 
-          className="bg-slate-100 hover:bg-slate-200 p-4 rounded-xl flex-row items-center justify-between border border-slate-200/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-          onPress={() => handleCheckIn('WAIVED', 'COMPLIMENTARY', 0)}
-          disabled={processing}
-        >
-          <View className="flex-row items-center">
-            <ShieldCheck color="#475569" size={20} />
-            <Text className="text-slate-700 font-bold ml-3 text-base">Complimentary / Waived</Text>
-          </View>
-          <Check color="#475569" size={20} />
-        </TouchableOpacity>
-
-        {/* Pending Check-in */}
-        <Button 
-          label="Mark as Pending" 
-          variant="outline" 
-          onPress={promptPendingPayment}
-          disabled={processing}
-          loading={processing}
-          className="mt-2 border-slate-200"
-        />
       </View>
-    </View>
+
+      {/* ─── STEP 1: Attendance ─── */}
+      {step === 'attendance' && (
+        <View>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: '#0f172a', marginBottom: 6 }}>Mark Attendance</Text>
+          <Text style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20 }}>Is this member present at today's meeting?</Text>
+
+          {/* Present */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={() => setStep('payment')}
+            style={{ backgroundColor: '#4f46e5', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 12, shadowColor: '#4f46e5', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 4 }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <UserCheck size={22} color="white" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Mark as Present</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 }}>Member is attending — select payment method next</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Absent */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={handleAbsent}
+            style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#fee2e2' }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#fef2f2', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <UserX size={22} color="#ef4444" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#ef4444', fontWeight: '800', fontSize: 16 }}>Mark as Absent</Text>
+              <Text style={{ color: '#fca5a5', fontSize: 12, marginTop: 2 }}>Member did not attend this meeting</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* ─── STEP 2: Payment ─── */}
+      {step === 'payment' && (
+        <View>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: '#0f172a', marginBottom: 6 }}>Collect Entry Fee</Text>
+          <Text style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20 }}>Select how the entry fee of <Text style={{ fontWeight: '700', color: '#0f172a' }}>₹{meetingFee}</Text> was collected:</Text>
+
+          {/* Cash */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={() => handlePayment('PAID', 'CASH', meetingFee)}
+            style={{ backgroundColor: '#059669', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 12, shadowColor: '#059669', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 3 }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <Banknote size={22} color="white" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Paid – Cash</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 }}>₹{meetingFee} collected in cash</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* UPI */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={() => handlePayment('PAID', 'UPI', meetingFee)}
+            style={{ backgroundColor: '#7c3aed', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 12, shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 3 }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <CreditCard size={22} color="white" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Paid – UPI / Online</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 }}>₹{meetingFee} paid digitally</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Waived */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={() => handlePayment('WAIVED', 'COMPLIMENTARY', 0)}
+            style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#e2e8f0', marginBottom: 12 }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <ShieldCheck size={22} color="#64748b" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#334155', fontWeight: '800', fontSize: 16 }}>Complimentary / Waived</Text>
+              <Text style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>No fee collected — entry is free</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Pending */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            disabled={processing}
+            onPress={() => handlePayment('PENDING', undefined, 0)}
+            style={{ backgroundColor: '#fff7ed', borderRadius: 16, padding: 20, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#fed7aa' }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#ffedd5', justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+              <Clock size={22} color="#ea580c" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#ea580c', fontWeight: '800', fontSize: 16 }}>Mark as Pending</Text>
+              <Text style={{ color: '#fdba74', fontSize: 12, marginTop: 2 }}>Present but fee not collected yet</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {processing && (
+        <View style={{ alignItems: 'center', marginTop: 24 }}>
+          <ActivityIndicator size="small" color="#4f46e5" />
+          <Text style={{ color: '#94a3b8', fontSize: 12, marginTop: 8 }}>Saving...</Text>
+        </View>
+      )}
+    </ScrollView>
   );
 }

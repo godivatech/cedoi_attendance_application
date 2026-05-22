@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -9,6 +9,8 @@ import { User } from '@cedoi/shared';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { NativeWindStyleSheet } from 'nativewind';
 import { NetworkStatus } from '../src/components/NetworkStatus';
+import { AlertModal, AlertButton } from '../src/components/ui/AlertModal';
+import { registerAlertHandler, unregisterAlertHandler } from '../src/utils/platformAlert';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -18,6 +20,31 @@ export default function RootLayout() {
   const { user, role, setAuth, logout, isLoading } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    buttons?: AlertButton[];
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+  });
+
+  useEffect(() => {
+    registerAlertHandler((title, message, buttons) => {
+      setAlertConfig({
+        visible: true,
+        title,
+        message: message || '',
+        buttons,
+      });
+    });
+    return () => {
+      unregisterAlertHandler();
+    };
+  }, []);
 
   // 1. Listen to auth state and fetch user details from Firestore
   useEffect(() => {
@@ -98,6 +125,14 @@ export default function RootLayout() {
         <NetworkStatus />
         {/* Always render Slot so Expo Router navigation is mounted from first render */}
         <Slot />
+
+        <AlertModal
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          buttons={alertConfig.buttons}
+          onClose={() => setAlertConfig(prev => ({ ...prev, visible: false }))}
+        />
 
         {isLoading && (
           <View style={{

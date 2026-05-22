@@ -87,7 +87,7 @@ export default function CreateMeetingScreen() {
 
   const defaultTimes = getDefaultTimes();
 
-  const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm({
+  const { control, handleSubmit, reset, formState: { isSubmitting, errors } } = useForm({
     defaultValues: {
       title: '',
       venue: 'Marriott Madurai',
@@ -134,11 +134,11 @@ export default function CreateMeetingScreen() {
       // Validate time formats
       const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$/i;
       if (!timeRegex.test(data.startTime)) {
-        showAlert('Validation Error', 'Start time must be in HH:MM AM/PM format (e.g., 08:00 AM).');
+        showAlert('Validation Error', `Start time "${data.startTime}" must be in HH:MM AM/PM format (e.g., 08:00 AM).`);
         return;
       }
       if (!timeRegex.test(data.endTime)) {
-        showAlert('Validation Error', 'End time must be in HH:MM AM/PM format (e.g., 10:00 AM).');
+        showAlert('Validation Error', `End time "${data.endTime}" must be in HH:MM AM/PM format (e.g., 10:00 AM).`);
         return;
       }
 
@@ -146,7 +146,7 @@ export default function CreateMeetingScreen() {
       const endMins = parseTimeToMinutes(data.endTime);
 
       if (endMins <= startMins) {
-        showAlert('Validation Error', 'Meeting end time must be after the start time.');
+        showAlert('Validation Error', `Meeting end time (${data.endTime}) must be after the start time (${data.startTime}).`);
         return;
       }
 
@@ -166,12 +166,12 @@ export default function CreateMeetingScreen() {
       const currentMinutes = parseTimeToMinutes(currentTimeStr);
 
       if (data.date < todayStr) {
-        showAlert('Validation Error', 'Cannot schedule a meeting on a past date.');
+        showAlert('Validation Error', `Cannot schedule a meeting on a past date. Selected date: ${data.date}, current date is: ${todayStr}.`);
         return;
       }
 
       if (data.date === todayStr && endMins <= currentMinutes) {
-        showAlert('Validation Error', 'Cannot schedule a meeting that has already ended.');
+        showAlert('Validation Error', `Cannot schedule a meeting that has already ended. Selected time is ${data.startTime} - ${data.endTime}, but current local time is ${currentTimeStr}.`);
         return;
       }
 
@@ -223,7 +223,7 @@ export default function CreateMeetingScreen() {
           <Controller
             control={control}
             name="title"
-            rules={{ required: true }}
+            rules={{ required: "Meeting title is required" }}
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
@@ -234,6 +234,9 @@ export default function CreateMeetingScreen() {
               />
             )}
           />
+          {errors.title && (
+            <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.title.message}</Text>
+          )}
         </View>
 
         <View className="flex-row space-x-4">
@@ -242,6 +245,7 @@ export default function CreateMeetingScreen() {
             <Controller
               control={control}
               name="date"
+              rules={{ required: "Date is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
@@ -252,6 +256,9 @@ export default function CreateMeetingScreen() {
                 />
               )}
             />
+            {errors.date && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.date.message}</Text>
+            )}
           </View>
           <View className="flex-1 ml-2">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Entry Fee (₹)</Text>
@@ -278,6 +285,7 @@ export default function CreateMeetingScreen() {
             <Controller
               control={control}
               name="startTime"
+              rules={{ required: "Start time is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
@@ -288,12 +296,16 @@ export default function CreateMeetingScreen() {
                 />
               )}
             />
+            {errors.startTime && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.startTime.message}</Text>
+            )}
           </View>
           <View className="flex-1 ml-2">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">End Time</Text>
             <Controller
               control={control}
               name="endTime"
+              rules={{ required: "End time is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
@@ -304,6 +316,9 @@ export default function CreateMeetingScreen() {
                 />
               )}
             />
+            {errors.endTime && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.endTime.message}</Text>
+            )}
           </View>
         </View>
 

@@ -27,7 +27,7 @@ export interface Meeting {
   };
 }
 
-export type PaymentStatus = 'PAID' | 'PENDING' | 'WAIVED' | 'PARTIAL';
+export type PaymentStatus = 'PAID' | 'PENDING' | 'WAIVED' | 'PARTIAL' | 'ABSENT';
 export type PaymentMode = 'CASH' | 'UPI' | 'CARD' | 'COMPLIMENTARY';
 
 export interface Member {
@@ -57,4 +57,5 @@ export interface Attendance {
   paymentMode?: PaymentMode;
   amountCollected: number;
   checkedInBy: string; // User UID
+  isAbsent?: boolean;
 }
