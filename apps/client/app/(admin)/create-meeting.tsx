@@ -8,6 +8,53 @@ import { db } from '../../src/services/firebase';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { showAlert } from '../../src/utils/platformAlert';
 
+function parseTimeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return 0;
+  
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const ampm = match[3].toUpperCase();
+  
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  
+  return hours * 60 + minutes;
+}
+
+function determineMeetingStatus(date: string, startTime: string, endTime: string): 'SCHEDULED' | 'ONGOING' | 'COMPLETED' {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
+  const timeFormatter = new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  const currentTimeStr = timeFormatter.format(now);
+  const currentMinutes = parseTimeToMinutes(currentTimeStr);
+  const startMinutes = parseTimeToMinutes(startTime);
+  const endMinutes = parseTimeToMinutes(endTime);
+
+  if (date < todayStr) {
+    return 'COMPLETED';
+  } else if (date === todayStr) {
+    if (currentMinutes >= endMinutes) {
+      return 'COMPLETED';
+    } else if (currentMinutes >= startMinutes) {
+      return 'ONGOING';
+    } else {
+      return 'SCHEDULED';
+    }
+  } else {
+    return 'SCHEDULED';
+  }
+}
+
 export default function CreateMeetingScreen() {
   const router = useRouter();
   const { meetingId } = useLocalSearchParams<{ meetingId?: string }>();
@@ -58,10 +105,12 @@ export default function CreateMeetingScreen() {
 
   const onSubmit = async (data: any) => {
     try {
+      const computedStatus = determineMeetingStatus(data.date, data.startTime, data.endTime);
       const payload = {
         ...data,
         entryFee: parseInt(data.entryFee) || 0,
         maxCapacity: parseInt(data.maxCapacity) || 0,
+        status: computedStatus,
       };
 
       if (isEditMode && meetingId) {
@@ -73,7 +122,6 @@ export default function CreateMeetingScreen() {
       } else {
         await addDoc(collection(db, 'meetings'), {
           ...payload,
-          status: 'SCHEDULED',
           metrics: { totalAttendees: 0, totalCollected: 0 }
         });
         showAlert('Success', 'Meeting created successfully', [
