@@ -23,7 +23,7 @@ export const useAttendanceActions = (meetingId: string) => {
       const attendanceRef = doc(db, `meetings/${meetingId}/attendance`, member.id);
       const meetingRef = doc(db, 'meetings', meetingId);
 
-      const attendanceData: Attendance = {
+      const attendanceData: any = {
         id: member.id,
         memberId: member.id,
         memberSnapshot: {
@@ -32,11 +32,14 @@ export const useAttendanceActions = (meetingId: string) => {
         },
         checkInTime: serverTimestamp(),
         paymentStatus,
-        paymentMode,
         amountCollected,
         checkedInBy: user.uid,
         isAbsent: paymentStatus === 'ABSENT',
       };
+
+      if (paymentMode !== undefined) {
+        attendanceData.paymentMode = paymentMode;
+      }
 
       batch.set(attendanceRef, attendanceData);
 
