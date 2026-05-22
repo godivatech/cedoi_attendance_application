@@ -8,19 +8,27 @@ export const useUpcomingMeetings = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Order by date ascending (single field query) to avoid composite index requirements
     const q = query(
       collection(db, 'meetings'),
-      where('status', 'in', ['SCHEDULED', 'ONGOING']),
       orderBy('date', 'asc')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const meetingList = snapshot.docs.map(doc => ({
+      const allMeetings = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Meeting[];
       
-      setMeetings(meetingList);
+      // Filter status in client memory
+      const upcoming = allMeetings.filter(m => 
+        m.status === 'SCHEDULED' || m.status === 'ONGOING'
+      );
+      
+      setMeetings(upcoming);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching upcoming meetings:', error);
       setLoading(false);
     });
 
