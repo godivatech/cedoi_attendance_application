@@ -184,6 +184,16 @@ export default function MemberDetailScreen() {
             <Briefcase size={14} color="#94a3b8" />
             <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.businessCategory}</Text>
           </View>
+          {member.notes ? (
+            <View style={{ borderTopWidth: 1, borderColor: '#f1f5f9', paddingTop: 12, marginTop: 8 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
+                Notes / Instructions
+              </Text>
+              <Text style={{ fontSize: 13, color: '#334155', fontStyle: 'italic', lineHeight: 18 }}>
+                "{member.notes}"
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Current status display badge */}
