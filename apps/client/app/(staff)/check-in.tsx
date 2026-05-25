@@ -141,12 +141,33 @@ export default function CheckInSearchScreen() {
 
                   {/* Status Badge */}
                   {isPresent ? (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#d1fae5', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8 }}>
-                      <UserCheck size={13} color="#059669" />
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#059669', marginLeft: 4 }}>
-                        {status === 'PENDING' ? 'Present · Pending' : status === 'WAIVED' ? 'Present · Waived' : 'Present · Paid'}
-                      </Text>
-                    </View>
+                    (() => {
+                      let badgeBg = '#d1fae5';
+                      let badgeTextColor = '#059669';
+                      let badgeIcon = <UserCheck size={13} color="#059669" />;
+                      let label = 'Present · Paid';
+
+                      if (status === 'PENDING') {
+                        badgeBg = '#fff7ed';
+                        badgeTextColor = '#ea580c';
+                        badgeIcon = <Clock size={13} color="#ea580c" />;
+                        label = 'Present · Pending';
+                      } else if (status === 'WAIVED') {
+                        badgeBg = '#eff6ff';
+                        badgeTextColor = '#1d4ed8';
+                        badgeIcon = <UserCheck size={13} color="#1d4ed8" />;
+                        label = 'Present · Waived';
+                      }
+
+                      return (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: badgeBg, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8 }}>
+                          {badgeIcon}
+                          <Text style={{ fontSize: 11, fontWeight: '700', color: badgeTextColor, marginLeft: 4 }}>
+                            {label}
+                          </Text>
+                        </View>
+                      );
+                    })()
                   ) : isAbsent ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fee2e2', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8 }}>
                       <UserX size={13} color="#ef4444" />
