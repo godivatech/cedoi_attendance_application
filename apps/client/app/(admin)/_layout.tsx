@@ -26,7 +26,7 @@ export default function AdminLayout() {
   if (role !== 'ADMIN') {
     return <Redirect href="/(staff)/today" />;
   }
-  
+
   const isDark = false; // Lock navigation to light mode for consistent SaaS aesthetic
   const isDesktop = Platform.OS === 'web' && width >= 768;
 
@@ -102,19 +102,17 @@ export default function AdminLayout() {
                   <Pressable
                     key={item.name}
                     onPress={() => router.push(item.path as any)}
-                    className={`flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                      active
-                        ? 'bg-blue-50 border-l-4 border-blue-600'
-                        : 'hover:bg-slate-50'
+                    className={`flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${active
+                      ? 'bg-blue-50 border-l-4 border-blue-600'
+                      : 'hover:bg-slate-50'
                       }`}
                   >
                     <Icon size={20} color={active ? '#2563eb' : '#64748b'} />
                     <Text
-                      className={`ml-3 font-semibold text-sm ${
-                        active
-                          ? 'text-blue-600 font-bold'
-                          : 'text-slate-600'
-                      }`}
+                      className={`ml-3 font-semibold text-sm ${active
+                        ? 'text-blue-600 font-bold'
+                        : 'text-slate-600'
+                        }`}
                     >
                       {item.label}
                     </Text>
@@ -161,10 +159,10 @@ export default function AdminLayout() {
                 {pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
               </Text>
             </View>
-            
+
             <View className="flex-row items-center">
               {/* Notification Bell */}
-              <Pressable 
+              <Pressable
                 onPress={() => setNotifOpen(true)}
                 style={{ marginRight: 20, position: 'relative' }}
                 className="p-2 rounded-lg hover:bg-slate-50 active:scale-[0.9] transition-all"
@@ -231,7 +229,7 @@ export default function AdminLayout() {
           headerShadowVisible: false,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20 }}>
-              <Pressable 
+              <Pressable
                 onPress={() => setNotifOpen(true)}
                 style={{ marginRight: 16, position: 'relative' }}
                 className="active:scale-[0.9] transition-transform duration-100"
@@ -243,9 +241,9 @@ export default function AdminLayout() {
                   </View>
                 )}
               </Pressable>
-              
-              <Pressable 
-                onPress={handleLogout} 
+
+              <Pressable
+                onPress={handleLogout}
                 className="active:scale-[0.9] transition-transform duration-100"
               >
                 <LogOut size={18} color="#ef4444" />
