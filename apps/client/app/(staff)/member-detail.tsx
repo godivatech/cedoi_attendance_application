@@ -6,7 +6,7 @@ import { db } from '../../src/services/firebase';
 import { Member, PaymentMode, PaymentStatus } from '@cedoi/shared';
 import { useAttendanceActions } from '../../src/modules/attendance/useAttendance';
 import {
-  UserCheck, UserX, Banknote, CreditCard, ShieldCheck, ChevronLeft, Clock, Phone, Briefcase, AlertCircle
+  UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle
 } from 'lucide-react-native';
 import { showAlert } from '../../src/utils/platformAlert';
 
@@ -276,24 +276,6 @@ export default function MemberDetailScreen() {
               </View>
             </TouchableOpacity>
 
-            {/* Waived */}
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => handleUpdatePayment('WAIVED', 'COMPLIMENTARY', 0)}
-              style={[
-                styles.payCard,
-                (isPresent && attendance?.paymentStatus === 'WAIVED') ? styles.payCardWaivedActive : styles.payCardInactive
-              ]}
-            >
-              <View style={[styles.payCardIconBg, { backgroundColor: '#eff6ff' }]}>
-                <ShieldCheck size={20} color="#3b82f6" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.payCardTitle}>Complimentary / Waived</Text>
-                <Text style={styles.payCardSub}>Entry fee waived for this member</Text>
-              </View>
-            </TouchableOpacity>
-
             {/* Pending */}
             <TouchableOpacity
               activeOpacity={0.8}
@@ -422,10 +404,6 @@ const styles = StyleSheet.create({
   },
   payCardUPIActive: {
     borderColor: '#7c3aed',
-    backgroundColor: '#fff',
-  },
-  payCardWaivedActive: {
-    borderColor: '#3b82f6',
     backgroundColor: '#fff',
   },
   payCardPendingActive: {
