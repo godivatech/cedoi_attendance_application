@@ -60,9 +60,9 @@ async function seed() {
 
   // 3. Create Sample Members
   const members = [
-    { fullName: 'Rajesh Kumar', companyName: 'RK Textiles', mobileNumber: '9876543210', businessCategory: 'Textiles', city: 'Madurai', membershipType: 'PREMIUM' },
-    { fullName: 'Priya Sharma', companyName: 'Creative Solutions', mobileNumber: '9876543211', businessCategory: 'Advertising', city: 'Madurai', membershipType: 'GOLD' },
-    { fullName: 'Anand Viswanathan', companyName: 'AV Tech', mobileNumber: '9876543212', businessCategory: 'Software', city: 'Madurai', membershipType: 'SILVER' },
+    { fullName: 'Rajesh Kumar', companyName: 'RK Textiles', mobileNumber: '9876543210', businessCategory: 'Textiles', city: 'Madurai' },
+    { fullName: 'Priya Sharma', companyName: 'Creative Solutions', mobileNumber: '9876543211', businessCategory: 'Advertising', city: 'Madurai' },
+    { fullName: 'Anand Viswanathan', companyName: 'AV Tech', mobileNumber: '9876543212', businessCategory: 'Software', city: 'Madurai' },
   ];
 
   for (const m of members) {

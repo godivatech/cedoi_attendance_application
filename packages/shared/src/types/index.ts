@@ -38,7 +38,6 @@ export interface Member {
   email: string;
   businessCategory: string;
   city: string;
-  membershipType: string;
   joinDate: string;
   notes?: string;
   profilePhotoUrl?: string;

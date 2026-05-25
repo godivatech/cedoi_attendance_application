@@ -81,18 +81,6 @@ export default function AdminMembers() {
                       <Text className="text-lg font-bold text-slate-800 mr-2 truncate">
                         {item.fullName}
                       </Text>
-                      {/* Membership Badge */}
-                      <View className={`px-2 py-0.5 rounded-full ${
-                        item.membershipType === 'MEMBER' 
-                          ? 'bg-blue-50 text-blue-700' 
-                          : 'bg-purple-50 text-purple-700'
-                      }`}>
-                        <Text className={`text-[10px] font-extrabold tracking-wide uppercase ${
-                          item.membershipType === 'MEMBER' ? 'text-blue-700' : 'text-purple-700'
-                        }`}>
-                          {item.membershipType || 'GUEST'}
-                        </Text>
-                      </View>
                     </View>
                     <Text className="text-slate-500 text-sm mt-0.5 truncate">
                       {item.companyName}

@@ -25,7 +25,6 @@ export default function AddMemberScreen() {
       email: '',
       businessCategory: '',
       city: 'Madurai',
-      membershipType: 'GUEST',
       joinDate: new Date().toISOString().split('T')[0],
       notes: '',
     }
@@ -46,7 +45,6 @@ export default function AddMemberScreen() {
               email: data.email || '',
               businessCategory: data.businessCategory || '',
               city: data.city || 'Madurai',
-              membershipType: data.membershipType || 'GUEST',
               joinDate: data.joinDate || new Date().toISOString().split('T')[0],
               notes: data.notes || '',
             });
@@ -116,7 +114,7 @@ export default function AddMemberScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.fullName ? 'border-red-500' : 'border-slate-200'}`}
-                placeholder="John Doe"
+                placeholder="Enter full name"
                 placeholderTextColor="#94a3b8"
                 onChangeText={onChange}
                 value={value}
@@ -133,7 +131,7 @@ export default function AddMemberScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.companyName ? 'border-red-500' : 'border-slate-200'}`}
-                placeholder="Acme Corp"
+                placeholder="Enter company name"
                 placeholderTextColor="#94a3b8"
                 onChangeText={onChange}
                 value={value}
@@ -152,7 +150,7 @@ export default function AddMemberScreen() {
                 <TextInput
                   className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.mobileNumber ? 'border-red-500' : 'border-slate-200'}`}
                   keyboardType="phone-pad"
-                  placeholder="9876543210"
+                  placeholder="Enter mobile number"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -168,7 +166,7 @@ export default function AddMemberScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.businessCategory ? 'border-red-500' : 'border-slate-200'}`}
-                  placeholder="Retail, Tech, etc."
+                  placeholder="Enter business category"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -188,7 +186,7 @@ export default function AddMemberScreen() {
                 <TextInput
                   className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.email ? 'border-red-500' : 'border-slate-200'}`}
                   keyboardType="email-address"
-                  placeholder="john@example.com"
+                  placeholder="Enter email address"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value || ''}
@@ -204,7 +202,7 @@ export default function AddMemberScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.city ? 'border-red-500' : 'border-slate-200'}`}
-                  placeholder="Madurai"
+                  placeholder="Enter city"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -214,39 +212,6 @@ export default function AddMemberScreen() {
           </View>
         </View>
 
-        <View>
-          <Text className="text-sm font-bold text-slate-600 mb-2">Membership Type</Text>
-          <Controller
-            control={control}
-            name="membershipType"
-            render={({ field: { onChange, value } }) => (
-              <View className="flex-row space-x-2">
-                {['PREMIUM', 'GOLD', 'SILVER', 'GUEST'].map((type) => {
-                  const isSelected = value === type;
-                  return (
-                    <TouchableOpacity
-                      key={type}
-                      onPress={() => onChange(type)}
-                      className={`flex-1 p-3.5 rounded-xl border items-center justify-center transition-all duration-150 ${
-                        isSelected
-                          ? 'bg-blue-600 border-blue-600 shadow-sm'
-                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Text
-                        className={`text-xs font-extrabold tracking-wider ${
-                          isSelected ? 'text-white' : 'text-slate-600'
-                        }`}
-                      >
-                        {type}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
-          />
-        </View>
 
         <View>
           <Text className="text-sm font-bold text-slate-600 mb-1.5">Notes (Optional)</Text>
@@ -256,7 +221,7 @@ export default function AddMemberScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm min-h-[60px]"
-                placeholder="Any special requests or instructions..."
+                placeholder="Enter notes or instructions"
                 placeholderTextColor="#94a3b8"
                 multiline={true}
                 numberOfLines={2}

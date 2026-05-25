@@ -7,7 +7,6 @@ export const memberSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   businessCategory: z.string().min(2, 'Business category is required'),
   city: z.string().min(2, 'City is required'),
-  membershipType: z.enum(['PREMIUM', 'GOLD', 'SILVER', 'GUEST']),
   joinDate: z.string(),
   notes: z.string().optional(),
 });

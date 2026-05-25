@@ -227,7 +227,7 @@ export default function CreateMeetingScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                placeholder="Business Networking Meeting"
+                placeholder="Enter meeting title"
                 placeholderTextColor="#94a3b8"
                 onChangeText={onChange}
                 value={value}
@@ -249,7 +249,7 @@ export default function CreateMeetingScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="Enter date (YYYY-MM-DD)"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -269,7 +269,7 @@ export default function CreateMeetingScreen() {
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
                   keyboardType="numeric"
-                  placeholder="500"
+                  placeholder="Enter entry fee amount"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -289,7 +289,7 @@ export default function CreateMeetingScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="08:00 AM"
+                  placeholder="Enter start time (e.g., 08:00 AM)"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -309,7 +309,7 @@ export default function CreateMeetingScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="10:00 AM"
+                  placeholder="Enter end time (e.g., 10:00 AM)"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -332,7 +332,7 @@ export default function CreateMeetingScreen() {
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
                   keyboardType="numeric"
-                  placeholder="100"
+                  placeholder="Enter maximum capacity"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -348,7 +348,7 @@ export default function CreateMeetingScreen() {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="Marriott Madurai"
+                  placeholder="Enter meeting venue"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
                   value={value}
@@ -366,7 +366,7 @@ export default function CreateMeetingScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm min-h-[80px]"
-                placeholder="Brief description of the meeting agenda..."
+                placeholder="Enter meeting description or agenda"
                 placeholderTextColor="#94a3b8"
                 multiline={true}
                 numberOfLines={3}

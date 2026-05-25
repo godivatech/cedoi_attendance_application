@@ -91,7 +91,7 @@ export default function LoginScreen() {
                       className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
                         errors.email ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'
                       }`}
-                      placeholder="name@company.com"
+                      placeholder="Enter email address"
                       placeholderTextColor="#94a3b8"
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -122,7 +122,7 @@ export default function LoginScreen() {
                       className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
                         errors.password ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'
                       }`}
-                      placeholder="••••••••"
+                      placeholder="Enter password"
                       placeholderTextColor="#94a3b8"
                       onBlur={onBlur}
                       onChangeText={onChange}
