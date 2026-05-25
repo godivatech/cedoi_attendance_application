@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TextInput, ActivityIndicator, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
@@ -21,6 +21,31 @@ function parseTimeToMinutes(timeStr: string): number {
   if (ampm === 'AM' && hours === 12) hours = 0;
   
   return hours * 60 + minutes;
+}
+
+function convert24hTo12h(time24: string): string {
+  if (!time24) return '';
+  const parts = time24.split(':');
+  if (parts.length < 2) return '';
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hoursStr = String(hours).padStart(2, '0');
+  return `${hoursStr}:${minutes} ${ampm}`;
+}
+
+function convert12hTo24h(time12: string): string {
+  if (!time12) return '';
+  const match = time12.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return '';
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const ampm = match[3].toUpperCase();
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
 }
 
 function determineMeetingStatus(date: string, startTime: string, endTime: string): 'SCHEDULED' | 'ONGOING' | 'COMPLETED' {
@@ -247,13 +272,34 @@ export default function CreateMeetingScreen() {
               name="date"
               rules={{ required: "Date is required" }}
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="Enter date (YYYY-MM-DD)"
-                  placeholderTextColor="#94a3b8"
-                  onChangeText={onChange}
-                  value={value}
-                />
+                Platform.OS === 'web' ? (
+                  <input
+                    type="date"
+                    style={{
+                      padding: '16px',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      color: '#1e293b',
+                      fontSize: '14px',
+                      height: '52px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                    onChange={(e) => onChange(e.target.value)}
+                    value={value || ''}
+                  />
+                ) : (
+                  <TextInput
+                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                    placeholder="Enter date (YYYY-MM-DD)"
+                    placeholderTextColor="#94a3b8"
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )
               )}
             />
             {errors.date && (
@@ -287,13 +333,34 @@ export default function CreateMeetingScreen() {
               name="startTime"
               rules={{ required: "Start time is required" }}
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="Enter start time (e.g., 08:00 AM)"
-                  placeholderTextColor="#94a3b8"
-                  onChangeText={onChange}
-                  value={value}
-                />
+                Platform.OS === 'web' ? (
+                  <input
+                    type="time"
+                    style={{
+                      padding: '16px',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      color: '#1e293b',
+                      fontSize: '14px',
+                      height: '52px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                    onChange={(e) => onChange(convert24hTo12h(e.target.value))}
+                    value={convert12hTo24h(value) || ''}
+                  />
+                ) : (
+                  <TextInput
+                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                    placeholder="Enter start time (e.g., 08:00 AM)"
+                    placeholderTextColor="#94a3b8"
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )
               )}
             />
             {errors.startTime && (
@@ -307,13 +374,34 @@ export default function CreateMeetingScreen() {
               name="endTime"
               rules={{ required: "End time is required" }}
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                  placeholder="Enter end time (e.g., 10:00 AM)"
-                  placeholderTextColor="#94a3b8"
-                  onChangeText={onChange}
-                  value={value}
-                />
+                Platform.OS === 'web' ? (
+                  <input
+                    type="time"
+                    style={{
+                      padding: '16px',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      color: '#1e293b',
+                      fontSize: '14px',
+                      height: '52px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                    onChange={(e) => onChange(convert24hTo12h(e.target.value))}
+                    value={convert12hTo24h(value) || ''}
+                  />
+                ) : (
+                  <TextInput
+                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                    placeholder="Enter end time (e.g., 10:00 AM)"
+                    placeholderTextColor="#94a3b8"
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )
               )}
             />
             {errors.endTime && (

@@ -147,23 +147,65 @@ export default function ReportsScreen() {
           <Card className="mb-6 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex-row items-center space-x-4">
             <View className="flex-1 mr-2">
               <Text className="text-xs font-bold text-slate-500 mb-1">Start Date</Text>
-              <TextInput
-                className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#94a3b8"
-                value={startDate}
-                onChangeText={setStartDate}
-              />
+              {Platform.OS === 'web' ? (
+                <input
+                  type="date"
+                  style={{
+                    padding: '12px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    fontSize: '12px',
+                    height: '42px',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                  }}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  value={startDate || ''}
+                />
+              ) : (
+                <TextInput
+                  className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#94a3b8"
+                  value={startDate}
+                  onChangeText={setStartDate}
+                />
+              )}
             </View>
             <View className="flex-1 ml-2">
               <Text className="text-xs font-bold text-slate-500 mb-1">End Date</Text>
-              <TextInput
-                className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#94a3b8"
-                value={endDate}
-                onChangeText={setEndDate}
-              />
+              {Platform.OS === 'web' ? (
+                <input
+                  type="date"
+                  style={{
+                    padding: '12px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    fontSize: '12px',
+                    height: '42px',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                  }}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  value={endDate || ''}
+                />
+              ) : (
+                <TextInput
+                  className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#94a3b8"
+                  value={endDate}
+                  onChangeText={setEndDate}
+                />
+              )}
             </View>
             {(startDate || endDate) && (
               <TouchableOpacity
