@@ -23,30 +23,6 @@ function parseTimeToMinutes(timeStr: string): number {
   return hours * 60 + minutes;
 }
 
-function convert24hTo12h(time24: string): string {
-  if (!time24) return '';
-  const parts = time24.split(':');
-  if (parts.length < 2) return '';
-  let hours = parseInt(parts[0], 10);
-  const minutes = parts[1];
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  const hoursStr = String(hours).padStart(2, '0');
-  return `${hoursStr}:${minutes} ${ampm}`;
-}
-
-function convert12hTo24h(time12: string): string {
-  if (!time12) return '';
-  const match = time12.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return '';
-  let hours = parseInt(match[1], 10);
-  const minutes = match[2];
-  const ampm = match[3].toUpperCase();
-  if (ampm === 'PM' && hours < 12) hours += 12;
-  if (ampm === 'AM' && hours === 12) hours = 0;
-  return `${String(hours).padStart(2, '0')}:${minutes}`;
-}
 
 function determineMeetingStatus(date: string, startTime: string, endTime: string): 'SCHEDULED' | 'ONGOING' | 'COMPLETED' {
   const now = new Date();
@@ -332,36 +308,69 @@ export default function CreateMeetingScreen() {
               control={control}
               name="startTime"
               rules={{ required: "Start time is required" }}
-              render={({ field: { onChange, value } }) => (
-                Platform.OS === 'web' ? (
-                  <input
-                    type="time"
-                    style={{
-                      padding: '16px',
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      color: '#1e293b',
-                      fontSize: '14px',
-                      height: '52px',
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                      width: '100%',
-                      boxSizing: 'border-box'
-                    }}
-                    onChange={(e) => onChange(convert24hTo12h(e.target.value))}
-                    value={convert12hTo24h(value) || ''}
-                  />
-                ) : (
-                  <TextInput
-                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                    placeholder="Enter start time (e.g., 08:00 AM)"
-                    placeholderTextColor="#94a3b8"
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )
-              )}
+              render={({ field: { onChange, value } }) => {
+                if (Platform.OS === 'web') {
+                  const parts = value ? value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i) : null;
+                  const currentHour = parts ? parts[1].padStart(2, '0') : '08';
+                  const currentMinute = parts ? parts[2] : '00';
+                  const currentAmpm = parts ? parts[3].toUpperCase() : 'AM';
+
+                  const selectStyle = {
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    fontSize: '14px',
+                    height: '52px',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                  };
+
+                  return (
+                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                      <select
+                        style={selectStyle}
+                        value={currentHour}
+                        onChange={(e) => onChange(`${e.target.value}:${currentMinute} ${currentAmpm}`)}
+                      >
+                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                      <select
+                        style={selectStyle}
+                        value={currentMinute}
+                        onChange={(e) => onChange(`${currentHour}:${e.target.value} ${currentAmpm}`)}
+                      >
+                        {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')).map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                      <select
+                        style={selectStyle}
+                        value={currentAmpm}
+                        onChange={(e) => onChange(`${currentHour}:${currentMinute} ${e.target.value}`)}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <TextInput
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                      placeholder="Enter start time (e.g., 08:00 AM)"
+                      placeholderTextColor="#94a3b8"
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  );
+                }
+              }}
             />
             {errors.startTime && (
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.startTime.message}</Text>
@@ -373,36 +382,69 @@ export default function CreateMeetingScreen() {
               control={control}
               name="endTime"
               rules={{ required: "End time is required" }}
-              render={({ field: { onChange, value } }) => (
-                Platform.OS === 'web' ? (
-                  <input
-                    type="time"
-                    style={{
-                      padding: '16px',
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      color: '#1e293b',
-                      fontSize: '14px',
-                      height: '52px',
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                      width: '100%',
-                      boxSizing: 'border-box'
-                    }}
-                    onChange={(e) => onChange(convert24hTo12h(e.target.value))}
-                    value={convert12hTo24h(value) || ''}
-                  />
-                ) : (
-                  <TextInput
-                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
-                    placeholder="Enter end time (e.g., 10:00 AM)"
-                    placeholderTextColor="#94a3b8"
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )
-              )}
+              render={({ field: { onChange, value } }) => {
+                if (Platform.OS === 'web') {
+                  const parts = value ? value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i) : null;
+                  const currentHour = parts ? parts[1].padStart(2, '0') : '10';
+                  const currentMinute = parts ? parts[2] : '00';
+                  const currentAmpm = parts ? parts[3].toUpperCase() : 'AM';
+
+                  const selectStyle = {
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    color: '#1e293b',
+                    fontSize: '14px',
+                    height: '52px',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                  };
+
+                  return (
+                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                      <select
+                        style={selectStyle}
+                        value={currentHour}
+                        onChange={(e) => onChange(`${e.target.value}:${currentMinute} ${currentAmpm}`)}
+                      >
+                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                      <select
+                        style={selectStyle}
+                        value={currentMinute}
+                        onChange={(e) => onChange(`${currentHour}:${e.target.value} ${currentAmpm}`)}
+                      >
+                        {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')).map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                      <select
+                        style={selectStyle}
+                        value={currentAmpm}
+                        onChange={(e) => onChange(`${currentHour}:${currentMinute} ${e.target.value}`)}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <TextInput
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                      placeholder="Enter end time (e.g., 10:00 AM)"
+                      placeholderTextColor="#94a3b8"
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  );
+                }
+              }}
             />
             {errors.endTime && (
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.endTime.message}</Text>
