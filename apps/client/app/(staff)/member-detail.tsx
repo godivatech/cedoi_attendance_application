@@ -28,7 +28,7 @@ export default function MemberDetailScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    let unsubAttendance = () => {};
+    let unsubAttendance = () => { };
 
     const fetchData = async () => {
       try {
@@ -242,7 +242,7 @@ export default function MemberDetailScreen() {
       <View>
         <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>2. Payment Mode</Text>
         <Text style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14 }}>
-          {isPresent 
+          {isPresent
             ? `Manage entry fee (₹${meetingFee}) details below:`
             : 'Mark member as Present to configure payment mode.'}
         </Text>
