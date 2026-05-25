@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Slot, Tabs, useRouter, usePathname } from 'expo-router';
+import { Slot, Tabs, useRouter, usePathname, Redirect } from 'expo-router';
 import { LayoutDashboard, Users, CalendarDays, TrendingUp, LogOut, Bell, User as UserIcon } from 'lucide-react-native';
-import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme } from 'react-native';
+import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
 import { signOut } from 'firebase/auth';
@@ -10,10 +10,22 @@ import { NotificationCenterModal } from '../../src/components/ui/NotificationCen
 
 export default function AdminLayout() {
   const { width } = useWindowDimensions();
-  const { user } = useAuthStore();
+  const { user, role, isLoading } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const colorScheme = useColorScheme();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
+  if (role !== 'ADMIN') {
+    return <Redirect href="/(staff)/today" />;
+  }
   
   const isDark = false; // Lock navigation to light mode for consistent SaaS aesthetic
   const isDesktop = Platform.OS === 'web' && width >= 768;
