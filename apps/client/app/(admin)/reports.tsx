@@ -411,8 +411,8 @@ export default function ReportsScreen() {
                     <TouchableOpacity
                       onPress={() => handleSelectMember(item)}
                       className={`p-3.5 mb-2 rounded-xl flex-row items-center justify-between border transition-all duration-150 ${isSelected
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'bg-white border-slate-100 hover:bg-slate-50'
+                        ? 'bg-blue-50 border-blue-200'
+                        : 'bg-white border-slate-100 hover:bg-slate-50'
                         }`}
                     >
                       <View className="flex-1 min-w-0 pr-2">
@@ -466,15 +466,15 @@ export default function ReportsScreen() {
                         </View>
                         <View className="items-end">
                           <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${item.paymentStatus === 'PAID'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : item.paymentStatus === 'WAIVED'
-                                ? 'bg-slate-100 text-slate-600'
-                                : 'bg-amber-50 text-amber-700'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : item.paymentStatus === 'WAIVED'
+                              ? 'bg-slate-100 text-slate-600'
+                              : 'bg-amber-50 text-amber-700'
                             }`}>
                             <CheckCircle2 size={10} color={item.paymentStatus === 'PAID' ? '#059669' : '#475569'} />
                             <Text className={`text-[9px] font-extrabold uppercase tracking-wide ${item.paymentStatus === 'PAID'
-                                ? 'text-emerald-700'
-                                : 'text-slate-600'
+                              ? 'text-emerald-700'
+                              : 'text-slate-600'
                               }`}>
                               {item.paymentStatus}
                             </Text>
