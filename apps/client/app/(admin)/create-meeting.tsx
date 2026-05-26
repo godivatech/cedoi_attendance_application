@@ -204,6 +204,13 @@ export default function CreateMeetingScreen() {
     }
   };
 
+  const onInvalid = (formErrors: any) => {
+    const firstError = Object.values(formErrors)[0] as any;
+    if (firstError) {
+      showAlert('Validation Error', firstError.message || 'Please check the required fields.');
+    }
+  };
+
   if (initialLoading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
@@ -213,7 +220,12 @@ export default function CreateMeetingScreen() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+    <ScrollView 
+      style={{ backgroundColor: '#f8fafc' }} 
+      className="flex-1" 
+      contentContainerStyle={{ padding: 24, paddingBottom: 60 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text className="text-2xl font-extrabold text-slate-800 mb-6">
         {isEditMode ? 'Edit Meeting Details' : 'Create New Meeting'}
       </Text>
@@ -509,7 +521,7 @@ export default function CreateMeetingScreen() {
 
         <Button 
           label="Save Meeting" 
-          onPress={handleSubmit(onSubmit)} 
+          onPress={handleSubmit(onSubmit, onInvalid)} 
           loading={isSubmitting}
           className="mt-4"
         />

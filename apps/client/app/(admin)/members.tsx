@@ -32,9 +32,9 @@ export default function AdminMembers() {
   };
 
   return (
-    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-4 sm:p-6">
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-6">
+      <View className="flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
         <View>
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Members</Text>
           <Text className="text-slate-500 text-sm mt-0.5">Manage directory & registrations</Text>
@@ -42,7 +42,7 @@ export default function AdminMembers() {
         <Button 
           label="Add Member" 
           onPress={() => router.push('/(admin)/add-member')} 
-          className="px-4 py-2.5 rounded-xl shadow-sm"
+          className="px-4 py-2.5 rounded-xl shadow-sm self-start sm:self-auto"
         />
       </View>
 

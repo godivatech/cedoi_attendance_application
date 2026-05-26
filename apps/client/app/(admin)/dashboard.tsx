@@ -76,7 +76,7 @@ export default function AdminDashboard() {
   const activities = getRecentActivities();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
       {/* Premium Header/Greeting Section */}
       <View className="mb-8 flex-row justify-between items-center">
         <View>
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
 
       {/* Metrics Grid */}
       <View className="flex-row flex-wrap -mx-2 mb-8">
-        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-5 border-t-4 border-t-blue-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Members</Text>
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
           </Card>
         </View>
 
-        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-5 border-t-4 border-t-purple-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Meetings</Text>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
           </Card>
         </View>
 
-        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-5 border-t-4 border-t-emerald-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Revenue</Text>
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
           </Card>
         </View>
 
-        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-5 border-t-4 border-t-amber-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Avg. Attendance</Text>

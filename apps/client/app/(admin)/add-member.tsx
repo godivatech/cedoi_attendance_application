@@ -91,6 +91,13 @@ export default function AddMemberScreen() {
     }
   };
 
+  const onInvalid = (formErrors: any) => {
+    const firstError = Object.values(formErrors)[0] as any;
+    if (firstError) {
+      showAlert('Validation Error', firstError.message || 'Please check the required fields.');
+    }
+  };
+
   if (initialLoading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
@@ -100,7 +107,12 @@ export default function AddMemberScreen() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+    <ScrollView 
+      style={{ backgroundColor: '#f8fafc' }} 
+      className="flex-1" 
+      contentContainerStyle={{ padding: 24, paddingBottom: 60 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text className="text-2xl font-extrabold text-slate-800 mb-6">
         {isEditMode ? 'Edit Member Profile' : 'Register New Member'}
       </Text>
@@ -121,6 +133,9 @@ export default function AddMemberScreen() {
               />
             )}
           />
+          {errors.fullName && (
+            <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.fullName.message}</Text>
+          )}
         </View>
 
         <View>
@@ -138,6 +153,9 @@ export default function AddMemberScreen() {
               />
             )}
           />
+          {errors.companyName && (
+            <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.companyName.message}</Text>
+          )}
         </View>
 
         <View className="flex-row space-x-4">
@@ -157,6 +175,9 @@ export default function AddMemberScreen() {
                 />
               )}
             />
+            {errors.mobileNumber && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.mobileNumber.message}</Text>
+            )}
           </View>
           <View className="flex-1 ml-2">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Category</Text>
@@ -173,6 +194,9 @@ export default function AddMemberScreen() {
                 />
               )}
             />
+            {errors.businessCategory && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.businessCategory.message}</Text>
+            )}
           </View>
         </View>
 
@@ -189,10 +213,13 @@ export default function AddMemberScreen() {
                   placeholder="Enter email address"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
-                  value={value || ''}
+                  value={value}
                 />
               )}
             />
+            {errors.email && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.email.message}</Text>
+            )}
           </View>
           <View className="flex-1 ml-2">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">City</Text>
@@ -209,6 +236,9 @@ export default function AddMemberScreen() {
                 />
               )}
             />
+            {errors.city && (
+              <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.city.message}</Text>
+            )}
           </View>
         </View>
 
@@ -234,7 +264,7 @@ export default function AddMemberScreen() {
 
         <Button 
           label="Save Member" 
-          onPress={handleSubmit(onSubmit)} 
+          onPress={handleSubmit(onSubmit, onInvalid)} 
           loading={isSubmitting}
           className="mt-4"
         />

@@ -200,9 +200,9 @@ export default function ReportsScreen() {
   }
 
   return (
-    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-6">
+    <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 p-4 sm:p-6">
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-6">
+      <View className="flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
         <View>
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Reports & Analytics</Text>
           <Text className="text-slate-500 text-sm mt-0.5">Track financial performance & attendee metrics</Text>
@@ -210,7 +210,7 @@ export default function ReportsScreen() {
         {activeTab === 'meetings' && (
           <TouchableOpacity
             onPress={handleExportCSV}
-            className="flex-row items-center bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            className="flex-row items-center bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 self-start sm:self-auto"
           >
             <Download size={16} color="white" />
             <Text className="text-white font-bold ml-2 text-sm">Export CSV</Text>
@@ -317,10 +317,10 @@ export default function ReportsScreen() {
           </Card>
 
           {/* Premium Summary Cards */}
-          <View className="flex-row space-x-4 mb-6">
+          <View className="flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
             <View
               style={{ backgroundColor: '#ecfdf5', borderColor: '#a7f3d0', borderWidth: 1 }}
-              className="flex-1 p-5 rounded-2xl shadow-sm"
+              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <Text className="text-emerald-700 text-xs uppercase font-extrabold tracking-wider">Total Collection</Text>
@@ -334,7 +334,7 @@ export default function ReportsScreen() {
 
             <View
               style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1 }}
-              className="flex-1 p-5 rounded-2xl shadow-sm"
+              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <Text className="text-blue-700 text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
@@ -386,9 +386,9 @@ export default function ReportsScreen() {
       )}
 
       {activeTab === 'members' && (
-        <View className="flex-1 flex-row space-x-6">
+        <View className="flex-1 flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
           {/* Members Panel */}
-          <View className="w-1/3">
+          <View className="w-full lg:w-1/3 h-80 lg:h-full">
             <Card className="mb-4 flex-row items-center px-3 py-1 bg-white border border-slate-100 rounded-xl shadow-sm">
               <Search size={16} color="#94a3b8" />
               <TextInput
@@ -518,10 +518,10 @@ export default function ReportsScreen() {
           </Card>
 
           {/* Overview Metrics */}
-          <View className="flex-row space-x-4 mb-6">
+          <View className="flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
             <View
               style={{ backgroundColor: '#fff7ed', borderColor: '#fed7aa', borderWidth: 1 }}
-              className="flex-1 p-5 rounded-2xl shadow-sm"
+              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <Text className="text-amber-700 text-xs uppercase font-extrabold tracking-wider">Total Outstanding</Text>
@@ -547,7 +547,7 @@ export default function ReportsScreen() {
 
             <View
               style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1 }}
-              className="flex-1 p-5 rounded-2xl shadow-sm"
+              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <Text className="text-blue-700 text-xs uppercase font-extrabold tracking-wider">Unpaid Bookings</Text>
