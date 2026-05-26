@@ -1,12 +1,10 @@
 import { initializeApp } from "firebase/app";
-// @ts-ignore
 import { getAuth, initializeAuth, getReactNativePersistence, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 
 // Your web app's Firebase configuration
-// For a production app, these should be in an .env file
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -19,7 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with persistence
+// Initialize Auth with AsyncStorage persistence (works on iOS + Android)
 let auth: Auth;
 if (Platform.OS === 'web') {
   auth = getAuth(app);
