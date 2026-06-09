@@ -9,12 +9,14 @@
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "android": {
         "buildType": "apk",
         "image": "sdk-50"
       }
     },
     "production": {
+      "channel": "production",
       "android": {
         "image": "sdk-50"
       }
