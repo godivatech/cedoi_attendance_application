@@ -87,7 +87,7 @@ export default function AdminDashboard() {
       <View className="mb-8 flex-row justify-between items-center">
         <View>
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">
-            {getGreeting()}, {getDisplayName()} 👋 OTA Working!
+            {getGreeting()}, {getDisplayName()} 👋
           </Text>
           <Text className="text-slate-500 mt-1 text-sm font-medium">
             Here's what's happening at CEDOI today.
