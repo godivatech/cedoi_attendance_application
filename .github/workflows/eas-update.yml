@@ -42,4 +42,4 @@ jobs:
 
       - name: Publish Update
         working-directory: apps/client
-        run: npx eas update --auto --channel ${{ github.event.inputs.channel }}
+        run: eas update --auto --channel ${{ github.event.inputs.channel }}
