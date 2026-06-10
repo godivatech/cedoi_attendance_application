@@ -14,6 +14,8 @@ export default function AdminLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const colorScheme = useColorScheme();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   if (isLoading) {
     return (
@@ -29,9 +31,6 @@ export default function AdminLayout() {
 
   const isDark = false; // Lock navigation to light mode for consistent SaaS aesthetic
   const isDesktop = Platform.OS === 'web' && width >= 768;
-
-  const [notifOpen, setNotifOpen] = useState(false);
-  const { unreadCount } = useNotifications();
 
   const menuItems = [
     {
