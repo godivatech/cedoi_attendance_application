@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "cedoi-meeting-management",
+    "slug": "cedoi-meeting-management",
+    "version": "1.0.0",
+    "sdkVersion": "50.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
+  }
+}
