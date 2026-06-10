@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+// @ts-ignore - getReactNativePersistence is resolved dynamically by Expo Metro bundler at runtime but may not be declared in default browser typings
 import { getAuth, initializeAuth, getReactNativePersistence, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";

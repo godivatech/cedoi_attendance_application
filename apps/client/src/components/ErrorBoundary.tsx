@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
             We encountered an unexpected error. Please try restarting the app.
           </Text>
           <TouchableOpacity
-            className="bg-blue-600 px-6 py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            className="bg-indigo-600 px-6 py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             onPress={() => this.setState({ hasError: false })}
           >
             <Text className="text-white font-bold">Try Again</Text>

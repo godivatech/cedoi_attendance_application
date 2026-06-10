@@ -47,8 +47,8 @@ export function NotificationCenterModal({ visible, onClose }: NotificationCenter
               <Bell size={20} color="#1e293b" style={{ marginRight: 8 }} />
               <Text style={{ fontSize: 18, fontWeight: '800', color: '#1e293b' }}>Notifications</Text>
               {unreadCount > 0 && (
-                <View style={{ backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2, marginLeft: 8 }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#2563eb' }}>{unreadCount} new</Text>
+                <View style={{ backgroundColor: '#e0e7ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2, marginLeft: 8 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#4f46e5' }}>{unreadCount} new</Text>
                 </View>
               )}
             </View>
@@ -63,15 +63,15 @@ export function NotificationCenterModal({ visible, onClose }: NotificationCenter
               onPress={markAllAsRead}
               style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginHorizontal: 20, marginTop: 12, paddingVertical: 4 }}
             >
-              <Check size={13} color="#2563eb" style={{ marginRight: 4 }} />
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#2563eb' }}>Mark all as read</Text>
+              <Check size={13} color="#4f46e5" style={{ marginRight: 4 }} />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#4f46e5' }}>Mark all as read</Text>
             </TouchableOpacity>
           )}
 
           {/* Content */}
           {loading ? (
             <View style={{ padding: 40, justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size="small" color="#2563eb" />
+              <ActivityIndicator size="small" color="#4f46e5" />
             </View>
           ) : (
             <FlatList
@@ -99,7 +99,7 @@ export function NotificationCenterModal({ visible, onClose }: NotificationCenter
                   >
                     {/* Icon Column */}
                     <View style={{
-                      backgroundColor: isPendingReport ? '#fef2f2' : '#eff6ff',
+                      backgroundColor: isPendingReport ? '#fef2f2' : '#e0e7ff',
                       padding: 8,
                       borderRadius: 10,
                       marginRight: 12,
@@ -107,7 +107,7 @@ export function NotificationCenterModal({ visible, onClose }: NotificationCenter
                       {isPendingReport ? (
                         <AlertTriangle size={15} color="#ef4444" />
                       ) : (
-                        <Info size={15} color="#2563eb" />
+                        <Info size={15} color="#4f46e5" />
                       )}
                     </View>
 
@@ -122,7 +122,7 @@ export function NotificationCenterModal({ visible, onClose }: NotificationCenter
 
                     {/* Unread Indicator */}
                     {isUnread && (
-                      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#2563eb', marginTop: 6 }} />
+                      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#4f46e5', marginTop: 6 }} />
                     )}
                   </TouchableOpacity>
                 );

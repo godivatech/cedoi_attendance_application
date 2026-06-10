@@ -146,7 +146,7 @@ export default function RootLayout() {
             backgroundColor: '#f8fafc',
             zIndex: 9999
           }}>
-            <ActivityIndicator size="large" color="#2563eb" />
+            <ActivityIndicator size="large" color="#4f46e5" />
             <Text style={{ marginTop: 10, color: '#475569', fontSize: 16 }}>Loading CEDOI...</Text>
           </View>
         )}

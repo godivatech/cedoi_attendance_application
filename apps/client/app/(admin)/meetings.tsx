@@ -28,7 +28,7 @@ export default function AdminMeetings() {
       case 'ONGOING':
         return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
       case 'COMPLETED':
-        return 'bg-blue-50 text-blue-700 border border-blue-100';
+        return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
       case 'SCHEDULED':
       default:
         return 'bg-amber-50 text-amber-700 border border-amber-100';
@@ -150,16 +150,19 @@ export default function AdminMeetings() {
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Meetings</Text>
           <Text className="text-slate-500 text-sm mt-0.5">Manage schedules & collections</Text>
         </View>
-        <Button 
-          label="Create Meeting" 
-          onPress={() => router.push('/(admin)/create-meeting')} 
-          className="px-4 py-2.5 rounded-xl shadow-sm self-start sm:self-auto"
-        />
+        <View className="mt-4 sm:mt-0 self-start sm:self-auto">
+          <Button 
+            label="Create Meeting" 
+            size="md"
+            onPress={() => router.push('/(admin)/create-meeting')} 
+            className="shadow-sm"
+          />
+        </View>
       </View>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#2563eb" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : (
         <FlatList
@@ -220,8 +223,8 @@ export default function AdminMeetings() {
                 <View className="flex-row border-t border-slate-100 pt-4 mt-2">
                   {/* Total Attended Metric */}
                   <View className="flex-1 flex-row items-center bg-slate-50 p-3 rounded-xl mr-2">
-                    <View className="bg-blue-100 p-1.5 rounded-lg mr-2.5">
-                      <Users size={15} color="#3b82f6" />
+                    <View className="bg-indigo-100 p-1.5 rounded-lg mr-2.5">
+                      <Users size={15} color="#4f46e5" />
                     </View>
                     <View>
                       <Text className="text-xs text-slate-400 font-bold uppercase tracking-wider">Attended</Text>
@@ -285,8 +288,8 @@ export default function AdminMeetings() {
             {/* Quick Metrics */}
             <View className="flex-row -mx-1 mb-6">
               <View className="flex-1 bg-white border border-slate-100 p-4 rounded-xl mx-1 shadow-sm flex-row items-center">
-                <View className="bg-blue-50 p-2 rounded-lg mr-3">
-                  <Users size={16} color="#3b82f6" />
+                <View className="bg-indigo-50 p-2 rounded-lg mr-3">
+                  <Users size={16} color="#4f46e5" />
                 </View>
                 <View>
                   <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Present</Text>
@@ -354,7 +357,7 @@ export default function AdminMeetings() {
             {/* List */}
             {loadingAttendees ? (
               <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#2563eb" />
+                <ActivityIndicator size="large" color="#4f46e5" />
               </View>
             ) : (
               <FlatList
@@ -392,7 +395,7 @@ export default function AdminMeetings() {
                           item.paymentStatus === 'PAID'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                             : item.paymentStatus === 'WAIVED'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                            ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
                             : item.paymentStatus === 'ABSENT'
                             ? 'bg-red-50 text-red-700 border border-red-100'
                             : 'bg-amber-50 text-amber-700 border border-amber-100'
@@ -400,13 +403,13 @@ export default function AdminMeetings() {
                           {item.paymentStatus === 'PAID' ? (
                             <CheckCircle2 size={10} color="#059669" />
                           ) : (
-                            <AlertCircle size={10} color={item.paymentStatus === 'ABSENT' ? '#ef4444' : item.paymentStatus === 'WAIVED' ? '#2563eb' : '#d97706'} />
+                            <AlertCircle size={10} color={item.paymentStatus === 'ABSENT' ? '#ef4444' : item.paymentStatus === 'WAIVED' ? '#4f46e5' : '#d97706'} />
                           )}
                           <Text className={`text-[9px] font-extrabold uppercase tracking-wider ${
                             item.paymentStatus === 'PAID'
                               ? 'text-emerald-700'
                               : item.paymentStatus === 'WAIVED'
-                              ? 'text-blue-700'
+                              ? 'text-indigo-700'
                               : item.paymentStatus === 'ABSENT'
                               ? 'text-red-700'
                               : 'text-amber-700'

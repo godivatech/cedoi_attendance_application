@@ -64,7 +64,7 @@ export default function LoginScreen() {
           
           {/* Logo & Header */}
           <View className="items-center mb-8">
-            <View className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+            <View className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
               <Text className="text-white font-black text-2xl">C</Text>
             </View>
             <Text className="text-2xl font-black text-slate-800 tracking-tight">CEDOI Platform</Text>
@@ -72,7 +72,7 @@ export default function LoginScreen() {
               Meeting Management
             </Text>
           </View>
-
+ 
           {/* Form */}
           <View className="space-y-4">
             
@@ -89,7 +89,7 @@ export default function LoginScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
                       className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
-                        errors.email ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'
+                        errors.email ? 'border-red-500' : 'border-slate-200 focus:border-indigo-500'
                       }`}
                       placeholder="Enter email address"
                       placeholderTextColor="#94a3b8"
@@ -106,7 +106,7 @@ export default function LoginScreen() {
                 <Text className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.email.message}</Text>
               )}
             </View>
-
+ 
             {/* Password Field */}
             <View className="mt-4">
               <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</Text>
@@ -120,7 +120,7 @@ export default function LoginScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
                       className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
-                        errors.password ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'
+                        errors.password ? 'border-red-500' : 'border-slate-200 focus:border-indigo-500'
                       }`}
                       placeholder="Enter password"
                       placeholderTextColor="#94a3b8"
@@ -136,17 +136,18 @@ export default function LoginScreen() {
                 <Text className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.password.message}</Text>
               )}
             </View>
-
+ 
             {/* Submit Button */}
             <TouchableOpacity
-              className="bg-blue-600 hover:bg-blue-700 p-4 rounded-xl flex-row justify-center items-center mt-6 shadow-md shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 active:opacity-90"
+              style={{ height: 50 }}
+              className="bg-indigo-600 hover:bg-indigo-700 rounded-xl flex-row justify-center items-center mt-6 shadow-md shadow-indigo-500/15 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 active:opacity-90"
               onPress={handleSubmit(onSubmit)}
               disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text className="color-white font-extrabold text-base">Sign In</Text>
+                <Text className="text-white font-extrabold text-base">Sign In</Text>
               )}
             </TouchableOpacity>
           </View>

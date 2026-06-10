@@ -327,7 +327,7 @@ export default function ReportsScreen() {
   if (meetingsLoading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
@@ -343,7 +343,7 @@ export default function ReportsScreen() {
         {activeTab === 'meetings' && (
           <TouchableOpacity
             onPress={handleExportCSV}
-            className="flex-row items-center bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 self-start sm:self-auto"
+            className="flex-row items-center bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 self-start sm:self-auto"
           >
             <Download size={16} color="white" />
             <Text className="text-white font-bold ml-2 text-sm">Export CSV</Text>
@@ -466,17 +466,17 @@ export default function ReportsScreen() {
             </View>
 
             <View
-              style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1 }}
+              style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
               className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-blue-700 text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
-                <View className="bg-blue-100 p-2 rounded-xl">
-                  <Users size={16} color="#1d4ed8" />
+                <Text className="text-indigo-700 text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
+                <View className="bg-indigo-100 p-2 rounded-xl">
+                  <Users size={16} color="#4338ca" />
                 </View>
               </View>
-              <Text className="text-blue-900 text-3xl font-extrabold tracking-tight">{totalAttendance}</Text>
-              <Text className="text-blue-600 text-[10px] mt-2 font-semibold">Total registered check-ins</Text>
+              <Text className="text-indigo-900 text-3xl font-extrabold tracking-tight">{totalAttendance}</Text>
+              <Text className="text-indigo-600 text-[10px] mt-2 font-semibold">Total registered check-ins</Text>
             </View>
           </View>
 
@@ -603,7 +603,7 @@ export default function ReportsScreen() {
             </View>
 
             {membersLoading ? (
-              <ActivityIndicator size="small" color="#2563eb" className="mt-4" />
+              <ActivityIndicator size="small" color="#4f46e5" className="mt-4" />
             ) : (
               <FlatList
                 data={processedMembers}
@@ -614,12 +614,12 @@ export default function ReportsScreen() {
                     <TouchableOpacity
                       onPress={() => handleSelectMember(item)}
                       className={`p-3.5 mb-2 rounded-xl flex-row items-center justify-between border transition-all duration-150 ${isSelected
-                        ? 'bg-blue-50 border-blue-200'
+                        ? 'bg-indigo-50 border-indigo-200'
                         : 'bg-white border-slate-100 hover:bg-slate-50'
                         }`}
                     >
                       <View className="flex-1 min-w-0 pr-2">
-                        <Text className={`font-bold text-sm truncate ${isSelected ? 'text-blue-700' : 'text-slate-800'}`}>{item.fullName}</Text>
+                        <Text className={`font-bold text-sm truncate ${isSelected ? 'text-indigo-700' : 'text-slate-800'}`}>{item.fullName}</Text>
                         <Text className="text-[10px] text-slate-400 truncate mt-0.5">{item.companyName}</Text>
                       </View>
                       
@@ -636,7 +636,7 @@ export default function ReportsScreen() {
                         </Text>
                       </View>
                       
-                      <ChevronRight size={14} color={isSelected ? '#2563eb' : '#94a3b8'} />
+                      <ChevronRight size={14} color={isSelected ? '#4f46e5' : '#94a3b8'} />
                     </TouchableOpacity>
                   );
                 }}
@@ -682,7 +682,7 @@ export default function ReportsScreen() {
 
                 {historyLoading ? (
                   <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="small" color="#2563eb" />
+                    <ActivityIndicator size="small" color="#4f46e5" />
                   </View>
                 ) : (
                   <FlatList
@@ -797,16 +797,16 @@ export default function ReportsScreen() {
             </View>
 
             <View
-              style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1 }}
+              style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
               className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
             >
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-blue-700 text-xs uppercase font-extrabold tracking-wider">Unpaid Bookings</Text>
-                <View className="bg-blue-100 p-2 rounded-xl">
-                  <Users size={16} color="#1d4ed8" />
+                <Text className="text-indigo-700 text-xs uppercase font-extrabold tracking-wider">Unpaid Bookings</Text>
+                <View className="bg-indigo-100 p-2 rounded-xl">
+                  <Users size={16} color="#4338ca" />
                 </View>
               </View>
-              <Text className="text-blue-900 text-3xl font-extrabold tracking-tight">
+              <Text className="text-indigo-900 text-3xl font-extrabold tracking-tight">
                 {
                   pendingPayments
                     .filter(p => {
@@ -819,14 +819,14 @@ export default function ReportsScreen() {
                     .length
                 }
               </Text>
-              <Text className="text-blue-600 text-[10px] mt-2 font-semibold">Total pending collections</Text>
+              <Text className="text-indigo-600 text-[10px] mt-2 font-semibold">Total pending collections</Text>
             </View>
           </View>
 
           {/* Pending List */}
           {pendingLoading ? (
             <View className="flex-1 justify-center items-center">
-              <ActivityIndicator size="large" color="#2563eb" />
+              <ActivityIndicator size="large" color="#4f46e5" />
             </View>
           ) : (
             <FlatList

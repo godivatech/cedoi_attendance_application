@@ -22,7 +22,7 @@ export default function AdminMembers() {
   // Helper to get colored background for avatar based on name length
   const getAvatarBg = (name: string) => {
     const colors = [
-      'bg-blue-100 text-blue-700',
+      'bg-indigo-100 text-indigo-700',
       'bg-purple-100 text-purple-700',
       'bg-emerald-100 text-emerald-700',
       'bg-amber-100 text-amber-700',
@@ -39,11 +39,14 @@ export default function AdminMembers() {
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Members</Text>
           <Text className="text-slate-500 text-sm mt-0.5">Manage directory & registrations</Text>
         </View>
-        <Button 
-          label="Add Member" 
-          onPress={() => router.push('/(admin)/add-member')} 
-          className="px-4 py-2.5 rounded-xl shadow-sm self-start sm:self-auto"
-        />
+        <View className="mt-4 sm:mt-0 self-start sm:self-auto">
+          <Button 
+            label="Add Member" 
+            size="md"
+            onPress={() => router.push('/(admin)/add-member')} 
+            className="shadow-sm"
+          />
+        </View>
       </View>
 
       {/* Real Functional Search Input */}
@@ -61,7 +64,7 @@ export default function AdminMembers() {
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#2563eb" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : (
         <FlatList

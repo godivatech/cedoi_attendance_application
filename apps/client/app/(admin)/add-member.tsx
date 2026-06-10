@@ -101,7 +101,7 @@ export default function AddMemberScreen() {
   if (initialLoading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
@@ -158,8 +158,8 @@ export default function AddMemberScreen() {
           )}
         </View>
 
-        <View className="flex-row space-x-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Mobile</Text>
             <Controller
               control={control}
@@ -179,7 +179,7 @@ export default function AddMemberScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.mobileNumber.message}</Text>
             )}
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Category</Text>
             <Controller
               control={control}
@@ -200,8 +200,8 @@ export default function AddMemberScreen() {
           </View>
         </View>
 
-        <View className="flex-row space-x-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Email</Text>
             <Controller
               control={control}
@@ -221,7 +221,7 @@ export default function AddMemberScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.email.message}</Text>
             )}
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">City</Text>
             <Controller
               control={control}

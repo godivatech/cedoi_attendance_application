@@ -68,12 +68,18 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
 
   const activities = getRecentActivities();
+
+  const getDisplayName = () => {
+    if (!user?.name) return 'Admin';
+    const firstWord = user.name.split(' ')[0];
+    return firstWord === 'Super' ? 'Admin' : firstWord;
+  };
 
   return (
     <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
@@ -81,7 +87,7 @@ export default function AdminDashboard() {
       <View className="mb-8 flex-row justify-between items-center">
         <View>
           <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">
-            {getGreeting()}, {user?.name?.split(' ')[0] || 'Admin'} 👋
+            {getGreeting()}, {getDisplayName()} 👋
           </Text>
           <Text className="text-slate-500 mt-1 text-sm font-medium">
             Here's what's happening at CEDOI today.
@@ -92,11 +98,11 @@ export default function AdminDashboard() {
       {/* Metrics Grid */}
       <View className="flex-row flex-wrap -mx-2 mb-8">
         <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-5 border-t-4 border-t-blue-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+          <Card className="p-5 border-t-4 border-t-indigo-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Members</Text>
-              <View className="bg-blue-50 p-2.5 rounded-xl">
-                <Users size={18} color="#3b82f6" />
+              <View className="bg-indigo-50 p-2.5 rounded-xl">
+                <Users size={18} color="#4f46e5" />
               </View>
             </View>
             <Text className="text-3xl font-extrabold text-slate-800">{totalMembers}</Text>
@@ -162,12 +168,12 @@ export default function AdminDashboard() {
                     <View className={`w-10 h-10 rounded-xl flex items-center justify-center mr-4 ${
                       activity.type === 'meeting' 
                         ? 'bg-purple-50' 
-                        : 'bg-blue-50'
+                        : 'bg-indigo-50'
                     }`}>
                       {activity.type === 'meeting' ? (
                         <Calendar size={18} color="#a855f7" />
                       ) : (
-                        <UserPlus size={18} color="#3b82f6" />
+                        <UserPlus size={18} color="#4f46e5" />
                       )}
                     </View>
                     <View className="flex-1 min-w-0">
@@ -201,7 +207,7 @@ export default function AdminDashboard() {
               className="flex-row items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:bg-slate-50 hover:scale-[1.03] active:scale-[0.97] hover:shadow-md hover:border-slate-200 transition-all duration-300"
             >
               <View className="flex-row items-center">
-                <View className="bg-blue-500 p-2.5 rounded-xl mr-3.5 shadow-sm shadow-blue-500/10">
+                <View className="bg-indigo-500 p-2.5 rounded-xl mr-3.5 shadow-sm shadow-indigo-500/10">
                   <Plus size={18} color="#ffffff" />
                 </View>
                 <View>

@@ -20,7 +20,7 @@ export default function AdminLayout() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
@@ -83,7 +83,7 @@ export default function AdminLayout() {
           <View>
             {/* Header / Logo */}
             <View className="flex-row items-center px-3 mb-8">
-              <View className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+              <View className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
                 <Text className="text-white font-extrabold text-xl">C</Text>
               </View>
               <View className="ml-3">
@@ -102,14 +102,14 @@ export default function AdminLayout() {
                     key={item.name}
                     onPress={() => router.push(item.path as any)}
                     className={`flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${active
-                      ? 'bg-blue-50 border-l-4 border-blue-600'
+                      ? 'bg-indigo-50 border-l-4 border-indigo-600'
                       : 'hover:bg-slate-50'
                       }`}
                   >
-                    <Icon size={20} color={active ? '#2563eb' : '#64748b'} />
+                    <Icon size={20} color={active ? '#4f46e5' : '#64748b'} />
                     <Text
                       className={`ml-3 font-semibold text-sm ${active
-                        ? 'text-blue-600 font-bold'
+                        ? 'text-indigo-600 font-bold'
                         : 'text-slate-600'
                         }`}
                     >
@@ -178,8 +178,8 @@ export default function AdminLayout() {
 
               {/* User Profile Info */}
               <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2.5">
-                  <UserIcon size={16} color="#2563eb" />
+                <View className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2.5">
+                  <UserIcon size={16} color="#4f46e5" />
                 </View>
                 <View>
                   <Text className="text-sm font-semibold text-slate-800">
@@ -209,7 +209,7 @@ export default function AdminLayout() {
       <Tabs
         sceneContainerStyle={{ backgroundColor: '#f8fafc' }}
         screenOptions={{
-          tabBarActiveTintColor: '#2563eb',
+          tabBarActiveTintColor: '#4f46e5',
           tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
           tabBarStyle: {
             height: Platform.OS === 'web' ? 60 : 75,

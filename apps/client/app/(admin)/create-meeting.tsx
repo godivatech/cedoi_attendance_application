@@ -214,7 +214,7 @@ export default function CreateMeetingScreen() {
   if (initialLoading) {
     return (
       <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
@@ -252,8 +252,8 @@ export default function CreateMeetingScreen() {
           )}
         </View>
 
-        <View className="flex-row space-x-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Date</Text>
             <Controller
               control={control}
@@ -294,7 +294,7 @@ export default function CreateMeetingScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.date.message}</Text>
             )}
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Entry Fee (₹)</Text>
             <Controller
               control={control}
@@ -313,8 +313,8 @@ export default function CreateMeetingScreen() {
           </View>
         </View>
 
-        <View className="flex-row space-x-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Start Time</Text>
             <Controller
               control={control}
@@ -388,7 +388,7 @@ export default function CreateMeetingScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.startTime.message}</Text>
             )}
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">End Time</Text>
             <Controller
               control={control}
@@ -464,8 +464,8 @@ export default function CreateMeetingScreen() {
           </View>
         </View>
 
-        <View className="flex-row space-x-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Maximum Capacity</Text>
             <Controller
               control={control}
@@ -482,7 +482,7 @@ export default function CreateMeetingScreen() {
               )}
             />
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <Text className="text-sm font-bold text-slate-600 mb-1.5">Venue</Text>
             <Controller
               control={control}
