@@ -13,7 +13,7 @@ export const useAttendanceActions = (meetingId: string) => {
     paymentStatus: PaymentStatus = 'PENDING',
     paymentMode?: PaymentMode,
     amountCollected: number = 0,
-    prevAttendance?: { paymentStatus: PaymentStatus; amountCollected: number } | null
+    prevAttendance?: { paymentStatus: PaymentStatus; amountCollected: number; checkInTime?: any } | null
   ) => {
     if (!user) return;
     setProcessing(true);
@@ -31,7 +31,9 @@ export const useAttendanceActions = (meetingId: string) => {
           fullName: member.fullName,
           companyName: member.companyName,
         },
-        checkInTime: serverTimestamp(),
+        checkInTime: paymentStatus === 'ABSENT' 
+          ? null 
+          : (prevAttendance?.checkInTime || serverTimestamp()),
         paymentStatus,
         amountCollected,
         checkedInBy: user.uid,

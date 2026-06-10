@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, StyleSheet, TextInput, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { Member, PaymentMode, PaymentStatus } from '@cedoi/shared';
 import { useAttendanceActions } from '../../src/modules/attendance/useAttendance';
 import {
-  UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle
+  UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle, Edit2
 } from 'lucide-react-native';
 import { showAlert } from '../../src/utils/platformAlert';
 
@@ -23,10 +23,75 @@ export default function MemberDetailScreen() {
     paymentStatus: PaymentStatus;
     paymentMode?: PaymentMode;
     amountCollected: number;
+    checkInTime?: any;
   } | null>(null);
 
   const { markAttendance, processing } = useAttendanceActions(meetingId);
   const router = useRouter();
+
+  // Time editing modal states
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [selectedHour, setSelectedHour] = useState('12');
+  const [selectedMinute, setSelectedMinute] = useState('00');
+  const [selectedAmPm, setSelectedAmPm] = useState('PM');
+
+  const handleOpenTimeEditor = () => {
+    if (!attendance || !attendance.checkInTime) return;
+    const date = attendance.checkInTime.toDate ? attendance.checkInTime.toDate() : new Date(attendance.checkInTime);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    
+    setSelectedHour(hours.toString());
+    setSelectedMinute(minutes.toString().padStart(2, '0'));
+    setSelectedAmPm(ampm);
+    setIsEditingTime(true);
+  };
+
+  const handleSaveTime = async () => {
+    if (!member || !attendance) return;
+    
+    const hr = parseInt(selectedHour);
+    const min = parseInt(selectedMinute);
+    
+    if (isNaN(hr) || hr < 1 || hr > 12) {
+      showAlert('Error', 'Please enter a valid hour (1-12)');
+      return;
+    }
+    if (isNaN(min) || min < 0 || min > 59) {
+      showAlert('Error', 'Please enter a valid minute (0-59)');
+      return;
+    }
+
+    try {
+      const baseDate = attendance.checkInTime?.toDate ? attendance.checkInTime.toDate() : new Date();
+      
+      let adjustedHour = hr;
+      const isPm = selectedAmPm === 'PM';
+      if (isPm && hr < 12) {
+        adjustedHour += 12;
+      } else if (!isPm && hr === 12) {
+        adjustedHour = 0;
+      }
+      
+      baseDate.setHours(adjustedHour);
+      baseDate.setMinutes(min);
+      baseDate.setSeconds(0);
+      baseDate.setMilliseconds(0);
+
+      const attendanceRef = doc(db, `meetings/${meetingId}/attendance`, memberId);
+      await updateDoc(attendanceRef, {
+        checkInTime: baseDate
+      });
+      
+      setToast('Check-in time updated');
+      setIsEditingTime(false);
+    } catch (error: any) {
+      showAlert('Error', error.message);
+    }
+  };
 
   useEffect(() => {
     if (toast) {
@@ -63,7 +128,8 @@ export default function MemberDetailScreen() {
               setAttendance({
                 paymentStatus: attData.paymentStatus,
                 paymentMode: attData.paymentMode,
-                amountCollected: attData.amountCollected || 0
+                amountCollected: attData.amountCollected || 0,
+                checkInTime: attData.checkInTime
               });
             } else {
               setAttendance(null);
@@ -106,6 +172,16 @@ export default function MemberDetailScreen() {
       setToast('Payment status updated');
     } catch (error: any) {
       showAlert('Error', error.message);
+    }
+  };
+
+  const formatTime = (timestamp: any) => {
+    if (!timestamp) return '';
+    try {
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    } catch (e) {
+      return '';
     }
   };
 
@@ -209,6 +285,21 @@ export default function MemberDetailScreen() {
           <View style={[styles.statusBadgeBase, statusBadgeStyle]}>
             <Text style={[styles.statusBadgeText, statusTextStyle]}>{statusText}</Text>
           </View>
+
+          {/* Time Badge (Only for present members) */}
+          {isPresent && attendance?.checkInTime ? (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleOpenTimeEditor}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, gap: 6 }}
+            >
+              <Clock size={14} color="#64748b" />
+              <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '600' }}>
+                Checked in at {formatTime(attendance.checkInTime)}
+              </Text>
+              <Edit2 size={12} color="#3b82f6" style={{ marginLeft: 2 }} />
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {/* SECTION 1: Attendance Controls */}
@@ -351,6 +442,91 @@ export default function MemberDetailScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Edit Time Modal */}
+      <Modal
+        visible={isEditingTime}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsEditingTime(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 24, padding: 24, width: '100%', maxWidth: 320, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 16, textAlign: 'center' }}>
+              Edit Check-in Time
+            </Text>
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 24, gap: 10 }}>
+              {/* Hour Input */}
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>HOUR</Text>
+                <TextInput
+                  value={selectedHour}
+                  onChangeText={(txt) => {
+                    const sanitized = txt.replace(/[^0-9]/g, '');
+                    const num = parseInt(sanitized);
+                    if (!sanitized || (num >= 1 && num <= 12)) {
+                      setSelectedHour(sanitized);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#1e293b' }}
+                />
+              </View>
+              
+              <Text style={{ fontSize: 20, fontWeight: '700', color: '#cbd5e1', marginTop: 16 }}>:</Text>
+              
+              {/* Minute Input */}
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>MINUTE</Text>
+                <TextInput
+                  value={selectedMinute}
+                  onChangeText={(txt) => {
+                    const sanitized = txt.replace(/[^0-9]/g, '');
+                    const num = parseInt(sanitized);
+                    if (!sanitized || (num >= 0 && num <= 59)) {
+                      setSelectedMinute(sanitized);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#1e293b' }}
+                />
+              </View>
+
+              {/* AM/PM Toggle */}
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>AM/PM</Text>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setSelectedAmPm(prev => prev === 'AM' ? 'PM' : 'AM')}
+                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#475569' }}>{selectedAmPm}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Actions */}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setIsEditingTime(false)}
+                style={{ flex: 1, height: 48, backgroundColor: '#f1f5f9', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}
+              >
+                <Text style={{ fontWeight: '600', color: '#475569', fontSize: 14 }}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                onPress={handleSaveTime}
+                style={{ flex: 1, height: 48, backgroundColor: '#4f46e5', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}
+              >
+                <Text style={{ fontWeight: '700', color: '#fff', fontSize: 14 }}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {toast && (
         <View style={{

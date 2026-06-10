@@ -303,7 +303,7 @@ export default function StaffHistory() {
                         <Text style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, fontWeight: '500' }}>{item.memberSnapshot?.companyName}</Text>
                         {item.checkInTime?.seconds && !isItemAbsent && (
                           <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 6, fontWeight: '600' }}>
-                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                           </Text>
                         )}
                       </View>

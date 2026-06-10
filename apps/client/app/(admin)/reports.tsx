@@ -459,7 +459,7 @@ export default function ReportsScreen() {
                             <View className="flex-row items-center">
                               <Clock size={11} color="#94a3b8" />
                               <Text className="text-[10px] text-slate-400 ml-1">
-                                {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '08:30 AM'}
+                                {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
                               </Text>
                             </View>
                           </View>
@@ -601,7 +601,7 @@ export default function ReportsScreen() {
                       <View className="flex-row items-center">
                         <Clock size={12} color="#94a3b8" />
                         <Text className="text-[10px] text-slate-400 ml-1 font-semibold">
-                          {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '08:30 AM'}
+                          {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
                         </Text>
                       </View>
                     </View>

@@ -62,7 +62,7 @@ export default function AdminMeetings() {
     const rows = attendees.map(a => [
       a.memberSnapshot?.fullName || 'N/A',
       a.memberSnapshot?.companyName || 'N/A',
-      a.checkInTime?.seconds ? new Date(a.checkInTime.seconds * 1000).toLocaleTimeString() : 'N/A',
+      a.checkInTime?.seconds ? new Date(a.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
       a.paymentStatus || 'N/A',
       a.paymentMode || 'N/A',
       a.amountCollected || 0
@@ -381,7 +381,7 @@ export default function AdminMeetings() {
                         <Text className="text-xs text-slate-400 mt-0.5">{item.memberSnapshot?.companyName}</Text>
                         {item.checkInTime?.seconds && !isItemAbsent && (
                           <Text className="text-[10px] text-slate-400 mt-1 font-medium">
-                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            Checked-In: {new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                           </Text>
                         )}
                       </View>
