@@ -316,12 +316,40 @@ export default function MemberDetailScreen() {
           </View>
         </View>
 
-        {processing && (
+        {processing ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, gap: 8 }}>
             <ActivityIndicator size="small" color="#4f46e5" />
             <Text style={{ color: '#64748b', fontSize: 13, fontWeight: '600' }}>Saving changes...</Text>
           </View>
+        ) : (
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, gap: 6 }}>
+            <Text style={{ color: '#059669', fontSize: 13, fontWeight: '600' }}>✓ Changes saved automatically</Text>
+          </View>
         )}
+
+        {/* Done / Save & Close Button */}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          activeOpacity={0.8}
+          style={{
+            backgroundColor: '#4f46e5',
+            borderRadius: 14,
+            height: 52,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 24,
+            marginBottom: 20,
+            shadowColor: '#4f46e5',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 4,
+          }}
+        >
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
+            Done
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {toast && (
