@@ -297,7 +297,7 @@ export default function MemberDetailScreen() {
               <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '600' }}>
                 Checked in at {formatTime(attendance.checkInTime)}
               </Text>
-              <Edit2 size={12} color="#3b82f6" style={{ marginLeft: 2 }} />
+              <Edit2 size={12} color="#4f46e5" style={{ marginLeft: 2 }} />
             </TouchableOpacity>
           ) : null}
         </View>
