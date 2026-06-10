@@ -36,7 +36,10 @@
       "typedRoutes": true
     },
     "updates": {
-      "url": "https://u.expo.dev/ea1d2086-b028-47d0-b02e-589b3eaf225b"
+      "url": "https://u.expo.dev/ea1d2086-b028-47d0-b02e-589b3eaf225b",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
     },
     "runtimeVersion": {
       "policy": "appVersion"
