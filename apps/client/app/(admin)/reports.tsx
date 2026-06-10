@@ -25,6 +25,92 @@ export default function ReportsScreen() {
   const [memberHistory, setMemberHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  // Member sorting & Global stats state
+  const [sortByAttendance, setSortByAttendance] = useState(false);
+  const [memberStats, setMemberStats] = useState<Record<string, { present: number; absent: number; total: number; percentage: number }>>({});
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  const fetchGlobalStats = async () => {
+    if (meetings.length === 0) return;
+    setStatsLoading(true);
+    try {
+      const q = query(collectionGroup(db, 'attendance'));
+      const snap = await getDocs(q);
+      
+      const stats: Record<string, { present: number; absent: number; total: number }> = {};
+      
+      snap.docs.forEach(docSnap => {
+        const data = docSnap.data();
+        const mId = data.memberId || docSnap.id;
+        const isAbsent = data.paymentStatus === 'ABSENT' || data.isAbsent === true;
+        
+        if (!stats[mId]) {
+          stats[mId] = { present: 0, absent: 0, total: 0 };
+        }
+        
+        if (isAbsent) {
+          stats[mId].absent += 1;
+        } else {
+          stats[mId].present += 1;
+        }
+        stats[mId].total += 1;
+      });
+      
+      const computedStats: Record<string, { present: number; absent: number; total: number; percentage: number }> = {};
+      const totalMeetingsCount = meetings.length;
+      
+      Object.keys(stats).forEach(mId => {
+        const p = stats[mId].present;
+        const total = totalMeetingsCount;
+        const pct = total > 0 ? Math.round((p / total) * 100) : 0;
+        
+        computedStats[mId] = {
+          present: p,
+          absent: total - p,
+          total: total,
+          percentage: pct
+        };
+      });
+      
+      setMemberStats(computedStats);
+    } catch (error) {
+      console.error('Error fetching global stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (meetings.length > 0) {
+      fetchGlobalStats();
+    }
+  }, [meetings]);
+
+  const getMonthlyStats = () => {
+    const monthlyMap: Record<string, { count: number; collected: number; attendees: number }> = {};
+    
+    filteredMeetings.forEach(m => {
+      if (!m.date) return;
+      const monthStr = m.date.substring(0, 7); // e.g. "2026-06"
+      if (!monthlyMap[monthStr]) {
+        monthlyMap[monthStr] = { count: 0, collected: 0, attendees: 0 };
+      }
+      monthlyMap[monthStr].count += 1;
+      monthlyMap[monthStr].collected += (m.metrics?.totalCollected || 0);
+      monthlyMap[monthStr].attendees += (m.metrics?.totalAttendees || 0);
+    });
+    
+    return Object.entries(monthlyMap)
+      .map(([month, data]) => ({ month, ...data }))
+      .sort((a, b) => b.month.localeCompare(a.month));
+  };
+
+  const formatMonthName = (monthStr: string) => {
+    const [year, month] = monthStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
   // Filter meetings based on date range inputs
   const filteredMeetings = meetings.filter((meeting) => {
     if (startDate && meeting.date < startDate) return false;
@@ -51,6 +137,7 @@ export default function ReportsScreen() {
         const meeting = meetings.find(m => m.id === meetingId);
         list.push({
           id: doc.id,
+          meetingId,
           meetingTitle: meeting?.title || 'CEDOI Meeting',
           meetingDate: meeting?.date || 'Unknown Date',
           ...doc.data()
@@ -65,6 +152,52 @@ export default function ReportsScreen() {
       setHistoryLoading(false);
     }
   };
+
+  const combinedHistory = React.useMemo(() => {
+    if (!selectedMember) return [];
+    
+    return meetings.map(meeting => {
+      const attRecord = memberHistory.find(h => h.meetingId === meeting.id);
+      
+      if (attRecord) {
+        return {
+          id: attRecord.id,
+          meetingId: meeting.id,
+          meetingTitle: meeting.title,
+          meetingDate: meeting.date,
+          venue: meeting.venue,
+          paymentStatus: attRecord.paymentStatus,
+          paymentMode: attRecord.paymentMode,
+          amountCollected: attRecord.amountCollected || 0,
+          checkInTime: attRecord.checkInTime,
+          isAbsent: attRecord.paymentStatus === 'ABSENT'
+        };
+      } else {
+        return {
+          id: `missing-${meeting.id}`,
+          meetingId: meeting.id,
+          meetingTitle: meeting.title,
+          meetingDate: meeting.date,
+          venue: meeting.venue,
+          paymentStatus: 'ABSENT',
+          amountCollected: 0,
+          isAbsent: true
+        };
+      }
+    }).sort((a, b) => b.meetingDate.localeCompare(a.meetingDate));
+  }, [selectedMember, meetings, memberHistory]);
+
+  const processedMembers = React.useMemo(() => {
+    const list = [...members];
+    if (sortByAttendance) {
+      return list.sort((a, b) => {
+        const pctA = memberStats[a.id]?.percentage || 0;
+        const pctB = memberStats[b.id]?.percentage || 0;
+        return pctB - pctA;
+      });
+    }
+    return list.sort((a, b) => a.fullName.localeCompare(b.fullName));
+  }, [members, memberStats, sortByAttendance]);
 
   // Global Pending Payments Ledger States
   const [pendingPayments, setPendingPayments] = useState<any[]>([]);
@@ -347,7 +480,57 @@ export default function ReportsScreen() {
             </View>
           </View>
 
+          {/* Month-wise Performance */}
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 12, paddingHorizontal: 4 }}>Month-wise Performance</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
+            style={{ marginBottom: 16 }}
+          >
+            {getMonthlyStats().map(m => (
+              <View 
+                key={m.month}
+                style={{ 
+                  backgroundColor: '#fff', 
+                  borderWidth: 1, 
+                  borderColor: '#e2e8f0', 
+                  borderRadius: 16, 
+                  padding: 16, 
+                  width: 170,
+                  shadowColor: '#0f172a',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.02,
+                  shadowRadius: 6,
+                }}
+              >
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#1e293b' }}>{formatMonthName(m.month)}</Text>
+                
+                <View style={{ borderTopWidth: 1, borderColor: '#f1f5f9', marginTop: 10, paddingTop: 10, gap: 6 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Meetings</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569' }}>{m.count}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Attendees</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569' }}>{m.attendees}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Collection</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#059669' }}>₹{m.collected}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+            {getMonthlyStats().length === 0 && (
+              <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, width: 200, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '500' }}>No monthly data available</Text>
+              </View>
+            )}
+          </ScrollView>
+
           {/* Breakdown List */}
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 12, paddingHorizontal: 4 }}>Meeting Breakdown</Text>
           <FlatList
             data={filteredMeetings}
             keyExtractor={(item) => item.id}
@@ -399,11 +582,31 @@ export default function ReportsScreen() {
                 onChangeText={setMemberSearch}
               />
             </Card>
+
+            {/* Sort Toggle Options */}
+            <View className="flex-row justify-between items-center mb-3 px-1">
+              <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sort Members By:</Text>
+              <View className="flex-row bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                <TouchableOpacity
+                  onPress={() => setSortByAttendance(false)}
+                  className={`px-2.5 py-1 rounded-md ${!sortByAttendance ? 'bg-white shadow-xs' : ''}`}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: !sortByAttendance ? '#1e293b' : '#64748b' }}>Name</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setSortByAttendance(true)}
+                  className={`px-2.5 py-1 rounded-md ${sortByAttendance ? 'bg-white shadow-xs' : ''}`}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: sortByAttendance ? '#1e293b' : '#64748b' }}>Attendance %</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {membersLoading ? (
               <ActivityIndicator size="small" color="#2563eb" className="mt-4" />
             ) : (
               <FlatList
-                data={members}
+                data={processedMembers}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => {
                   const isSelected = selectedMember?.id === item.id;
@@ -419,6 +622,20 @@ export default function ReportsScreen() {
                         <Text className={`font-bold text-sm truncate ${isSelected ? 'text-blue-700' : 'text-slate-800'}`}>{item.fullName}</Text>
                         <Text className="text-[10px] text-slate-400 truncate mt-0.5">{item.companyName}</Text>
                       </View>
+                      
+                      {/* Attendance % Badge */}
+                      <View className="flex-row items-center mr-3">
+                        <Text className={`text-xs font-extrabold ${
+                          (memberStats[item.id]?.percentage || 0) >= 80 
+                            ? 'text-emerald-600' 
+                            : (memberStats[item.id]?.percentage || 0) >= 50 
+                              ? 'text-amber-500' 
+                              : 'text-rose-500'
+                        }`}>
+                          {memberStats[item.id]?.percentage || 0}%
+                        </Text>
+                      </View>
+                      
                       <ChevronRight size={14} color={isSelected ? '#2563eb' : '#94a3b8'} />
                     </TouchableOpacity>
                   );
@@ -437,6 +654,30 @@ export default function ReportsScreen() {
                 <View className="border-b border-slate-100 pb-4 mb-4">
                   <Text className="text-lg font-bold text-slate-800">{selectedMember.fullName}</Text>
                   <Text className="text-xs text-slate-500 mt-1">{selectedMember.companyName} • {selectedMember.businessCategory}</Text>
+                  
+                  {/* Selected Member Metrics */}
+                  <View style={{ flexDirection: 'row', backgroundColor: '#f8fafc', borderRadius: 16, padding: 12, marginTop: 14, gap: 12 }}>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Attendance Rate</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: (memberStats[selectedMember.id]?.percentage || 0) >= 80 ? '#059669' : '#ea580c', marginTop: 2 }}>
+                        {memberStats[selectedMember.id]?.percentage || 0}%
+                      </Text>
+                    </View>
+                    <View style={{ width: 1, backgroundColor: '#e2e8f0' }} />
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Attended</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginTop: 2 }}>
+                        {memberStats[selectedMember.id]?.present || 0} / {meetings.length}
+                      </Text>
+                    </View>
+                    <View style={{ width: 1, backgroundColor: '#e2e8f0' }} />
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Absent</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#ef4444', marginTop: 2 }}>
+                        {meetings.length - (memberStats[selectedMember.id]?.present || 0)}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
 
                 {historyLoading ? (
@@ -445,7 +686,7 @@ export default function ReportsScreen() {
                   </View>
                 ) : (
                   <FlatList
-                    data={memberHistory}
+                    data={combinedHistory}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between py-3 border-b border-slate-50">
@@ -456,32 +697,42 @@ export default function ReportsScreen() {
                               <Calendar size={11} color="#94a3b8" />
                               <Text className="text-[10px] text-slate-400 ml-1">{item.meetingDate}</Text>
                             </View>
-                            <View className="flex-row items-center">
-                              <Clock size={11} color="#94a3b8" />
-                              <Text className="text-[10px] text-slate-400 ml-1">
-                                {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
-                              </Text>
-                            </View>
+                            {!item.isAbsent && item.checkInTime && (
+                              <View className="flex-row items-center">
+                                <Clock size={11} color="#94a3b8" />
+                                <Text className="text-[10px] text-slate-400 ml-1">
+                                  {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
+                                </Text>
+                              </View>
+                            )}
                           </View>
                         </View>
                         <View className="items-end">
-                          <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${item.paymentStatus === 'PAID'
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : item.paymentStatus === 'WAIVED'
-                              ? 'bg-slate-100 text-slate-600'
-                              : 'bg-amber-50 text-amber-700'
+                          <View className={`px-2 py-0.5 rounded-full flex-row items-center space-x-1 ${
+                            item.isAbsent
+                              ? 'bg-red-50 text-red-700 border border-red-100'
+                              : item.paymentStatus === 'PAID'
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : item.paymentStatus === 'WAIVED'
+                                  ? 'bg-slate-100 text-slate-600'
+                                  : 'bg-amber-50 text-amber-700'
                             }`}>
-                            <CheckCircle2 size={10} color={item.paymentStatus === 'PAID' ? '#059669' : '#475569'} />
-                            <Text className={`text-[9px] font-extrabold uppercase tracking-wide ${item.paymentStatus === 'PAID'
-                              ? 'text-emerald-700'
-                              : 'text-slate-600'
+                            <CheckCircle2 size={10} color={item.isAbsent ? '#ef4444' : item.paymentStatus === 'PAID' ? '#059669' : '#475569'} />
+                            <Text className={`text-[9px] font-extrabold uppercase tracking-wide ${
+                              item.isAbsent
+                                ? 'text-red-700'
+                                : item.paymentStatus === 'PAID'
+                                  ? 'text-emerald-700'
+                                  : 'text-slate-600'
                               }`}>
-                              {item.paymentStatus}
+                              {item.isAbsent ? 'ABSENT' : item.paymentStatus}
                             </Text>
                           </View>
-                          <Text className="text-[10px] text-slate-400 mt-1 font-semibold">
-                            {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
-                          </Text>
+                          {!item.isAbsent && (
+                            <Text className="text-[10px] text-slate-400 mt-1 font-semibold">
+                              {item.paymentMode ? `${item.paymentMode} • ₹${item.amountCollected}` : `₹${item.amountCollected}`}
+                            </Text>
+                          )}
                         </View>
                       </View>
                     )}
