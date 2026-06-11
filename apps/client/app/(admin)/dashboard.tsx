@@ -86,7 +86,7 @@ export default function AdminDashboard() {
       {/* Premium Header/Greeting Section */}
       <View className="mb-8 flex-row justify-between items-center">
         <View>
-          <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">
+          <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
             {getGreeting()}, {getDisplayName()} 👋
           </Text>
           <Text className="text-slate-500 mt-1 text-sm font-medium">
