@@ -371,10 +371,8 @@ export default function ReportsScreen() {
         >
           <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'pending' ? 'text-slate-800' : 'text-slate-500'}`}>Pending</Text>
         </TouchableOpacity>
-      </View>
-
-      {activeTab === 'meetings' && (
-        <View className="flex-1">
+      </View>      {activeTab === 'meetings' && (
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Filters Row */}
           <Card className="mb-6 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex-row items-center space-x-4">
             <View className="flex-1 mr-2">
@@ -448,38 +446,40 @@ export default function ReportsScreen() {
               </TouchableOpacity>
             )}
           </Card>
-
           {/* Premium Summary Cards */}
-          <View className="flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-            <View
-              style={{ backgroundColor: '#ecfdf5', borderColor: '#a7f3d0', borderWidth: 1 }}
-              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
-            >
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-emerald-700 text-xs uppercase font-extrabold tracking-wider">Total Collection</Text>
-                <View className="bg-emerald-100 p-2 rounded-xl">
-                  <IndianRupee size={16} color="#047857" />
+          <View className="flex-row -mx-2 mb-6 mt-4">
+            <View className="w-1/2 px-2">
+              <View
+                style={{ backgroundColor: '#ecfdf5', borderColor: '#a7f3d0', borderWidth: 1 }}
+                className="p-4 sm:p-5 rounded-2xl shadow-sm"
+              >
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-emerald-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Total Collection</Text>
+                  <View className="bg-emerald-100 p-2 rounded-xl">
+                    <IndianRupee size={16} color="#047857" />
+                  </View>
                 </View>
+                <Text className="text-emerald-900 text-2xl sm:text-3xl font-extrabold tracking-tight">{formatRupees(totalRevenue)}</Text>
+                <Text className="text-emerald-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Filtered collections total</Text>
               </View>
-              <Text className="text-emerald-900 text-3xl font-extrabold tracking-tight">{formatRupees(totalRevenue)}</Text>
-              <Text className="text-emerald-600 text-[10px] mt-2 font-semibold">Filtered collections total</Text>
             </View>
 
-            <View
-              style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
-              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
-            >
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-indigo-700 text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
-                <View className="bg-indigo-100 p-2 rounded-xl">
-                  <Users size={16} color="#4338ca" />
+            <View className="w-1/2 px-2">
+              <View
+                style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
+                className="p-4 sm:p-5 rounded-2xl shadow-sm"
+              >
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-indigo-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
+                  <View className="bg-indigo-100 p-2 rounded-xl">
+                    <Users size={16} color="#4338ca" />
+                  </View>
                 </View>
+                <Text className="text-indigo-900 text-2xl sm:text-3xl font-extrabold tracking-tight">{totalAttendance}</Text>
+                <Text className="text-indigo-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Total registered check-ins</Text>
               </View>
-              <Text className="text-indigo-900 text-3xl font-extrabold tracking-tight">{totalAttendance}</Text>
-              <Text className="text-indigo-600 text-[10px] mt-2 font-semibold">Total registered check-ins</Text>
             </View>
           </View>
-
           {/* Month-wise Performance */}
           <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 12, paddingHorizontal: 4 }}>Month-wise Performance</Text>
           <ScrollView 
@@ -531,12 +531,9 @@ export default function ReportsScreen() {
 
           {/* Breakdown List */}
           <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 12, paddingHorizontal: 4 }}>Meeting Breakdown</Text>
-          <FlatList
-            data={filteredMeetings}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <Card className="mb-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row items-center justify-between">
+          <View style={{ gap: 12, marginBottom: 24 }}>
+            {filteredMeetings.map((item) => (
+              <Card key={item.id} className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row items-center justify-between">
                 <View className="flex-1 min-w-0 pr-4">
                   <Text className="font-bold text-slate-800 text-base truncate">{item.title}</Text>
                   <View className="flex-row items-center mt-1">
@@ -558,14 +555,14 @@ export default function ReportsScreen() {
                   </View>
                 </View>
               </Card>
-            )}
-            ListEmptyComponent={() => (
+            ))}
+            {filteredMeetings.length === 0 && (
               <Card className="items-center p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
                 <Text className="text-slate-500 text-center py-4 font-medium">No meeting records match the filters.</Text>
               </Card>
             )}
-          />
-        </View>
+          </View>
+        </ScrollView>
       )}
 
       {activeTab === 'members' && (
@@ -755,7 +752,7 @@ export default function ReportsScreen() {
       )}
 
       {activeTab === 'pending' && (
-        <View className="flex-1">
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Search Bar */}
           <View className="mb-4 flex-row items-center px-4 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
             <Search size={16} color="#94a3b8" />
@@ -767,116 +764,122 @@ export default function ReportsScreen() {
               onChangeText={setPendingSearch}
             />
           </View>
-
           {/* Overview Metrics */}
-          <View className="flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-            <View
-              style={{ backgroundColor: '#fff7ed', borderColor: '#fed7aa', borderWidth: 1 }}
-              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
-            >
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-amber-700 text-xs uppercase font-extrabold tracking-wider">Total Outstanding</Text>
-                <View className="bg-amber-100 p-2 rounded-xl">
-                  <IndianRupee size={16} color="#d97706" />
+          <View className="flex-row -mx-2 mb-6 mt-4">
+            <View className="w-1/2 px-2">
+              <View
+                style={{ backgroundColor: '#fff7ed', borderColor: '#fed7aa', borderWidth: 1 }}
+                className="p-4 sm:p-5 rounded-2xl shadow-sm"
+              >
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-amber-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Total Outstanding</Text>
+                  <View className="bg-amber-100 p-2 rounded-xl">
+                    <IndianRupee size={16} color="#d97706" />
+                  </View>
                 </View>
+                <Text className="text-amber-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  {formatRupees(
+                    pendingPayments
+                      .filter(p => {
+                        const term = pendingSearch.toLowerCase();
+                        return (
+                          (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
+                          (p.meetingTitle || '').toLowerCase().includes(term)
+                        );
+                      })
+                      .reduce((acc, curr) => acc + (curr.entryFee || 500), 0)
+                  )}
+                </Text>
+                <Text className="text-amber-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Pending fees total</Text>
               </View>
-              <Text className="text-amber-900 text-3xl font-extrabold tracking-tight">
-                {formatRupees(
-                  pendingPayments
-                    .filter(p => {
-                      const term = pendingSearch.toLowerCase();
-                      return (
-                        (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
-                        (p.meetingTitle || '').toLowerCase().includes(term)
-                      );
-                    })
-                    .reduce((acc, curr) => acc + (curr.entryFee || 500), 0)
-                )}
-              </Text>
-              <Text className="text-amber-600 text-[10px] mt-2 font-semibold">Pending fees total</Text>
             </View>
 
-            <View
-              style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
-              className="w-full sm:flex-1 p-5 rounded-2xl shadow-sm"
-            >
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-indigo-700 text-xs uppercase font-extrabold tracking-wider">Unpaid Bookings</Text>
-                <View className="bg-indigo-100 p-2 rounded-xl">
-                  <Users size={16} color="#4338ca" />
+            <View className="w-1/2 px-2">
+              <View
+                style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
+                className="p-4 sm:p-5 rounded-2xl shadow-sm"
+              >
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-indigo-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Unpaid Bookings</Text>
+                  <View className="bg-indigo-100 p-2 rounded-xl">
+                    <Users size={16} color="#4338ca" />
+                  </View>
                 </View>
+                <Text className="text-indigo-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  {
+                    pendingPayments
+                      .filter(p => {
+                        const term = pendingSearch.toLowerCase();
+                        return (
+                          (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
+                          (p.meetingTitle || '').toLowerCase().includes(term)
+                        );
+                      })
+                      .length
+                  }
+                </Text>
+                <Text className="text-indigo-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Total pending collections</Text>
               </View>
-              <Text className="text-indigo-900 text-3xl font-extrabold tracking-tight">
-                {
-                  pendingPayments
-                    .filter(p => {
-                      const term = pendingSearch.toLowerCase();
-                      return (
-                        (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
-                        (p.meetingTitle || '').toLowerCase().includes(term)
-                      );
-                    })
-                    .length
-                }
-              </Text>
-              <Text className="text-indigo-600 text-[10px] mt-2 font-semibold">Total pending collections</Text>
             </View>
-          </View>
-
-          {/* Pending List */}
+          </View>          {/* Pending List */}
           {pendingLoading ? (
-            <View className="flex-1 justify-center items-center">
+            <View className="flex-1 justify-center items-center py-6">
               <ActivityIndicator size="large" color="#4f46e5" />
             </View>
           ) : (
-            <FlatList
-              data={pendingPayments.filter(p => {
+            <View style={{ gap: 12, marginBottom: 24 }}>
+              {pendingPayments
+                .filter(p => {
+                  const term = pendingSearch.toLowerCase();
+                  return (
+                    (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
+                    (p.meetingTitle || '').toLowerCase().includes(term)
+                  );
+                })
+                .map((item) => (
+                  <Card key={item.id} className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row justify-between items-center">
+                    <View className="flex-1 mr-4">
+                      <Text className="font-bold text-slate-800 text-base">{item.memberSnapshot?.fullName}</Text>
+                      <Text className="text-xs text-slate-500 mt-0.5">{item.meetingTitle}</Text>
+                      <View className="flex-row items-center mt-2 space-x-3">
+                        <View className="flex-row items-center">
+                          <Calendar size={12} color="#94a3b8" />
+                          <Text className="text-[10px] text-slate-400 ml-1 font-semibold">{item.meetingDate}</Text>
+                        </View>
+                        <View className="flex-row items-center">
+                          <Clock size={12} color="#94a3b8" />
+                          <Text className="text-[10px] text-slate-400 ml-1 font-semibold">
+                            {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View className="items-end">
+                      <Text className="font-extrabold text-amber-600 text-lg mb-2">₹{item.entryFee || 500}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleResolvePending(item)}
+                        className="bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3.5 rounded-xl flex-row items-center justify-center shadow-sm"
+                      >
+                        <Text className="text-[10px] font-extrabold text-white">COLLECT FEE</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </Card>
+                ))}
+              {pendingPayments.filter(p => {
                 const term = pendingSearch.toLowerCase();
                 return (
                   (p.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
                   (p.meetingTitle || '').toLowerCase().includes(term)
                 );
-              })}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <Card className="mb-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex-row justify-between items-center">
-                  <View className="flex-1 mr-4">
-                    <Text className="font-bold text-slate-800 text-base">{item.memberSnapshot?.fullName}</Text>
-                    <Text className="text-xs text-slate-500 mt-0.5">{item.meetingTitle}</Text>
-                    <View className="flex-row items-center mt-2 space-x-3">
-                      <View className="flex-row items-center">
-                        <Calendar size={12} color="#94a3b8" />
-                        <Text className="text-[10px] text-slate-400 ml-1 font-semibold">{item.meetingDate}</Text>
-                      </View>
-                      <View className="flex-row items-center">
-                        <Clock size={12} color="#94a3b8" />
-                        <Text className="text-[10px] text-slate-400 ml-1 font-semibold">
-                          {item.checkInTime?.seconds ? new Date(item.checkInTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '08:30 AM'}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View className="items-end">
-                    <Text className="font-extrabold text-amber-600 text-lg mb-2">₹{item.entryFee || 500}</Text>
-                    <TouchableOpacity
-                      onPress={() => handleResolvePending(item)}
-                      className="bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3.5 rounded-xl flex-row items-center justify-center shadow-sm"
-                    >
-                      <Text className="text-[10px] font-extrabold text-white">COLLECT FEE</Text>
-                    </TouchableOpacity>
-                  </View>
-                </Card>
-              )}
-              ListEmptyComponent={() => (
+              }).length === 0 && (
                 <Card className="items-center p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
                   <Text className="text-slate-500 text-center py-4 font-medium">No pending payments found.</Text>
                 </Card>
               )}
-            />
+            </View>
           )}
-        </View>
+        </ScrollView>
       )}
     </View>
   );
