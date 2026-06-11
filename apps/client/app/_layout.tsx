@@ -11,6 +11,7 @@ import { NativeWindStyleSheet } from 'nativewind';
 import { NetworkStatus } from '../src/components/NetworkStatus';
 import { AlertModal, AlertButton } from '../src/components/ui/AlertModal';
 import { registerAlertHandler, unregisterAlertHandler } from '../src/utils/platformAlert';
+import { automateMeetingStatuses, runNotificationAutomator } from '../src/services/automation';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -118,6 +119,16 @@ export default function RootLayout() {
       }
     }
   }, [user, role, isLoading, segments]);
+
+  // 3. Centralized Background Automations
+  useEffect(() => {
+    if (user && !isLoading) {
+      automateMeetingStatuses();
+      if (role === 'ADMIN') {
+        runNotificationAutomator();
+      }
+    }
+  }, [user, role, isLoading]);
 
   return (
     <ErrorBoundary>
