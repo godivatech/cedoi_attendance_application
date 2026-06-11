@@ -216,32 +216,32 @@ export default function AdminMeetings() {
                 {/* Venue details */}
                 <View className="flex-row items-center mb-4">
                   <MapPin size={13} color="#94a3b8" />
-                  <Text className="text-slate-500 text-xs ml-1.5 font-medium truncate">{item.venue}</Text>
+                  <Text numberOfLines={1} className="text-slate-500 text-xs ml-1.5 font-medium truncate flex-1">{item.venue}</Text>
                 </View>
 
                 {/* Metrics Summary Area */}
                 <View className="flex-row border-t border-slate-100 pt-4 mt-2">
                   {/* Total Attended Metric */}
-                  <View className="flex-1 flex-row items-center bg-slate-50 p-3 rounded-xl mr-2">
-                    <View className="bg-indigo-100 p-1.5 rounded-lg mr-2.5">
-                      <Users size={15} color="#4f46e5" />
+                  <View className="flex-1 flex-row items-center bg-slate-50 p-2.5 sm:p-3 rounded-xl mr-2">
+                    <View className="bg-indigo-100 p-1.5 rounded-lg mr-2">
+                      <Users size={14} color="#4f46e5" />
                     </View>
-                    <View>
-                      <Text className="text-xs text-slate-400 font-bold uppercase tracking-wider">Attended</Text>
-                      <Text className="font-extrabold text-slate-800 text-base">
+                    <View className="flex-1 min-w-0">
+                      <Text numberOfLines={1} className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Attended</Text>
+                      <Text numberOfLines={1} className="font-extrabold text-slate-800 text-sm sm:text-base">
                         {item.metrics?.totalAttendees || 0}
                       </Text>
                     </View>
                   </View>
 
                   {/* Total Collected Metric */}
-                  <View className="flex-1 flex-row items-center bg-slate-50 p-3 rounded-xl ml-2">
-                    <View className="bg-emerald-100 p-1.5 rounded-lg mr-2.5">
-                      <IndianRupee size={15} color="#10b981" />
+                  <View className="flex-1 flex-row items-center bg-slate-50 p-2.5 sm:p-3 rounded-xl ml-2">
+                    <View className="bg-emerald-100 p-1.5 rounded-lg mr-2">
+                      <IndianRupee size={14} color="#10b981" />
                     </View>
-                    <View>
-                      <Text className="text-xs text-slate-400 font-bold uppercase tracking-wider">Collected</Text>
-                      <Text className="font-extrabold text-emerald-600 text-base">
+                    <View className="flex-1 min-w-0">
+                      <Text numberOfLines={1} className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Collected</Text>
+                      <Text numberOfLines={1} className="font-extrabold text-emerald-600 text-sm sm:text-base">
                         {formatRupees(item.metrics?.totalCollected || 0)}
                       </Text>
                     </View>

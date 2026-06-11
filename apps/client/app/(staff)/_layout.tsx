@@ -190,6 +190,7 @@ export default function StaffLayout() {
         screenOptions={{
           tabBarActiveTintColor: '#4f46e5',
           tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
+          tabBarLabelPosition: 'below-icon',
           tabBarStyle: {
             height: Platform.OS === 'web' ? 60 : 75,
             paddingBottom: Platform.OS === 'web' ? 10 : 20,

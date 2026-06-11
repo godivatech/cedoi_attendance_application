@@ -81,11 +81,11 @@ export default function AdminMembers() {
                   </View>
                   <View className="flex-1 min-w-0">
                     <View className="flex-row items-center flex-wrap">
-                      <Text className="text-lg font-bold text-slate-800 mr-2 truncate">
+                      <Text numberOfLines={1} className="text-lg font-bold text-slate-800 mr-2 truncate">
                         {item.fullName}
                       </Text>
                     </View>
-                    <Text className="text-slate-500 text-sm mt-0.5 truncate">
+                    <Text numberOfLines={1} className="text-slate-500 text-sm mt-0.5 truncate">
                       {item.companyName}
                     </Text>
                   </View>
@@ -104,7 +104,7 @@ export default function AdminMembers() {
                 {item.businessCategory && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
                     <Briefcase size={13} color="#94a3b8" />
-                    <Text className="text-xs text-slate-500 ml-1.5 truncate">{item.businessCategory}</Text>
+                    <Text numberOfLines={1} className="text-xs text-slate-500 ml-1.5 truncate">{item.businessCategory}</Text>
                   </View>
                 )}
                 {item.mobileNumber && (
@@ -116,7 +116,7 @@ export default function AdminMembers() {
                 {item.email && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
                     <Mail size={13} color="#94a3b8" />
-                    <Text className="text-xs text-slate-500 ml-1.5 truncate">{item.email}</Text>
+                    <Text numberOfLines={1} className="text-xs text-slate-500 ml-1.5 truncate">{item.email}</Text>
                   </View>
                 )}
               </View>
