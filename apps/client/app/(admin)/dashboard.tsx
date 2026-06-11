@@ -97,55 +97,55 @@ export default function AdminDashboard() {
 
       {/* Metrics Grid */}
       <View className="flex-row flex-wrap -mx-2 mb-8">
-        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-5 border-t-4 border-t-indigo-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+          <Card className="p-4 sm:p-5 border-t-4 border-t-indigo-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Members</Text>
+              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Members</Text>
               <View className="bg-indigo-50 p-2.5 rounded-xl">
                 <Users size={18} color="#4f46e5" />
               </View>
             </View>
-            <Text className="text-3xl font-extrabold text-slate-800">{totalMembers}</Text>
-            <Text className="text-slate-400 text-xs mt-2 font-medium">Active registrations</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{totalMembers}</Text>
+            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Active registrations</Text>
           </Card>
         </View>
 
-        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-5 border-t-4 border-t-purple-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+          <Card className="p-4 sm:p-5 border-t-4 border-t-purple-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Meetings</Text>
+              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Meetings</Text>
               <View className="bg-purple-50 p-2.5 rounded-xl">
                 <Calendar size={18} color="#a855f7" />
               </View>
             </View>
-            <Text className="text-3xl font-extrabold text-slate-800">{totalMeetings}</Text>
-            <Text className="text-slate-400 text-xs mt-2 font-medium">Scheduled & completed</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{totalMeetings}</Text>
+            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Scheduled & completed</Text>
           </Card>
         </View>
 
-        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-5 border-t-4 border-t-emerald-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+          <Card className="p-4 sm:p-5 border-t-4 border-t-emerald-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Revenue</Text>
+              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Revenue</Text>
               <View className="bg-emerald-50 p-2.5 rounded-xl">
                 <IndianRupee size={18} color="#10b981" />
               </View>
             </View>
-            <Text className="text-3xl font-extrabold text-slate-800">{formatRupees(totalRevenue)}</Text>
-            <Text className="text-slate-400 text-xs mt-2 font-medium">Collections to date</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{formatRupees(totalRevenue)}</Text>
+            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Collections to date</Text>
           </Card>
         </View>
 
-        <View className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-5 border-t-4 border-t-amber-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+        <View className="w-1/2 lg:w-1/4 px-2 mb-4">
+          <Card className="p-4 sm:p-5 border-t-4 border-t-amber-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-xs font-bold uppercase tracking-wider">Avg. Attendance</Text>
+              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Avg. Attendance</Text>
               <View className="bg-amber-50 p-2.5 rounded-xl">
                 <TrendingUp size={18} color="#f59e0b" />
               </View>
             </View>
-            <Text className="text-3xl font-extrabold text-slate-800">84%</Text>
-            <Text className="text-slate-400 text-xs mt-2 font-medium">Member turn-out rate</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">84%</Text>
+            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Member turn-out rate</Text>
           </Card>
         </View>
       </View>
