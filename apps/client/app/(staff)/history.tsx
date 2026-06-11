@@ -217,10 +217,10 @@ export default function StaffHistory() {
 
             {/* Search Input */}
             <View style={{ marginBottom: 16 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, elevation: 1, height: 44 }}>
                 <SearchIcon size={16} color="#94a3b8" />
                 <TextInput
-                  style={{ flex: 1, marginLeft: 8, color: '#1e293b', paddingVertical: 10, fontSize: 13 }}
+                  style={{ flex: 1, marginLeft: 8, color: '#1e293b', fontSize: 14, height: '100%', paddingVertical: 0 }}
                   placeholder="Filter attendees by name..."
                   placeholderTextColor="#94a3b8"
                   value={attendeesSearch}

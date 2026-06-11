@@ -357,19 +357,19 @@ export default function ReportsScreen() {
           onPress={() => setActiveTab('meetings')}
           className={`flex-1 py-3 rounded-xl items-center ${activeTab === 'meetings' ? 'bg-white shadow-sm' : 'bg-transparent'}`}
         >
-          <Text className={`font-bold text-sm ${activeTab === 'meetings' ? 'text-slate-800' : 'text-slate-500'}`}>Meetings</Text>
+          <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'meetings' ? 'text-slate-800' : 'text-slate-500'}`}>Meetings</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setActiveTab('members')}
           className={`flex-1 py-3 rounded-xl items-center ${activeTab === 'members' ? 'bg-white shadow-sm' : 'bg-transparent'}`}
         >
-          <Text className={`font-bold text-sm ${activeTab === 'members' ? 'text-slate-800' : 'text-slate-500'}`}>Member History</Text>
+          <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'members' ? 'text-slate-800' : 'text-slate-500'}`}>Members</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setActiveTab('pending')}
           className={`flex-1 py-3 rounded-xl items-center ${activeTab === 'pending' ? 'bg-white shadow-sm' : 'bg-transparent'}`}
         >
-          <Text className={`font-bold text-sm ${activeTab === 'pending' ? 'text-slate-800' : 'text-slate-500'}`}>Pending Payments</Text>
+          <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'pending' ? 'text-slate-800' : 'text-slate-500'}`}>Pending</Text>
         </TouchableOpacity>
       </View>
 
@@ -572,16 +572,16 @@ export default function ReportsScreen() {
         <View className="flex-1 flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
           {/* Members Panel */}
           <View className="w-full lg:w-1/3 h-80 lg:h-full">
-            <Card className="mb-4 flex-row items-center px-3 py-1 bg-white border border-slate-100 rounded-xl shadow-sm">
+            <View className="mb-4 flex-row items-center px-3 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
               <Search size={16} color="#94a3b8" />
               <TextInput
-                className="flex-1 ml-2 text-slate-800 py-2.5 text-xs"
+                className="flex-1 ml-2 text-slate-800 py-0 text-sm h-full"
                 placeholder="Search member..."
                 placeholderTextColor="#94a3b8"
                 value={memberSearch}
                 onChangeText={setMemberSearch}
               />
-            </Card>
+            </View>
 
             {/* Sort Toggle Options */}
             <View className="flex-row justify-between items-center mb-3 px-1">
@@ -757,16 +757,16 @@ export default function ReportsScreen() {
       {activeTab === 'pending' && (
         <View className="flex-1">
           {/* Search Bar */}
-          <Card className="mb-4 flex-row items-center px-4 py-1.5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+          <View className="mb-4 flex-row items-center px-4 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
             <Search size={16} color="#94a3b8" />
             <TextInput
-              className="flex-1 ml-2 text-slate-800 py-3 text-xs"
+              className="flex-1 ml-2 text-slate-800 py-0 text-sm h-full"
               placeholder="Search by member or meeting title..."
               placeholderTextColor="#94a3b8"
               value={pendingSearch}
               onChangeText={setPendingSearch}
             />
-          </Card>
+          </View>
 
           {/* Overview Metrics */}
           <View className="flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">

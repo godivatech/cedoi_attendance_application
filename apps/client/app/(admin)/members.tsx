@@ -50,17 +50,17 @@ export default function AdminMembers() {
       </View>
 
       {/* Real Functional Search Input */}
-      <Card className="mb-6 flex-row items-center px-4 py-1 bg-white border border-slate-100 rounded-2xl shadow-sm">
+      <View className="mb-6 flex-row items-center px-4 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
         <Search size={18} color="#94a3b8" />
         <TextInput
-          className="flex-1 ml-3 text-slate-800 py-3 text-sm"
+          className="flex-1 ml-3 text-slate-800 py-0 text-sm h-full"
           placeholder="Search members by name, company, or phone..."
           placeholderTextColor="#94a3b8"
           value={searchTerm}
           onChangeText={setSearchTerm}
           clearButtonMode="while-editing"
         />
-      </Card>
+      </View>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">

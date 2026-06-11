@@ -313,19 +313,19 @@ export default function AdminMeetings() {
 
             {/* Search and Action Bar */}
             <View className="flex-row space-x-3 mb-4 items-center">
-              <Card className="flex-1 flex-row items-center px-3 py-1 bg-white border border-slate-100 rounded-xl shadow-sm">
+              <View className="flex-1 flex-row items-center px-3 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
                 <SearchIcon size={16} color="#94a3b8" />
                 <TextInput
-                  className="flex-1 ml-2 text-slate-800 py-2.5 text-xs"
+                  className="flex-1 ml-2 text-slate-800 py-0 text-sm h-full"
                   placeholder="Filter attendees by name..."
                   placeholderTextColor="#94a3b8"
                   value={attendeesSearch}
                   onChangeText={setAttendeesSearch}
                 />
-              </Card>
+              </View>
               <TouchableOpacity
                 onPress={handleExportAttendeesCSV}
-                className="bg-indigo-600 hover:bg-indigo-700 p-3 rounded-xl flex-row items-center justify-center shadow-sm"
+                className="bg-indigo-600 hover:bg-indigo-700 w-11 h-11 rounded-xl flex-row items-center justify-center shadow-sm"
               >
                 <Download color="white" size={16} />
               </TouchableOpacity>
