@@ -334,93 +334,133 @@ export default function StaffReportsScreen() {
         </ScrollView>
       </View>
 
-      {/* Mobile KPI Summary Cards */}
-      <View className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Card className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-          <View className="w-8 h-8 rounded-xl bg-indigo-50 items-center justify-center mb-2">
-            <Calendar size={18} color="#4f46e5" />
-          </View>
-          <Text className="text-xs text-slate-400 font-semibold">Total Meetings</Text>
-          <Text className="text-xl font-black text-slate-800 mt-0.5">{stats.totalMeetings}</Text>
-        </Card>
-
-        <Card className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-          <View className="w-8 h-8 rounded-xl bg-emerald-50 items-center justify-center mb-2">
-            <TrendingUp size={18} color="#059669" />
-          </View>
-          <Text className="text-xs text-slate-400 font-semibold">Attendance Rate</Text>
-          <Text className="text-xl font-black text-emerald-600 mt-0.5">{stats.overallAttendanceRate}%</Text>
-        </Card>
-
-        <Card className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-          <View className="w-8 h-8 rounded-xl bg-blue-50 items-center justify-center mb-2">
-            <IndianRupee size={18} color="#2563eb" />
-          </View>
-          <Text className="text-xs text-slate-400 font-semibold">Total Collected</Text>
-          <Text className="text-xl font-black text-blue-600 mt-0.5">{formatRupees(stats.totalCollected)}</Text>
-        </Card>
-
-        <TouchableOpacity
-          onPress={() => setViewFilter(viewFilter === 'PENDING' ? 'ALL' : 'PENDING')}
-          activeOpacity={0.8}
-        >
-          <Card className={`p-4 rounded-2xl border shadow-sm ${
-            viewFilter === 'PENDING' ? 'bg-amber-50 border-amber-300' : 'bg-white border-slate-100'
-          }`}>
-            <View className="w-8 h-8 rounded-xl bg-amber-50 items-center justify-center mb-2">
-              <AlertCircle size={18} color="#d97706" />
+      {/* Compact 2-Column Mobile & 4-Column Desktop KPI Summary Cards */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }} className="mb-4">
+        <View style={{ flex: 1, minWidth: '47%' }}>
+          <Card className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-[11px] text-slate-400 font-semibold">Total Meetings</Text>
+              <View className="w-6 h-6 rounded-lg bg-indigo-50 items-center justify-center">
+                <Calendar size={14} color="#4f46e5" />
+              </View>
             </View>
-            <Text className="text-xs text-slate-400 font-semibold">Pending Dues (Absents)</Text>
-            <Text className="text-xl font-black text-amber-600 mt-0.5">{formatRupees(stats.totalPendingDues)}</Text>
+            <Text className="text-lg font-black text-slate-800 mt-1">{stats.totalMeetings}</Text>
           </Card>
-        </TouchableOpacity>
-      </View>
-
-      {/* Member Filter Tabs: All Members vs Pending Persons Only */}
-      <View className="flex-row flex-wrap items-center gap-2 mb-3">
-        <TouchableOpacity
-          onPress={() => setViewFilter('ALL')}
-          activeOpacity={0.8}
-          className={`px-4 py-2.5 rounded-xl border flex-row items-center ${
-            viewFilter === 'ALL'
-              ? 'bg-slate-900 border-slate-900'
-              : 'bg-white border-slate-200'
-          }`}
-        >
-          <Users size={14} color={viewFilter === 'ALL' ? '#ffffff' : '#64748b'} />
-          <Text className={`text-xs ml-1.5 ${viewFilter === 'ALL' ? 'text-white font-bold' : 'text-slate-600 font-semibold'}`}>
-            All Members ({reportData.length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setViewFilter('PENDING')}
-          activeOpacity={0.8}
-          className={`px-4 py-2.5 rounded-xl border flex-row items-center ${
-            viewFilter === 'PENDING'
-              ? 'bg-amber-600 border-amber-600'
-              : 'bg-white border-slate-200'
-          }`}
-        >
-          <AlertCircle size={14} color={viewFilter === 'PENDING' ? '#ffffff' : '#d97706'} />
-          <Text className={`text-xs ml-1.5 ${viewFilter === 'PENDING' ? 'text-white font-bold' : 'text-amber-700 font-bold'}`}>
-            Pending Persons Only ({pendingMembersCount})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Member Search Bar */}
-      <View className="relative mb-4">
-        <View className="absolute left-4 top-3.5 z-10">
-          <Search size={18} color="#94a3b8" />
         </View>
-        <TextInput
-          value={memberSearch}
-          onChangeText={setMemberSearch}
-          placeholder="Search member or company..."
-          placeholderTextColor="#94a3b8"
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-800"
-        />
+
+        <View style={{ flex: 1, minWidth: '47%' }}>
+          <Card className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-[11px] text-slate-400 font-semibold">Attendance Rate</Text>
+              <View className="w-6 h-6 rounded-lg bg-emerald-50 items-center justify-center">
+                <TrendingUp size={14} color="#059669" />
+              </View>
+            </View>
+            <Text className="text-lg font-black text-emerald-600 mt-1">{stats.overallAttendanceRate}%</Text>
+          </Card>
+        </View>
+
+        <View style={{ flex: 1, minWidth: '47%' }}>
+          <Card className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-[11px] text-slate-400 font-semibold">Total Collected</Text>
+              <View className="w-6 h-6 rounded-lg bg-blue-50 items-center justify-center">
+                <IndianRupee size={14} color="#2563eb" />
+              </View>
+            </View>
+            <Text className="text-lg font-black text-blue-600 mt-1">{formatRupees(stats.totalCollected)}</Text>
+          </Card>
+        </View>
+
+        <View style={{ flex: 1, minWidth: '47%' }}>
+          <TouchableOpacity
+            onPress={() => setViewFilter(viewFilter === 'PENDING' ? 'ALL' : 'PENDING')}
+            activeOpacity={0.8}
+          >
+            <Card className={`p-3 rounded-2xl border shadow-sm ${
+              viewFilter === 'PENDING' ? 'bg-amber-50 border-amber-300' : 'bg-white border-slate-100'
+            }`}>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-[11px] text-slate-400 font-semibold">Pending Dues</Text>
+                <View className="w-6 h-6 rounded-lg bg-amber-50 items-center justify-center">
+                  <AlertCircle size={14} color="#d97706" />
+                </View>
+              </View>
+              <Text className="text-lg font-black text-amber-600 mt-1">{formatRupees(stats.totalPendingDues)}</Text>
+            </Card>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Unified Search & Segmented Filter Control Panel */}
+      <View className="mb-5 bg-white p-3 md:p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        {/* iOS-Style Segmented Control Switch */}
+        <View className="flex-row bg-slate-100/80 p-1 rounded-xl mb-3">
+          <TouchableOpacity
+            onPress={() => setViewFilter('ALL')}
+            activeOpacity={0.8}
+            className={`flex-1 py-2.5 rounded-lg flex-row items-center justify-center transition-all ${
+              viewFilter === 'ALL'
+                ? 'bg-white shadow-sm shadow-slate-200'
+                : ''
+            }`}
+          >
+            <Users size={15} color={viewFilter === 'ALL' ? '#1e293b' : '#64748b'} />
+            <Text className={`text-xs ml-2 font-bold ${
+              viewFilter === 'ALL' ? 'text-slate-900' : 'text-slate-500'
+            }`}>
+              All Members ({reportData.length})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setViewFilter('PENDING')}
+            activeOpacity={0.8}
+            className={`flex-1 py-2.5 rounded-lg flex-row items-center justify-center transition-all ${
+              viewFilter === 'PENDING'
+                ? 'bg-amber-500 shadow-sm shadow-amber-500/30'
+                : ''
+            }`}
+          >
+            <AlertCircle size={15} color={viewFilter === 'PENDING' ? '#ffffff' : '#d97706'} />
+            <Text className={`text-xs ml-2 font-bold ${
+              viewFilter === 'PENDING' ? 'text-white font-extrabold' : 'text-amber-700'
+            }`}>
+              Pending Dues Only ({pendingMembersCount})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Integrated Search Bar Input */}
+        <View className="relative">
+          <View className="absolute left-3.5 top-3 z-10">
+            <Search size={16} color="#94a3b8" />
+          </View>
+          <TextInput
+            value={memberSearch}
+            onChangeText={setMemberSearch}
+            placeholder={viewFilter === 'PENDING' ? "Search pending members or companies..." : "Search member or company..."}
+            placeholderTextColor="#94a3b8"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/60 rounded-xl text-sm text-slate-800 focus:bg-white"
+          />
+        </View>
+
+        {/* Active Filter Indicator Badge */}
+        {viewFilter === 'PENDING' && (
+          <View className="flex-row items-center justify-between mt-3 pt-2.5 border-t border-slate-100 px-1">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+              <Text className="text-xs font-semibold text-amber-700">
+                Filtered: Showing members with outstanding dues
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => setViewFilter('ALL')}>
+              <Text className="text-xs font-bold text-indigo-600 hover:underline">
+                Show All
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Member List Cards */}
