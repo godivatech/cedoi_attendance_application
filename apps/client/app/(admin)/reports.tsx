@@ -212,7 +212,8 @@ export default function ReportsScreen() {
       const list: any[] = [];
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        if (data.paymentStatus === 'PENDING') {
+        const isAbsentOrPending = data.paymentStatus === 'PENDING' || data.paymentStatus === 'ABSENT' || data.isAbsent === true;
+        if (isAbsentOrPending) {
           const meetingId = docSnap.ref.parent?.parent?.id;
           const meeting = meetings.find(m => m.id === meetingId);
           list.push({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Slot, Tabs, useRouter, usePathname } from 'expo-router';
-import { Clock, History, LogOut, Bell, User as UserIcon } from 'lucide-react-native';
+import { Clock, History, LogOut, Bell, User as UserIcon, FileText } from 'lucide-react-native';
 import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
@@ -33,6 +33,12 @@ export default function StaffLayout() {
       label: 'History',
       icon: History,
       path: '/(staff)/history',
+    },
+    {
+      name: 'reports',
+      label: 'Reports',
+      icon: FileText,
+      path: '/(staff)/reports',
     },
   ];
 
@@ -243,6 +249,13 @@ export default function StaffLayout() {
           options={{
             title: 'History',
             tabBarIcon: ({ color }) => <History size={22} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="reports"
+          options={{
+            title: 'Reports',
+            tabBarIcon: ({ color }) => <FileText size={22} color={color} />,
           }}
         />
         <Tabs.Screen
