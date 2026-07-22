@@ -15,7 +15,6 @@ import { automateMeetingStatuses, runNotificationAutomator } from '../src/servic
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
-  web: 'css',
 });
 
 export default function RootLayout() {
