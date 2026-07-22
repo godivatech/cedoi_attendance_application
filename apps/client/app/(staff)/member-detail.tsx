@@ -385,24 +385,6 @@ export default function MemberDetailScreen() {
                   <Text style={styles.payCardSub}>Paid online/UPI directly</Text>
                 </View>
               </TouchableOpacity>
-
-              {/* Pending */}
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => handleUpdatePayment('PENDING', undefined, 0)}
-                style={[
-                  styles.payCard,
-                  (isPresent && attendance?.paymentStatus === 'PENDING') ? styles.payCardPendingActive : styles.payCardInactive
-                ]}
-              >
-                <View style={[styles.payCardIconBg, { backgroundColor: '#fff7ed' }]}>
-                  <Clock size={20} color="#ea580c" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.payCardTitle}>Keep Pending</Text>
-                  <Text style={styles.payCardSub}>Checked in, payment remaining</Text>
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
         </View>
