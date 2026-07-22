@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TextInput, TouchableOpacity, Platform, ScrollView } from 'react-native';
-import { collectionGroup, query, getDocs, collection, where } from 'firebase/firestore';
+import { View, Text, ActivityIndicator, TextInput, TouchableOpacity, Platform, ScrollView } from 'react-native';
+import { collectionGroup, query, getDocs } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
-import { Button } from '../../src/components/ui/Button';
 import {
-  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, CheckCircle2, XCircle, TrendingUp
+  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, TrendingUp
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
@@ -40,9 +39,10 @@ function formatMonthLabel(isoMonth: string): string {
 export default function StaffReportsScreen() {
   const { meetings, loading: meetingsLoading } = useAllMeetings();
   const [memberSearch, setMemberSearch] = useState('');
-  const { members, loading: membersLoading } = useMembers(memberSearch);
+  const { members, loading: membersLoading } = useMembers(''); // Fetch all members once
 
   const [selectedMonth, setSelectedMonth] = useState<string>('ALL'); // 'ALL' or 'YYYY-MM'
+  const [viewFilter, setViewFilter] = useState<'ALL' | 'PENDING'>('ALL'); // 'ALL' or 'PENDING'
   const [loading, setLoading] = useState<boolean>(true);
   const [reportData, setReportData] = useState<MemberReportItem[]>([]);
 
@@ -70,7 +70,7 @@ export default function StaffReportsScreen() {
   useEffect(() => {
     async function buildReport() {
       if (meetingsLoading || membersLoading) return;
-      setLoading(true);
+      if (reportData.length === 0) setLoading(true);
 
       try {
         // Filter meetings by selected month
@@ -90,7 +90,6 @@ export default function StaffReportsScreen() {
 
         attSnap.docs.forEach(docSnap => {
           const data = docSnap.data();
-          // Find parent meeting ID from doc reference path
           const parentMeetingId = docSnap.ref.parent.parent?.id;
 
           if (parentMeetingId && meetingIds.has(parentMeetingId)) {
@@ -115,16 +114,18 @@ export default function StaffReportsScreen() {
         let globalPendingDues = 0;
 
         const items: MemberReportItem[] = members.map(m => {
-          const rec = attMap[m.id] || { attended: 0, absent: 0, totalPaid: 0 };
+          const rec = attMap[m.id] || attMap[m.id?.trim()] || { attended: 0, absent: 0, totalPaid: 0 };
           const attended = rec.attended;
-          // Absent count: missed meetings in selected period
-          const absent = totalMeetingsCount > 0 ? (totalMeetingsCount - attended) : 0;
-          const pct = totalMeetingsCount > 0 ? Math.round((attended / totalMeetingsCount) * 100) : 0;
+          
+          // Calculate absent count: if meeting total > 0 and attended < totalMeetings, then absent = totalMeetings - attended
+          let absent = rec.absent;
+          if (totalMeetingsCount > 0 && (attended + absent < totalMeetingsCount)) {
+            absent = Math.max(0, totalMeetingsCount - attended);
+          }
 
-          // Pending Due = Absent Count * Default Entry Fee (approx average or sum)
-          // Average entry fee from relevant meetings
+          const pct = totalMeetingsCount > 0 ? Math.round((attended / totalMeetingsCount) * 100) : 0;
           const avgFee = totalMeetingsCount > 0 
-            ? Math.round(relevantMeetings.reduce((sum, m) => sum + (m.entryFee || 500), 0) / totalMeetingsCount) 
+            ? Math.round(relevantMeetings.reduce((sum, meeting) => sum + (meeting.entryFee || 500), 0) / totalMeetingsCount) 
             : 500;
 
           const pendingDues = absent * avgFee;
@@ -148,7 +149,7 @@ export default function StaffReportsScreen() {
           };
         });
 
-        // Sort by pending dues (highest first) or attendance
+        // Sort by pending dues (highest first)
         items.sort((a, b) => b.pendingDues - a.pendingDues);
 
         const totalCapacity = members.length * totalMeetingsCount;
@@ -219,14 +220,27 @@ export default function StaffReportsScreen() {
     }
   };
 
-  const filteredItems = reportData.filter(item =>
-    item.fullName.toLowerCase().includes(memberSearch.toLowerCase()) ||
-    item.companyName.toLowerCase().includes(memberSearch.toLowerCase()) ||
-    item.businessCategory.toLowerCase().includes(memberSearch.toLowerCase())
-  );
+  const pendingMembersCount = reportData.filter(item => item.pendingDues > 0).length;
+
+  const filteredItems = reportData.filter(item => {
+    const queryStr = memberSearch.trim().toLowerCase();
+    const matchesSearch = !queryStr ||
+      item.fullName.toLowerCase().includes(queryStr) ||
+      item.companyName.toLowerCase().includes(queryStr) ||
+      item.businessCategory.toLowerCase().includes(queryStr);
+
+    if (!matchesSearch) return false;
+    if (viewFilter === 'PENDING') return item.pendingDues > 0;
+    return true;
+  });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }} className="p-4 md:p-8 max-w-6xl mx-auto w-full">
+    <ScrollView
+      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      contentContainerStyle={{ paddingBottom: 150 }}
+      showsVerticalScrollIndicator={true}
+      className="p-4 md:p-8 max-w-6xl mx-auto w-full"
+    >
       {/* Top Title & Export Action Header */}
       <View className="flex-row flex-wrap items-center justify-between gap-4 mb-6">
         <View>
@@ -346,13 +360,53 @@ export default function StaffReportsScreen() {
           <Text className="text-xl font-black text-blue-600 mt-0.5">{formatRupees(stats.totalCollected)}</Text>
         </Card>
 
-        <Card className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-          <View className="w-8 h-8 rounded-xl bg-amber-50 items-center justify-center mb-2">
-            <AlertCircle size={18} color="#d97706" />
-          </View>
-          <Text className="text-xs text-slate-400 font-semibold">Pending Dues (Absents)</Text>
-          <Text className="text-xl font-black text-amber-600 mt-0.5">{formatRupees(stats.totalPendingDues)}</Text>
-        </Card>
+        <TouchableOpacity
+          onPress={() => setViewFilter(viewFilter === 'PENDING' ? 'ALL' : 'PENDING')}
+          activeOpacity={0.8}
+        >
+          <Card className={`p-4 rounded-2xl border shadow-sm ${
+            viewFilter === 'PENDING' ? 'bg-amber-50 border-amber-300' : 'bg-white border-slate-100'
+          }`}>
+            <View className="w-8 h-8 rounded-xl bg-amber-50 items-center justify-center mb-2">
+              <AlertCircle size={18} color="#d97706" />
+            </View>
+            <Text className="text-xs text-slate-400 font-semibold">Pending Dues (Absents)</Text>
+            <Text className="text-xl font-black text-amber-600 mt-0.5">{formatRupees(stats.totalPendingDues)}</Text>
+          </Card>
+        </TouchableOpacity>
+      </View>
+
+      {/* Member Filter Tabs: All Members vs Pending Persons Only */}
+      <View className="flex-row flex-wrap items-center gap-2 mb-3">
+        <TouchableOpacity
+          onPress={() => setViewFilter('ALL')}
+          activeOpacity={0.8}
+          className={`px-4 py-2.5 rounded-xl border flex-row items-center ${
+            viewFilter === 'ALL'
+              ? 'bg-slate-900 border-slate-900'
+              : 'bg-white border-slate-200'
+          }`}
+        >
+          <Users size={14} color={viewFilter === 'ALL' ? '#ffffff' : '#64748b'} />
+          <Text className={`text-xs ml-1.5 ${viewFilter === 'ALL' ? 'text-white font-bold' : 'text-slate-600 font-semibold'}`}>
+            All Members ({reportData.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setViewFilter('PENDING')}
+          activeOpacity={0.8}
+          className={`px-4 py-2.5 rounded-xl border flex-row items-center ${
+            viewFilter === 'PENDING'
+              ? 'bg-amber-600 border-amber-600'
+              : 'bg-white border-slate-200'
+          }`}
+        >
+          <AlertCircle size={14} color={viewFilter === 'PENDING' ? '#ffffff' : '#d97706'} />
+          <Text className={`text-xs ml-1.5 ${viewFilter === 'PENDING' ? 'text-white font-bold' : 'text-amber-700 font-bold'}`}>
+            Pending Persons Only ({pendingMembersCount})
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Member Search Bar */}
@@ -379,16 +433,14 @@ export default function StaffReportsScreen() {
         <Card className="p-8 items-center bg-white rounded-2xl border border-slate-100">
           <FileText size={32} color="#94a3b8" />
           <Text className="text-slate-600 font-bold mt-2">No records found</Text>
-          <Text className="text-slate-400 text-xs mt-1">Try selecting a different month or search term.</Text>
+          <Text className="text-slate-400 text-xs mt-1">
+            {viewFilter === 'PENDING' ? 'No members have pending dues for this period.' : 'Try selecting a different month or search term.'}
+          </Text>
         </Card>
       ) : (
-        <FlatList
-          data={filteredItems}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item }) => (
-            <Card className="bg-white p-4 rounded-2xl border border-slate-100 mb-3 shadow-sm flex-row items-center justify-between">
+        <View className="space-y-3">
+          {filteredItems.map(item => (
+            <Card key={item.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex-row items-center justify-between mb-3">
               {/* Member Left Info */}
               <View className="flex-1 mr-3">
                 <Text className="font-bold text-slate-800 text-base">{item.fullName}</Text>
@@ -437,9 +489,9 @@ export default function StaffReportsScreen() {
                 )}
               </View>
             </Card>
-          )}
-        />
+          ))}
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
