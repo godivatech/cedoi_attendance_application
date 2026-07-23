@@ -6,7 +6,7 @@ import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import {
-  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, TrendingUp, MessageSquare
+  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, TrendingUp, MessageSquare, CheckCircle2
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
@@ -45,7 +45,7 @@ export default function StaffReportsScreen() {
   const [selectedMonth, setSelectedMonth] = useState<string>('ALL'); // 'ALL' or 'YYYY-MM'
   const [startDate, setStartDate] = useState<string>(''); // YYYY-MM-DD
   const [endDate, setEndDate] = useState<string>(''); // YYYY-MM-DD
-  const [viewFilter, setViewFilter] = useState<'ALL' | 'PENDING'>('ALL'); // 'ALL' or 'PENDING'
+  const [viewFilter, setViewFilter] = useState<'ALL' | 'PENDING' | 'PAID'>('ALL'); // 'ALL' or 'PENDING'
   const [loading, setLoading] = useState<boolean>(true);
   const [reportData, setReportData] = useState<MemberReportItem[]>([]);
 
@@ -245,6 +245,7 @@ export default function StaffReportsScreen() {
   };
 
   const pendingMembersCount = reportData.filter(item => item.pendingDues > 0).length;
+  const paidMembersCount = reportData.filter(item => item.pendingDues === 0).length;
 
   const filteredItems = reportData.filter(item => {
     const queryStr = memberSearch.trim().toLowerCase();
@@ -255,6 +256,7 @@ export default function StaffReportsScreen() {
 
     if (!matchesSearch) return false;
     if (viewFilter === 'PENDING') return item.pendingDues > 0;
+    if (viewFilter === 'PAID') return item.pendingDues === 0;
     return true;
   });
 
@@ -405,7 +407,7 @@ export default function StaffReportsScreen() {
         </View>
 
         {/* Quick Month Filter Pills */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
           <TouchableOpacity
             onPress={() => {
               setSelectedMonth('ALL');
@@ -426,32 +428,31 @@ export default function StaffReportsScreen() {
               All Months
             </Text>
           </TouchableOpacity>
-
           {availableMonths.map(m => (
             <TouchableOpacity
               key={m}
-              onPress={() => {
-                setSelectedMonth(m);
-                setStartDate('');
-                setEndDate('');
-              }}
-              style={{
-                backgroundColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#f8fafc',
-                borderColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#e2e8f0',
-                borderWidth: 1,
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-                borderRadius: 12,
-                marginRight: 6
-              }}
-            >
-              <Text style={{ color: selectedMonth === m && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '700', fontSize: 12 }}>
-                {formatMonthLabel(m)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+            onPress={() => {
+              setSelectedMonth(m);
+              setStartDate('');
+              setEndDate('');
+            }}
+            style={{
+              backgroundColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#f8fafc',
+              borderColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#e2e8f0',
+              borderWidth: 1,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              borderRadius: 12,
+              marginRight: 6
+            }}
+          >
+            <Text style={{ color: selectedMonth === m && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '700', fontSize: 12 }}>
+              {formatMonthLabel(m)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
 
       {/* Compact 2-Column Mobile & 4-Column Desktop KPI Summary Cards */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }} className="mb-4">
@@ -511,21 +512,21 @@ export default function StaffReportsScreen() {
         </View>
       </View>
 
-      {/* Unified Search & Segmented Filter Control Panel (Mobile Optimized) */}
+      {/* Unified Search & Segmented Filter Control Panel (3 Complete Tabs) */}
       <View className="mb-5 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-        {/* iOS-Style Segmented Control Switch */}
+        {/* iOS-Style 3-Segment Control Switch */}
         <View className="flex-row bg-slate-100 p-1 rounded-xl mb-3">
           <TouchableOpacity
             onPress={() => setViewFilter('ALL')}
             activeOpacity={0.85}
-            className={`flex-1 py-2.5 px-2 rounded-lg flex-row items-center justify-center transition-all ${
+            className={`flex-1 py-2.5 px-1.5 rounded-lg flex-row items-center justify-center transition-all ${
               viewFilter === 'ALL'
                 ? 'bg-[#0d5984] shadow-sm'
                 : ''
             }`}
           >
-            <Users size={14} color={viewFilter === 'ALL' ? '#ffffff' : '#475569'} />
-            <Text className={`text-xs ml-1.5 font-extrabold truncate ${
+            <Users size={13} color={viewFilter === 'ALL' ? '#ffffff' : '#475569'} />
+            <Text className={`text-[11px] sm:text-xs ml-1 font-extrabold truncate ${
               viewFilter === 'ALL' ? 'text-white' : 'text-slate-700'
             }`}>
               All ({reportData.length})
@@ -535,17 +536,34 @@ export default function StaffReportsScreen() {
           <TouchableOpacity
             onPress={() => setViewFilter('PENDING')}
             activeOpacity={0.85}
-            className={`flex-1 py-2.5 px-2 rounded-lg flex-row items-center justify-center transition-all ${
+            className={`flex-1 py-2.5 px-1.5 rounded-lg flex-row items-center justify-center transition-all ${
               viewFilter === 'PENDING'
                 ? 'bg-[#ec861a] shadow-sm'
                 : ''
             }`}
           >
-            <AlertCircle size={14} color={viewFilter === 'PENDING' ? '#ffffff' : '#c66708'} />
-            <Text className={`text-xs ml-1.5 font-extrabold truncate ${
+            <AlertCircle size={13} color={viewFilter === 'PENDING' ? '#ffffff' : '#c66708'} />
+            <Text className={`text-[11px] sm:text-xs ml-1 font-extrabold truncate ${
               viewFilter === 'PENDING' ? 'text-white' : 'text-[#c66708]'
             }`}>
-              Pending Dues ({pendingMembersCount})
+              Pending ({pendingMembersCount})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setViewFilter('PAID')}
+            activeOpacity={0.85}
+            className={`flex-1 py-2.5 px-1.5 rounded-lg flex-row items-center justify-center transition-all ${
+              viewFilter === 'PAID'
+                ? 'bg-[#059669] shadow-sm'
+                : ''
+            }`}
+          >
+            <CheckCircle2 size={13} color={viewFilter === 'PAID' ? '#ffffff' : '#047857'} />
+            <Text className={`text-[11px] sm:text-xs ml-1 font-extrabold truncate ${
+              viewFilter === 'PAID' ? 'text-white' : 'text-[#047857]'
+            }`}>
+              Paid ({paidMembersCount})
             </Text>
           </TouchableOpacity>
         </View>
