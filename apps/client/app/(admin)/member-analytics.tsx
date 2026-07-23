@@ -653,51 +653,162 @@ export default function AdminMemberAnalyticsScreen() {
         </View>
       </View>
 
-      {/* Behavioral Progress Section */}
-      <View style={{ backgroundColor: '#ffffff', borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', padding: 20, marginBottom: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-          <BarChart2 size={16} color="#475569" style={{ marginRight: 8 }} />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#0f172a' }}>
-            Behavioral & Compliance Distribution
-          </Text>
+      {/* Executive Behavioral & Compliance Distribution Card */}
+      <View style={{ backgroundColor: '#ffffff', borderRadius: 24, borderWidth: 1.5, borderColor: '#cbd5e1', padding: 20, marginBottom: 24, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 10 }}>
+        <View className="flex-row items-center justify-between mb-5 border-b border-slate-100 pb-3">
+          <View className="flex-row items-center">
+            <View className="w-9 h-9 rounded-xl bg-sky-50 items-center justify-center border border-sky-100 mr-3">
+              <BarChart2 size={18} color="#0d5984" />
+            </View>
+            <View>
+              <Text className="text-base sm:text-lg font-black text-slate-900">
+                Behavioral & Compliance Distribution
+              </Text>
+              <Text className="text-xs text-slate-500 font-medium mt-0.5">
+                Attendance turnout, arrival punctuality, and dress code compliance metrics
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {/* Turnout Progress Row */}
-        <View style={{ flexDirection: isSmall ? 'column' : 'row', alignItems: isSmall ? 'stretch' : 'center', gap: isSmall ? 6 : 0, marginBottom: 16 }}>
-          <Text style={{ width: isSmall ? 'auto' : 160, fontSize: 13, fontWeight: '600', color: '#475569' }}>Attendance Turnout</Text>
-          <View style={{ flex: 1, height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, flexDirection: 'row', overflow: 'hidden', marginHorizontal: isSmall ? 0 : 12 }}>
-            <View style={{ flex: analytics.attendedCount || 0.001, backgroundColor: '#10b981' }} />
-            <View style={{ flex: analytics.absentCount || 0.001, backgroundColor: '#ef4444' }} />
-          </View>
-          <Text style={{ width: isSmall ? 'auto' : 170, fontSize: 12, fontWeight: '700', textAlign: isSmall ? 'left' : 'right' }}>
-            <Text style={{ color: '#ef4444' }}>{analytics.attendedCount} Attended</Text>
-            <Text style={{ color: '#64748b' }}> / {analytics.absentCount} Absent</Text>
-          </Text>
-        </View>
+        {/* 3 Metric Visual Breakdown Cards */}
+        <View className="flex-col lg:flex-row gap-4">
+          {/* Card 1: Attendance Turnout */}
+          {(() => {
+            const attended = analytics.attendedCount || 0;
+            const absent = analytics.absentCount || 0;
+            const total = attended + absent;
+            const rate = total > 0 ? Math.round((attended / total) * 100) : 0;
+            return (
+              <View style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="flex-1 p-4.5 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-1.5">
+                  <View className="flex-row items-center">
+                    <Users size={15} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text className="text-xs font-black text-slate-800 uppercase tracking-wider">Attendance Turnout</Text>
+                  </View>
+                  <View className="px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-200">
+                    <Text className="text-xs font-black text-emerald-800">{rate}% Rate</Text>
+                  </View>
+                </View>
 
-        {/* Punctuality Progress Row */}
-        <View style={{ flexDirection: isSmall ? 'column' : 'row', alignItems: isSmall ? 'stretch' : 'center', gap: isSmall ? 6 : 0, marginBottom: 16 }}>
-          <Text style={{ width: isSmall ? 'auto' : 160, fontSize: 13, fontWeight: '600', color: '#475569' }}>Arrival Punctuality</Text>
-          <View style={{ flex: 1, height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, flexDirection: 'row', overflow: 'hidden', marginHorizontal: isSmall ? 0 : 12 }}>
-            <View style={{ flex: analytics.onTimeCount || 0.001, backgroundColor: '#10b981' }} />
-            <View style={{ flex: analytics.graceCount || 0.001, backgroundColor: '#f59e0b' }} />
-            <View style={{ flex: analytics.lateCount || 0.001, backgroundColor: '#ef4444' }} />
-          </View>
-          <Text style={{ width: isSmall ? 'auto' : 170, fontSize: 12, fontWeight: '700', color: '#10b981', textAlign: isSmall ? 'left' : 'right' }}>
-            {analytics.onTimeCount} On Time <Text style={{ color: '#64748b' }}>| {analytics.graceCount} Grace | {analytics.lateCount} Late</Text>
-          </Text>
-        </View>
+                {/* Big Ratio Display */}
+                <View className="flex-row items-baseline mb-2">
+                  <Text className="text-2xl font-black text-slate-900">{attended}</Text>
+                  <Text className="text-xs font-bold text-slate-500 ml-1">of {total} Total Meetings</Text>
+                </View>
 
-        {/* Dress Code Progress Row */}
-        <View style={{ flexDirection: isSmall ? 'column' : 'row', alignItems: isSmall ? 'stretch' : 'center', gap: isSmall ? 6 : 0 }}>
-          <Text style={{ width: isSmall ? 'auto' : 160, fontSize: 13, fontWeight: '600', color: '#475569' }}>Dress Code Compliance</Text>
-          <View style={{ flex: 1, height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, flexDirection: 'row', overflow: 'hidden', marginHorizontal: isSmall ? 0 : 12 }}>
-            <View style={{ flex: analytics.perfectAttireCount || 0.001, backgroundColor: '#a855f7' }} />
-            <View style={{ flex: analytics.imperfectAttireCount || 0.001, backgroundColor: '#f97316' }} />
-          </View>
-          <Text style={{ width: isSmall ? 'auto' : 170, fontSize: 12, fontWeight: '700', color: '#a855f7', textAlign: isSmall ? 'left' : 'right' }}>
-            {analytics.perfectAttireCount} Perfect <Text style={{ color: '#64748b' }}>| {analytics.imperfectAttireCount} Imperfect</Text>
-          </Text>
+                {/* Clean Standard Progress Bar (Filled % over Neutral Slate Track) */}
+                <View className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-3">
+                  <View style={{ width: `${rate}%`, backgroundColor: '#059669', height: '100%', borderRadius: 999 }} />
+                </View>
+
+                {/* Pill Badges */}
+                <View className="flex-row items-center gap-2">
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
+                    <View className="w-2 h-2 rounded-full bg-emerald-600 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-emerald-900">{attended} Attended ({rate}%)</Text>
+                  </View>
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200">
+                    <View className="w-2 h-2 rounded-full bg-slate-400 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-slate-700">{absent} Absent</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          })()}
+
+          {/* Card 2: Arrival Punctuality */}
+          {(() => {
+            const onTime = analytics.onTimeCount || 0;
+            const grace = analytics.graceCount || 0;
+            const late = analytics.lateCount || 0;
+            const total = onTime + grace + late;
+            const rate = total > 0 ? Math.round((onTime / total) * 100) : 0;
+            return (
+              <View style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="flex-1 p-4.5 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-1.5">
+                  <View className="flex-row items-center">
+                    <Clock size={15} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text className="text-xs font-black text-slate-800 uppercase tracking-wider">Arrival Punctuality</Text>
+                  </View>
+                  <View className="px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-200">
+                    <Text className="text-xs font-black text-emerald-800">{rate}% On-Time</Text>
+                  </View>
+                </View>
+
+                {/* Big Ratio Display */}
+                <View className="flex-row items-baseline mb-2">
+                  <Text className="text-2xl font-black text-slate-900">{onTime}</Text>
+                  <Text className="text-xs font-bold text-slate-500 ml-1">of {total || 1} Checked-In</Text>
+                </View>
+
+                {/* Clean Standard Progress Bar */}
+                <View className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-3">
+                  <View style={{ width: `${rate}%`, backgroundColor: '#059669', height: '100%', borderRadius: 999 }} />
+                </View>
+
+                {/* Pill Badges */}
+                <View className="flex-row items-center flex-wrap gap-1.5">
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
+                    <View className="w-2 h-2 rounded-full bg-emerald-600 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-emerald-900">{onTime} On Time</Text>
+                  </View>
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200">
+                    <View className="w-2 h-2 rounded-full bg-amber-500 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-amber-900">{grace} Grace</Text>
+                  </View>
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200">
+                    <View className="w-2 h-2 rounded-full bg-rose-500 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-rose-900">{late} Late</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          })()}
+
+          {/* Card 3: Dress Code Compliance */}
+          {(() => {
+            const perfect = analytics.perfectAttireCount || 0;
+            const imperfect = analytics.imperfectAttireCount || 0;
+            const total = perfect + imperfect;
+            const rate = total > 0 ? Math.round((perfect / total) * 100) : 0;
+            return (
+              <View style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="flex-1 p-4.5 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-1.5">
+                  <View className="flex-row items-center">
+                    <Shirt size={15} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text className="text-xs font-black text-slate-800 uppercase tracking-wider">Dress Code</Text>
+                  </View>
+                  <View className="px-2.5 py-0.5 rounded-full bg-purple-100 border border-purple-200">
+                    <Text className="text-xs font-black text-purple-800">{rate}% Perfect</Text>
+                  </View>
+                </View>
+
+                {/* Big Ratio Display */}
+                <View className="flex-row items-baseline mb-2">
+                  <Text className="text-2xl font-black text-slate-900">{perfect}</Text>
+                  <Text className="text-xs font-bold text-slate-500 ml-1">of {total || 1} Checked-In</Text>
+                </View>
+
+                {/* Clean Standard Progress Bar */}
+                <View className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-3">
+                  <View style={{ width: `${rate}%`, backgroundColor: '#9333ea', height: '100%', borderRadius: 999 }} />
+                </View>
+
+                {/* Pill Badges */}
+                <View className="flex-row items-center gap-2">
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-purple-50 border border-purple-200">
+                    <View className="w-2 h-2 rounded-full bg-purple-600 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-purple-900">{perfect} Perfect</Text>
+                  </View>
+                  <View className="flex-row items-center px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200">
+                    <View className="w-2 h-2 rounded-full bg-orange-500 mr-1.5" />
+                    <Text className="text-xs font-extrabold text-orange-900">{imperfect} Imperfect</Text>
+                  </View>
+                </View>
+              </View>
+            );
+          })()}
         </View>
       </View>
 
