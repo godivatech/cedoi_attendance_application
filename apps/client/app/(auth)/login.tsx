@@ -38,7 +38,7 @@ export default function LoginScreen() {
       if (role === 'ADMIN') {
         router.replace('/(admin)/dashboard');
       } else {
-        router.replace('/(staff)/today');
+        router.replace('/(staff)/dashboard');
       }
     }
   }, [user, role]);

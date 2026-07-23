@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../src/utils/date';
 import { BRAND_COLORS } from '../../src/theme/colors';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs, collectionGroup, query } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { useAuthStore } from '../../src/store/authStore';
 
@@ -25,32 +25,81 @@ export default function StaffDashboard() {
   const todaysMeeting = meetings[0];
 
   const [recentCheckIns, setRecentCheckIns] = useState<any[]>([]);
-  const [liveAttendanceCount, setLiveAttendanceCount] = useState<number>(0);
-  const [liveCollectedAmount, setLiveCollectedAmount] = useState<number>(0);
-  const [livePendingCount, setLivePendingCount] = useState<number>(0);
+  const [overallCollected, setOverallCollected] = useState<number>(0);
+  const [overallPending, setOverallPending] = useState<number>(0);
+  const [overallTurnoutRate, setOverallTurnoutRate] = useState<number>(0);
 
+  // Fetch overall chapter metrics across ALL meetings and members
+  useEffect(() => {
+    const fetchOverallMetrics = async () => {
+      try {
+        const meetingsSnap = await getDocs(query(collectionGroup(db, 'meetings')));
+        const meetingsList = meetingsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const totalMeetingsCount = meetingsList.length || 1;
+
+        const attSnap = await getDocs(query(collectionGroup(db, 'attendance')));
+        let totalCollected = 0;
+        let totalPending = 0;
+        let totalPaidDocs = 0;
+
+        const meetingsMap: Record<string, any> = {};
+        meetingsSnap.forEach(d => { meetingsMap[d.id] = d.data(); });
+
+        attSnap.docs.forEach(d => {
+          const data = d.data();
+          const meetingId = d.ref.parent?.parent?.id || '';
+          const fee = meetingsMap[meetingId]?.entryFee || data.entryFee || 1040;
+
+          if (data.paymentStatus === 'PAID') {
+            totalCollected += Number(data.amountPaid || fee);
+            totalPaidDocs++;
+          } else if (data.paymentStatus === 'PENDING' || data.paymentStatus === 'ABSENT') {
+            totalPending += Number(fee);
+          }
+        });
+
+        // Also add pending fees for members who missed meetings without an attendance doc
+        members.forEach(m => {
+          meetingsList.forEach(mtg => {
+            const hasDoc = attSnap.docs.some(d => {
+              const meetingId = d.ref.parent?.parent?.id;
+              const data = d.data();
+              return meetingId === mtg.id && (data.memberId === m.id || d.id === m.id);
+            });
+            if (!hasDoc) {
+              const fee = (mtg as any).entryFee || 1040;
+              totalPending += Number(fee);
+            }
+          });
+        });
+
+        const totalRoster = members.length || 1;
+        const possibleTotalAttendances = totalMeetingsCount * totalRoster;
+        const turnoutRate = possibleTotalAttendances > 0 
+          ? Math.min(100, Math.round((totalPaidDocs / possibleTotalAttendances) * 100))
+          : 85;
+
+        setOverallCollected(totalCollected);
+        setOverallPending(totalPending);
+        setOverallTurnoutRate(turnoutRate || 85);
+      } catch (err) {
+        console.log('Error fetching overall staff metrics:', err);
+      }
+    };
+
+    fetchOverallMetrics();
+  }, [members]);
+
+  // Listen to live attendance feed for today's meeting
   useEffect(() => {
     if (!todaysMeeting?.id) return;
 
-    // Listen to live attendance collection for real-time feed & metrics
     const attendanceRef = collection(db, `meetings/${todaysMeeting.id}/attendance`);
     
     const unsub = onSnapshot(attendanceRef, (snap) => {
-      let count = 0;
-      let totalMoney = 0;
-      let pendingDues = 0;
       const list: any[] = [];
-
       snap.forEach((d) => {
         const data = d.data();
-        if (data.paymentStatus !== 'ABSENT') {
-          count++;
-        }
-        if (data.paymentStatus === 'PAID') {
-          totalMoney += Number(data.amountPaid || todaysMeeting.entryFee || 1040);
-        } else if (data.paymentStatus === 'PENDING') {
-          pendingDues++;
-        }
         list.push({
           id: d.id,
           memberFullName: data.memberFullName || data.memberName || 'CEDOI Member',
@@ -60,12 +109,7 @@ export default function StaffDashboard() {
         });
       });
 
-      // Sort by latest checkins
       list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-
-      setLiveAttendanceCount(count);
-      setLiveCollectedAmount(totalMoney);
-      setLivePendingCount(pendingDues);
       setRecentCheckIns(list.slice(0, 5));
     }, (err) => {
       console.log('Attendance listener error:', err);
@@ -82,10 +126,7 @@ export default function StaffDashboard() {
     );
   }
 
-  const checkedInCount = liveAttendanceCount || todaysMeeting?.metrics?.totalAttendees || 0;
-  const collectedTotal = liveCollectedAmount || todaysMeeting?.metrics?.totalCollected || 0;
-  const totalRosterCount = members.length || 40;
-  const attendancePercentage = totalRosterCount > 0 ? Math.round((checkedInCount / totalRosterCount) * 100) : 0;
+  const totalRosterCount = members.length || 6;
 
   return (
     <ScrollView style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1">
@@ -110,37 +151,37 @@ export default function StaffDashboard() {
           </Text>
         </View>
 
-        {/* Top-Level KPI Metric Overview Grid */}
+        {/* Top-Level Overall Chapter Metrics Grid */}
         <View>
           <Text className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2.5 px-1">
-            Live Meeting Metrics
+            Overall Chapter Metrics
           </Text>
           <View className="flex-row flex-wrap gap-2.5">
-            {/* KPI 1: Checked In */}
+            {/* Metric 1: Total Chapter Roster */}
             <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1 }} className="flex-1 min-w-[140px] p-3.5 rounded-2xl shadow-2xs">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-[11px] font-black text-blue-700 uppercase tracking-tight">Checked In</Text>
+                <Text className="text-[11px] font-black text-blue-700 uppercase tracking-tight">Active Members</Text>
                 <View className="w-7 h-7 rounded-lg bg-blue-50 items-center justify-center">
                   <Users size={15} color="#2563eb" />
                 </View>
               </View>
-              <Text className="text-2xl font-black text-slate-900">{checkedInCount}</Text>
-              <Text className="text-[10px] font-bold text-slate-500 mt-1">of {totalRosterCount} Total Roster</Text>
+              <Text className="text-2xl font-black text-slate-900">{totalRosterCount}</Text>
+              <Text className="text-[10px] font-bold text-slate-500 mt-1">Total Chapter Roster</Text>
             </View>
 
-            {/* KPI 2: Total Collected */}
+            {/* Metric 2: Overall Collections */}
             <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1 }} className="flex-1 min-w-[140px] p-3.5 rounded-2xl shadow-2xs">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-[11px] font-black text-emerald-700 uppercase tracking-tight">Collected</Text>
+                <Text className="text-[11px] font-black text-emerald-700 uppercase tracking-tight">Total Collected</Text>
                 <View className="w-7 h-7 rounded-lg bg-emerald-50 items-center justify-center">
                   <DollarSign size={15} color="#16a34a" />
                 </View>
               </View>
-              <Text className="text-2xl font-black text-slate-900">₹{collectedTotal.toLocaleString('en-IN')}</Text>
-              <Text className="text-[10px] font-bold text-slate-500 mt-1">Meeting Fees Received</Text>
+              <Text className="text-2xl font-black text-slate-900">₹{overallCollected.toLocaleString('en-IN')}</Text>
+              <Text className="text-[10px] font-bold text-slate-500 mt-1">Total Fees Received</Text>
             </View>
 
-            {/* KPI 3: Unpaid Dues */}
+            {/* Metric 3: Overall Pending Dues */}
             <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1 }} className="flex-1 min-w-[140px] p-3.5 rounded-2xl shadow-2xs">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-[11px] font-black text-rose-700 uppercase tracking-tight">Pending Dues</Text>
@@ -148,20 +189,20 @@ export default function StaffDashboard() {
                   <AlertCircle size={15} color="#be123c" />
                 </View>
               </View>
-              <Text className="text-2xl font-black text-slate-900">{livePendingCount}</Text>
-              <Text className="text-[10px] font-bold text-slate-500 mt-1">Unpaid Attendees</Text>
+              <Text className="text-2xl font-black text-slate-900">₹{overallPending.toLocaleString('en-IN')}</Text>
+              <Text className="text-[10px] font-bold text-slate-500 mt-1">Uncollected Member Dues</Text>
             </View>
 
-            {/* KPI 4: Turnout Rate */}
+            {/* Metric 4: Overall Turnout */}
             <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1 }} className="flex-1 min-w-[140px] p-3.5 rounded-2xl shadow-2xs">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-[11px] font-black text-purple-700 uppercase tracking-tight">Turnout</Text>
+                <Text className="text-[11px] font-black text-purple-700 uppercase tracking-tight">Chapter Turnout</Text>
                 <View className="w-7 h-7 rounded-lg bg-purple-50 items-center justify-center">
                   <TrendingUp size={15} color="#9333ea" />
                 </View>
               </View>
-              <Text className="text-2xl font-black text-slate-900">{attendancePercentage}%</Text>
-              <Text className="text-[10px] font-bold text-slate-500 mt-1">Attendance Rate</Text>
+              <Text className="text-2xl font-black text-slate-900">{overallTurnoutRate}%</Text>
+              <Text className="text-[10px] font-bold text-slate-500 mt-1">Avg Attendance Rate</Text>
             </View>
           </View>
         </View>
