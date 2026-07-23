@@ -42,6 +42,7 @@ export default function AdminDuesScreen() {
 
   // Filter & Search States
   const [activeTab, setActiveTab] = useState<'OVERDUE' | 'RECEIPTS'>('OVERDUE');
+  const [viewMode, setViewMode] = useState<'BY_MEMBER' | 'BY_MEETING'>('BY_MEMBER');
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -209,10 +210,56 @@ export default function AdminDuesScreen() {
     };
   }, [records, searchQuery, startDate, endDate, minDuesFilter]);
 
+  // Group Overdue Records by Member for clean aggregated cards
+  const groupedMembersOverdue = useMemo(() => {
+    const map: Record<string, {
+      memberId: string;
+      memberFullName: string;
+      memberCompanyName: string;
+      memberMobile: string;
+      memberCategory: string;
+      totalPending: number;
+      meetingsCount: number;
+      records: AttendanceRecord[];
+    }> = {};
+
+    overdueRecords.forEach(r => {
+      const fee = r.entryFee || 500;
+      if (!map[r.memberId]) {
+        map[r.memberId] = {
+          memberId: r.memberId,
+          memberFullName: r.memberFullName,
+          memberCompanyName: r.memberCompanyName,
+          memberMobile: r.memberMobile,
+          memberCategory: r.memberCategory,
+          totalPending: 0,
+          meetingsCount: 0,
+          records: []
+        };
+      }
+      map[r.memberId].totalPending += fee;
+      map[r.memberId].meetingsCount += 1;
+      map[r.memberId].records.push(r);
+    });
+
+    return Object.values(map).sort((a, b) => b.totalPending - a.totalPending);
+  }, [overdueRecords]);
+
   // Reset pagination when active filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeTab, minDuesFilter, startDate, endDate]);
+
+  // Consolidated WhatsApp Reminder for Grouped Member Dues
+  const handleSendGroupedWhatsApp = (name: string, mobile: string, totalPending: number, count: number) => {
+    let cleanPhone = (mobile || '').replace(/\D/g, '');
+    if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+    if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
+
+    const text = `Hello ${name}, Greetings from CEDOI!\n\nThis is a polite reminder regarding your pending meeting attendance fees totaling ₹${totalPending} across ${count} meeting(s).\n\nKindly clear your dues at your earliest convenience. Thank you!`;
+    const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+    if (typeof window !== 'undefined') window.open(url, '_blank');
+  };
 
   const activeDisplayList = activeTab === 'OVERDUE' ? overdueRecords : paidRecords;
   const totalPages = Math.max(1, Math.ceil(activeDisplayList.length / PAGE_SIZE));
@@ -533,13 +580,130 @@ export default function AdminDuesScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-xs text-slate-500 font-extrabold shrink-0 self-start sm:self-center">
-            {activeDisplayList.length} Records Found
-          </Text>
+          {/* Grouping Toggle Pill Switch for Pending Dues */}
+          {activeTab === 'OVERDUE' && (
+            <View className="flex-row bg-slate-100 p-1 rounded-xl shrink-0">
+              <TouchableOpacity
+                onPress={() => setViewMode('BY_MEMBER')}
+                className={`px-3 py-1.5 rounded-lg flex-row items-center transition-all ${
+                  viewMode === 'BY_MEMBER' ? 'bg-[#0d5984] shadow-xs' : ''
+                }`}
+              >
+                <Users size={12} color={viewMode === 'BY_MEMBER' ? '#ffffff' : '#475569'} />
+                <Text className={`text-xs ml-1.5 font-bold ${viewMode === 'BY_MEMBER' ? 'text-white' : 'text-slate-600'}`}>
+                  Group by Member ({groupedMembersOverdue.length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setViewMode('BY_MEETING')}
+                className={`px-3 py-1.5 rounded-lg flex-row items-center transition-all ${
+                  viewMode === 'BY_MEETING' ? 'bg-[#0d5984] shadow-xs' : ''
+                }`}
+              >
+                <Calendar size={12} color={viewMode === 'BY_MEETING' ? '#ffffff' : '#475569'} />
+                <Text className={`text-xs ml-1.5 font-bold ${viewMode === 'BY_MEETING' ? 'text-white' : 'text-slate-600'}`}>
+                  Itemized Meetings ({overdueRecords.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Ledger Items List */}
-        {activeDisplayList.length > 0 ? (
+        {activeTab === 'OVERDUE' && viewMode === 'BY_MEMBER' ? (
+          groupedMembersOverdue.length > 0 ? (
+            <View className="gap-3">
+              {groupedMembersOverdue.map((m) => {
+                const initial = m.memberFullName ? m.memberFullName.charAt(0).toUpperCase() : 'U';
+
+                return (
+                  <View
+                    key={m.memberId}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderWidth: 1.5,
+                      borderColor: '#fecdd3',
+                      borderRadius: 20,
+                      padding: 16
+                    }}
+                    className="shadow-2xs gap-3.5 mb-3"
+                  >
+                    <View className="flex-row items-start justify-between gap-2.5">
+                      <View className="flex-row items-start flex-1 min-w-0">
+                        <View style={{ backgroundColor: '#fff1f2', width: 44, height: 44, borderRadius: 22 }} className="items-center justify-center mr-3 shrink-0">
+                          <Text style={{ color: '#be123c', fontSize: 18, fontWeight: '900' }}>{initial}</Text>
+                        </View>
+
+                        <View className="flex-1 min-w-0">
+                          <Text numberOfLines={1} className="text-base sm:text-lg font-black text-slate-900 truncate">
+                            {m.memberFullName}
+                          </Text>
+                          <Text numberOfLines={1} className="text-xs text-slate-500 font-semibold truncate mt-0.5">
+                            {[m.memberCompanyName, m.memberCategory].filter(Boolean).join(' • ') || 'CEDOI Member'}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View className="flex-col items-end shrink-0 pl-2">
+                        <Text className="text-xs font-black uppercase text-amber-900 tracking-wider">Total Pending</Text>
+                        <Text className="text-xl sm:text-2xl font-black text-rose-700 mt-0.5">
+                          ₹{m.totalPending.toLocaleString('en-IN')}
+                        </Text>
+                        <Text className="text-[11px] font-bold text-rose-800 mt-0.5">
+                          Across {m.meetingsCount} meeting(s)
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Unpaid Meetings Breakdown Badges */}
+                    <View className="pt-2 border-t border-slate-100 flex-row flex-wrap items-center gap-1.5">
+                      <Text className="text-[11px] font-bold text-slate-400 mr-1">Unpaid:</Text>
+                      {m.records.slice(0, 5).map(r => (
+                        <View key={r.id + '-' + r.meetingId} className="bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg">
+                          <Text className="text-[11px] font-extrabold text-rose-800">
+                            {r.meetingDate}: ₹{r.entryFee}
+                          </Text>
+                        </View>
+                      ))}
+                      {m.records.length > 5 && (
+                        <Text className="text-[11px] font-bold text-slate-500">
+                          +{m.records.length - 5} more
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* Member Quick Action Buttons Bar */}
+                    <View className="flex-row items-center justify-between pt-2 gap-2 flex-wrap sm:flex-nowrap">
+                      <TouchableOpacity
+                        onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: m.memberId } })}
+                        style={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1 }}
+                        className="px-3 py-1.5 rounded-xl flex-row items-center"
+                      >
+                        <Text className="text-xs font-bold text-blue-700">Member 360° Profile →</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => handleSendGroupedWhatsApp(m.memberFullName, m.memberMobile, m.totalPending, m.meetingsCount)}
+                        style={{ backgroundColor: '#059669' }}
+                        className="px-3.5 py-1.5 rounded-xl flex-row items-center shadow-xs"
+                      >
+                        <WhatsAppIcon size={14} color="#ffffff" style={{ marginRight: 5 }} />
+                        <Text className="text-xs font-extrabold text-white">WhatsApp Reminder (₹{m.totalPending})</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            <View className="p-12 items-center bg-slate-50 rounded-2xl">
+              <CheckCircle2 size={36} color="#059669" />
+              <Text className="text-slate-700 font-bold text-base mt-2">All Clear!</Text>
+              <Text className="text-slate-400 text-xs mt-1">There are currently no members with overdue dues.</Text>
+            </View>
+          )
+        ) : activeDisplayList.length > 0 ? (
           <View className="gap-3">
             {paginatedDisplayList.map((item) => {
               const isOverdue = item.paymentStatus === 'PENDING' || item.paymentStatus === 'ABSENT';
