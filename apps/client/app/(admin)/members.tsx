@@ -36,8 +36,8 @@ export default function AdminMembers() {
       {/* Header */}
       <View className="flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
         <View>
-          <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Members</Text>
-          <Text className="text-slate-500 text-sm mt-0.5">Manage directory & registrations</Text>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#0d5984', letterSpacing: -0.5 }}>Members Directory</Text>
+          <Text className="text-slate-500 text-sm mt-0.5">Manage member registry & performance intelligence</Text>
         </View>
         <View className="mt-4 sm:mt-0 self-start sm:self-auto">
           <Button 
@@ -131,10 +131,10 @@ export default function AdminMembers() {
                 <View className="flex-row items-center gap-2">
                   <TouchableOpacity 
                     onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
-                    className="bg-indigo-50 hover:bg-indigo-100 p-2 px-3 rounded-xl border border-indigo-200 flex-row items-center"
+                    style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center' }}
                   >
-                    <BarChart2 size={13} color="#4338ca" style={{ marginRight: 5 }} />
-                    <Text className="text-xs font-extrabold text-indigo-700">Analytics 360°</Text>
+                    <BarChart2 size={13} color="#0d5984" style={{ marginRight: 5 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#0d5984' }}>Analytics 360°</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity 

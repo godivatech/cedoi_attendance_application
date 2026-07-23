@@ -4,6 +4,7 @@ import { Card } from '../../src/components/ui/Card';
 import { Calendar, MapPin, Users, ChevronRight, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../src/utils/date';
+import { BRAND_COLORS } from '../../src/theme/colors';
 
 export default function StaffToday() {
   const { meetings, loading } = useUpcomingMeetings();
@@ -11,8 +12,8 @@ export default function StaffToday() {
 
   if (loading) {
     return (
-      <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#4f46e5" />
+      <View style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
       </View>
     );
   }
@@ -20,79 +21,80 @@ export default function StaffToday() {
   const todaysMeeting = meetings[0];
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1">
+    <ScrollView style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1">
       {/* Header */}
       <View className="px-6 pt-8 pb-4">
-        <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Today's Meeting</Text>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: BRAND_COLORS.primary, letterSpacing: -0.5 }}>Today's Meeting</Text>
         <Text className="text-slate-500 text-sm mt-1 font-medium">{formatDate(new Date())}</Text>
       </View>
 
       {todaysMeeting ? (
         <View className="px-6">
-          {/* Meeting Card */}
-          <View style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#f1f5f9', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3, overflow: 'hidden', marginBottom: 20 }}>
+          {/* Meeting Card with Official CEDOI Brand Palette */}
+          <View style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: BRAND_COLORS.border, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 3, overflow: 'hidden', marginBottom: 20 }}>
             {/* Status Banner */}
-            <View style={{ backgroundColor: todaysMeeting.status === 'ONGOING' ? '#059669' : '#4f46e5', paddingVertical: 10, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.5)', marginRight: 8 }} />
+            <View style={{ backgroundColor: BRAND_COLORS.primary, paddingVertical: 12, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: todaysMeeting.status === 'ONGOING' ? '#10b981' : BRAND_COLORS.secondary, marginRight: 10 }} />
               <Text style={{ color: 'white', fontWeight: '800', fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' }}>
                 {todaysMeeting.status === 'ONGOING' ? 'In Progress' : todaysMeeting.status}
               </Text>
             </View>
 
             <View style={{ padding: 24 }}>
-              <Text style={{ fontSize: 24, fontWeight: '800', color: '#0f172a', marginBottom: 16, lineHeight: 30 }}>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: BRAND_COLORS.textHeading, marginBottom: 16, lineHeight: 30 }}>
                 {todaysMeeting.title}
               </Text>
 
               <View style={{ gap: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#eff6ff', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                    <Calendar size={16} color="#4f46e5" />
+                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: BRAND_COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
+                    <Calendar size={18} color={BRAND_COLORS.primary} />
                   </View>
                   <View>
-                    <Text style={{ color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Date</Text>
-                    <Text style={{ color: '#334155', fontSize: 14, fontWeight: '600', marginTop: 1 }}>{formatDate(todaysMeeting.date)}</Text>
+                    <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Date</Text>
+                    <Text style={{ color: BRAND_COLORS.textHeading, fontSize: 14, fontWeight: '600', marginTop: 1 }}>{formatDate(todaysMeeting.date)}</Text>
                   </View>
                 </View>
 
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#eff6ff', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                    <Clock size={16} color="#4f46e5" />
+                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: BRAND_COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
+                    <Clock size={18} color={BRAND_COLORS.primary} />
                   </View>
                   <View>
-                    <Text style={{ color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Time</Text>
-                    <Text style={{ color: '#334155', fontSize: 14, fontWeight: '600', marginTop: 1 }}>{todaysMeeting.startTime} – {todaysMeeting.endTime}</Text>
+                    <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Time</Text>
+                    <Text style={{ color: BRAND_COLORS.textHeading, fontSize: 14, fontWeight: '600', marginTop: 1 }}>{todaysMeeting.startTime} – {todaysMeeting.endTime}</Text>
                   </View>
                 </View>
 
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#eff6ff', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                    <MapPin size={16} color="#4f46e5" />
+                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: BRAND_COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
+                    <MapPin size={18} color={BRAND_COLORS.primary} />
                   </View>
                   <View>
-                    <Text style={{ color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Venue</Text>
-                    <Text style={{ color: '#334155', fontSize: 14, fontWeight: '600', marginTop: 1 }}>{todaysMeeting.venue}</Text>
+                    <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Venue</Text>
+                    <Text style={{ color: BRAND_COLORS.textHeading, fontSize: 14, fontWeight: '600', marginTop: 1 }}>{todaysMeeting.venue}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Stats Row */}
-              <View style={{ flexDirection: 'row', marginTop: 20, paddingTop: 20, borderTopWidth: 1, borderColor: '#f1f5f9', gap: 12 }}>
-                <View style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: 12, padding: 16, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 28, fontWeight: '800', color: '#4f46e5' }}>{todaysMeeting.metrics?.totalAttendees || 0}</Text>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '600', marginTop: 2 }}>Checked In</Text>
+              <View style={{ flexDirection: 'row', marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderColor: BRAND_COLORS.border, gap: 12 }}>
+                <View style={{ flex: 1, backgroundColor: BRAND_COLORS.primaryLight, borderRadius: 14, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: BRAND_COLORS.primaryBorder }}>
+                  <Text style={{ fontSize: 28, fontWeight: '800', color: BRAND_COLORS.primary }}>{todaysMeeting.metrics?.totalAttendees || 0}</Text>
+                  <Text style={{ fontSize: 11, color: BRAND_COLORS.primary, fontWeight: '700', marginTop: 2 }}>Checked In</Text>
                 </View>
-                <View style={{ flex: 1, backgroundColor: '#f8fafc', borderRadius: 12, padding: 16, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 28, fontWeight: '800', color: '#059669' }}>₹{todaysMeeting.metrics?.totalCollected || 0}</Text>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '600', marginTop: 2 }}>Collected</Text>
+
+                <View style={{ flex: 1, backgroundColor: BRAND_COLORS.accentLight, borderRadius: 14, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: BRAND_COLORS.accentBorder }}>
+                  <Text style={{ fontSize: 28, fontWeight: '800', color: BRAND_COLORS.accentText }}>₹{todaysMeeting.metrics?.totalCollected || 0}</Text>
+                  <Text style={{ fontSize: 11, color: BRAND_COLORS.accentText, fontWeight: '700', marginTop: 2 }}>Collected</Text>
                 </View>
               </View>
             </View>
 
-            {/* Check-in CTA */}
+            {/* Check-in CTA Button (Brand Deep Ocean Blue #0d5984) */}
             <TouchableOpacity
               activeOpacity={0.85}
-              style={{ margin: 16, marginTop: 0, backgroundColor: '#4f46e5', borderRadius: 14, padding: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+              style={{ margin: 20, marginTop: 0, backgroundColor: BRAND_COLORS.primary, borderRadius: 14, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
               onPress={() => router.push({
                 pathname: '/(staff)/check-in',
                 params: { meetingId: todaysMeeting.id }

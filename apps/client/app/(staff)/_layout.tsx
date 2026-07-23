@@ -7,6 +7,7 @@ import { auth } from '../../src/services/firebase';
 import { signOut } from 'firebase/auth';
 import { useNotifications } from '../../src/modules/notifications/useNotifications';
 import { NotificationCenterModal } from '../../src/components/ui/NotificationCenterModal';
+import { BRAND_COLORS } from '../../src/theme/colors';
 
 export default function StaffLayout() {
   const { width } = useWindowDimensions();
@@ -60,23 +61,23 @@ export default function StaffLayout() {
 
   if (isDesktop) {
     return (
-      <View style={{ flex: 1, flexDirection: 'row' }} className="bg-slate-50 dark:bg-slate-900">
+      <View style={{ flex: 1, flexDirection: 'row', backgroundColor: BRAND_COLORS.canvasBg }}>
         {/* Modern Premium Sidebar */}
-        <View className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex justify-between p-4 py-6 shadow-sm">
+        <View style={{ width: 256, backgroundColor: BRAND_COLORS.cardBg, borderRightWidth: 1, borderRightColor: BRAND_COLORS.border, justifyContent: 'space-between', padding: 16, paddingVertical: 24 }}>
           <View>
             {/* Header / Logo */}
-            <View className="flex-row items-center px-3 mb-8">
-              <View className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
-                <Text className="text-white font-extrabold text-xl">C</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginBottom: 32 }}>
+              <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: BRAND_COLORS.primary, justifyContent: 'center', alignItems: 'center', shadowColor: BRAND_COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8 }}>
+                <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 22 }}>C</Text>
               </View>
-              <View className="ml-3">
-                <Text className="text-lg font-bold text-slate-800 dark:text-white leading-tight">CEDOI</Text>
-                <Text className="text-xs text-slate-400 dark:text-slate-500 font-medium">Member Portal</Text>
+              <View style={{ marginLeft: 12 }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: BRAND_COLORS.primary, letterSpacing: 0.5 }}>CEDOI</Text>
+                <Text style={{ fontSize: 11, color: BRAND_COLORS.textMuted, fontWeight: '600' }}>Member Portal</Text>
               </View>
             </View>
 
             {/* Menu Links */}
-            <View className="space-y-1.5">
+            <View style={{ gap: 6 }}>
               {menuItems.map((item) => {
                 const active = isActive(item.path);
                 const Icon = item.icon;
@@ -84,19 +85,25 @@ export default function StaffLayout() {
                   <Pressable
                     key={item.name}
                     onPress={() => router.push(item.path as any)}
-                    className={`flex-row items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                      active
-                        ? 'bg-indigo-50 border-l-4 border-indigo-600'
-                        : 'hover:bg-slate-50'
-                      }`}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 16,
+                      paddingVertical: 12,
+                      borderRadius: 12,
+                      backgroundColor: active ? BRAND_COLORS.primaryLight : 'transparent',
+                      borderLeftWidth: active ? 4 : 0,
+                      borderLeftColor: active ? BRAND_COLORS.primary : 'transparent',
+                    }}
                   >
-                    <Icon size={20} color={active ? '#4f46e5' : '#64748b'} />
+                    <Icon size={20} color={active ? BRAND_COLORS.primary : BRAND_COLORS.textBody} />
                     <Text
-                      className={`ml-3 font-semibold text-sm ${
-                        active
-                          ? 'text-indigo-600 font-bold'
-                          : 'text-slate-600'
-                      }`}
+                      style={{
+                        marginLeft: 12,
+                        fontSize: 14,
+                        fontWeight: active ? '700' : '600',
+                        color: active ? BRAND_COLORS.primary : BRAND_COLORS.textBody,
+                      }}
                     >
                       {item.label}
                     </Text>
@@ -107,27 +114,27 @@ export default function StaffLayout() {
           </View>
 
           {/* User Profile + Logout at Bottom */}
-          <View className="border-t border-slate-200 pt-4 space-y-3">
-            <View className="flex-row items-center px-3 mb-3">
-              <View className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center mr-3">
-                <UserIcon size={18} color="#475569" />
+          <View style={{ borderTopWidth: 1, borderColor: BRAND_COLORS.border, paddingTop: 16, gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginBottom: 8 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: BRAND_COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                <UserIcon size={18} color={BRAND_COLORS.primary} />
               </View>
-              <View className="flex-1 min-w-0">
-                <Text className="text-sm font-semibold text-slate-800 truncate">
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: BRAND_COLORS.textHeading }}>
                   {user?.name === 'Staff Operator' ? 'Member' : (user?.name || 'Member')}
                 </Text>
-                <Text className="text-xs text-slate-400 capitalize">
-                  {user?.role === 'STAFF' ? 'Member' : (user?.role || 'member')}
+                <Text style={{ fontSize: 11, color: BRAND_COLORS.textMuted, textTransform: 'capitalize' }}>
+                  Member Account
                 </Text>
               </View>
             </View>
 
             <Pressable
               onPress={handleLogout}
-              className="flex-row items-center px-4 py-3 rounded-xl hover:bg-red-50 hover:scale-[1.02] active:scale-[0.98] group"
+              style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: '#fef2f2' }}
             >
-              <LogOut size={18} color="#ef4444" />
-              <Text className="ml-3 font-semibold text-sm text-red-600 group-hover:text-red-700">
+              <LogOut size={18} color={BRAND_COLORS.danger} />
+              <Text style={{ marginLeft: 12, fontWeight: '700', fontSize: 13, color: BRAND_COLORS.danger }}>
                 Logout
               </Text>
             </Pressable>
@@ -135,43 +142,42 @@ export default function StaffLayout() {
         </View>
 
         {/* Content Area */}
-        <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+        <View style={{ flex: 1, backgroundColor: BRAND_COLORS.canvasBg }}>
           {/* Sleek Top Header for Desktop */}
-          <View className="h-16 border-b border-slate-200 bg-white flex-row items-center justify-between px-8">
+          <View style={{ height: 64, borderBottomWidth: 1, borderColor: BRAND_COLORS.border, backgroundColor: BRAND_COLORS.cardBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 32 }}>
             <View>
-              <Text className="text-lg font-bold text-slate-800 capitalize">
+              <Text style={{ fontSize: 18, fontWeight: '800', color: BRAND_COLORS.primary, textTransform: 'capitalize' }}>
                 {pathname.split('/').pop()?.replace('-', ' ') || 'Today'}
               </Text>
             </View>
             
-            <View className="flex-row items-center">
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {/* Notification Bell */}
               <Pressable 
                 onPress={() => setNotifOpen(true)}
-                style={{ marginRight: 20, position: 'relative' }}
-                className="p-2 rounded-lg hover:bg-slate-50 active:scale-[0.9] transition-all"
+                style={{ marginRight: 20, position: 'relative', padding: 8, borderRadius: 8, backgroundColor: BRAND_COLORS.primaryLight }}
               >
-                <Bell size={20} color="#475569" />
+                <Bell size={18} color={BRAND_COLORS.primary} />
                 {unreadCount > 0 && (
-                  <View style={{ position: 'absolute', right: 2, top: 2, backgroundColor: '#ef4444', minWidth: 16, height: 16, borderRadius: 8, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 4, borderWidth: 2, borderColor: '#fff' }}>
+                  <View style={{ position: 'absolute', right: 2, top: 2, backgroundColor: BRAND_COLORS.accent, minWidth: 16, height: 16, borderRadius: 8, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 4, borderWidth: 2, borderColor: '#fff' }}>
                     <Text style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>{unreadCount}</Text>
                   </View>
                 )}
               </Pressable>
 
-              <View className="h-5 w-px bg-slate-200 mr-5" />
+              <View style={{ height: 20, width: 1, backgroundColor: BRAND_COLORS.border, marginRight: 20 }} />
 
               {/* User Profile Info */}
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2.5">
-                  <UserIcon size={16} color="#4f46e5" />
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: BRAND_COLORS.secondaryLight, borderWidth: 1, borderColor: BRAND_COLORS.secondaryBorder, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <UserIcon size={16} color={BRAND_COLORS.primary} />
                 </View>
                 <View>
-                  <Text className="text-sm font-semibold text-slate-800">
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: BRAND_COLORS.textHeading }}>
                     {user?.name === 'Staff Operator' ? 'Member' : (user?.name || 'Member')}
                   </Text>
-                  <Text className="text-[10px] text-slate-400 capitalize">
-                    {user?.role === 'STAFF' ? 'Member' : (user?.role || 'Member')}
+                  <Text style={{ fontSize: 10, color: BRAND_COLORS.textMuted, fontWeight: '700' }}>
+                    Member Portal
                   </Text>
                 </View>
               </View>
@@ -192,46 +198,45 @@ export default function StaffLayout() {
   return (
     <>
       <Tabs
-        sceneContainerStyle={{ backgroundColor: '#f8fafc' }}
+        sceneContainerStyle={{ backgroundColor: BRAND_COLORS.canvasBg }}
         screenOptions={{
-          tabBarActiveTintColor: '#4f46e5',
-          tabBarInactiveTintColor: isDark ? '#94a3b8' : '#64748b',
+          tabBarActiveTintColor: BRAND_COLORS.primary,
+          tabBarInactiveTintColor: BRAND_COLORS.textMuted,
           tabBarLabelPosition: 'below-icon',
           tabBarStyle: {
             height: Platform.OS === 'web' ? 60 : 75,
             paddingBottom: Platform.OS === 'web' ? 10 : 20,
-            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            backgroundColor: BRAND_COLORS.cardBg,
             borderTopWidth: 1,
-            borderTopColor: isDark ? '#334155' : '#e2e8f0',
+            borderTopColor: BRAND_COLORS.border,
           },
           headerShown: true,
           headerStyle: {
-            backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+            backgroundColor: BRAND_COLORS.cardBg,
           },
           headerTitleStyle: {
-            color: isDark ? '#ffffff' : '#0f172a',
+            color: BRAND_COLORS.primary,
+            fontWeight: '800',
           },
           headerShadowVisible: false,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20 }}>
-              <Pressable 
+              <Pressable
                 onPress={() => setNotifOpen(true)}
                 style={{ marginRight: 16, position: 'relative' }}
-                className="active:scale-[0.9] transition-transform duration-100"
               >
-                <Bell size={18} color="#475569" />
+                <Bell size={18} color={BRAND_COLORS.primary} />
                 {unreadCount > 0 && (
-                  <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: '#ef4444', minWidth: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 }}>
+                  <View style={{ position: 'absolute', right: -4, top: -4, backgroundColor: BRAND_COLORS.accent, minWidth: 14, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 }}>
                     <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800' }}>{unreadCount}</Text>
                   </View>
                 )}
               </Pressable>
-              
-              <Pressable 
-                onPress={handleLogout} 
-                className="active:scale-[0.9] transition-transform duration-100"
+
+              <Pressable
+                onPress={handleLogout}
               >
-                <LogOut size={18} color="#ef4444" />
+                <LogOut size={18} color={BRAND_COLORS.danger} />
               </Pressable>
             </View>
           ),
@@ -240,7 +245,7 @@ export default function StaffLayout() {
         <Tabs.Screen
           name="today"
           options={{
-            title: "Today",
+            title: 'Today',
             tabBarIcon: ({ color }) => <Clock size={22} color={color} />,
           }}
         />
@@ -262,14 +267,14 @@ export default function StaffLayout() {
           name="check-in"
           options={{
             href: null,
-            title: 'Search Member',
+            title: 'Check In',
           }}
         />
         <Tabs.Screen
           name="member-detail"
           options={{
             href: null,
-            title: 'Check-in',
+            title: 'Member Detail',
           }}
         />
       </Tabs>

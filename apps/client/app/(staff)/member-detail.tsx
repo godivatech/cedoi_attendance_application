@@ -297,8 +297,8 @@ export default function MemberDetailScreen() {
           onPress={() => router.back()}
           style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}
         >
-          <ChevronLeft size={18} color="#4f46e5" />
-          <Text style={{ color: '#4f46e5', fontWeight: '600', fontSize: 14, marginLeft: 4 }}>
+          <ChevronLeft size={18} color="#0d5984" />
+          <Text style={{ color: '#0d5984', fontWeight: '700', fontSize: 14, marginLeft: 4 }}>
             Back to Members
           </Text>
         </TouchableOpacity>

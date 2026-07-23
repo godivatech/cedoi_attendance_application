@@ -28,7 +28,7 @@ export default function AdminMeetings() {
       case 'ONGOING':
         return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
       case 'COMPLETED':
-        return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
+        return 'bg-[#f0f7fb] text-[#0d5984] border border-[#c6def0]';
       case 'SCHEDULED':
       default:
         return 'bg-amber-50 text-amber-700 border border-amber-100';
@@ -323,9 +323,9 @@ export default function AdminMeetings() {
                   onChangeText={setAttendeesSearch}
                 />
               </View>
-              <TouchableOpacity
+              <TouchableOpacity 
                 onPress={handleExportAttendeesCSV}
-                className="bg-indigo-600 hover:bg-indigo-700 w-11 h-11 rounded-xl flex-row items-center justify-center shadow-sm"
+                style={{ backgroundColor: '#0d5984', width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
               >
                 <Download color="white" size={16} />
               </TouchableOpacity>

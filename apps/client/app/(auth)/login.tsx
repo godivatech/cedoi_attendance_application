@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import { Mail, Lock } from 'lucide-react-native';
 import { Card } from '../../src/components/ui/Card';
+import { BRAND_COLORS } from '../../src/theme/colors';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -56,41 +57,43 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: BRAND_COLORS.canvasBg }}
       className="justify-center items-center p-4"
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} className="w-full max-w-md">
-        <Card className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 w-full my-8">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', width: '100%', paddingVertical: 20 }}
+        style={{ width: '100%', maxWidth: 440, alignSelf: 'center' }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 w-full my-4">
           
-          {/* Logo & Header */}
+          {/* Official Brand Logo & Header */}
           <View className="items-center mb-8">
-            <View className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
+            <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: BRAND_COLORS.primary, justifyContent: 'center', alignItems: 'center', shadowColor: BRAND_COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, marginBottom: 16 }}>
               <Text className="text-white font-black text-2xl">C</Text>
             </View>
-            <Text className="text-2xl font-black text-slate-800 tracking-tight">CEDOI Platform</Text>
-            <Text className="text-slate-400 text-xs font-semibold uppercase tracking-widest mt-1">
-              Meeting Management
+            <Text style={{ fontSize: 24, fontWeight: '900', color: BRAND_COLORS.primary, letterSpacing: -0.5 }}>CEDOI Platform</Text>
+            <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, textAlign: 'center' }}>
+              Meeting & Attendance Management
             </Text>
           </View>
  
           {/* Form */}
-          <View className="space-y-4">
+          <View style={{ width: '100%', gap: 16 }}>
             
             {/* Email Field */}
-            <View>
+            <View style={{ width: '100%' }}>
               <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</Text>
-              <View className="relative flex-row items-center">
-                <View className="absolute left-4 z-10">
-                  <Mail size={18} color="#94a3b8" />
+              <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                <View style={{ position: 'absolute', left: 16, zIndex: 10 }}>
+                  <Mail size={18} color={BRAND_COLORS.textMuted} />
                 </View>
                 <Controller
                   control={control}
                   name="email"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
-                        errors.email ? 'border-red-500' : 'border-slate-200 focus:border-indigo-500'
-                      }`}
+                      style={{ flex: 1, width: '100%', height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: errors.email ? '#ef4444' : '#e2e8f0', borderRadius: 12, paddingLeft: 44, paddingRight: 16, fontSize: 14, color: '#1e293b' }}
                       placeholder="Enter email address"
                       placeholderTextColor="#94a3b8"
                       onBlur={onBlur}
@@ -108,20 +111,18 @@ export default function LoginScreen() {
             </View>
  
             {/* Password Field */}
-            <View className="mt-4">
+            <View style={{ width: '100%' }}>
               <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</Text>
-              <View className="relative flex-row items-center">
-                <View className="absolute left-4 z-10">
-                  <Lock size={18} color="#94a3b8" />
+              <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                <View style={{ position: 'absolute', left: 16, zIndex: 10 }}>
+                  <Lock size={18} color={BRAND_COLORS.textMuted} />
                 </View>
                 <Controller
                   control={control}
                   name="password"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      className={`flex-1 pl-12 pr-4 py-3.5 bg-slate-50 border text-slate-800 rounded-xl text-sm ${
-                        errors.password ? 'border-red-500' : 'border-slate-200 focus:border-indigo-500'
-                      }`}
+                      style={{ flex: 1, width: '100%', height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: errors.password ? '#ef4444' : '#e2e8f0', borderRadius: 12, paddingLeft: 44, paddingRight: 16, fontSize: 14, color: '#1e293b' }}
                       placeholder="Enter password"
                       placeholderTextColor="#94a3b8"
                       onBlur={onBlur}
@@ -139,8 +140,7 @@ export default function LoginScreen() {
  
             {/* Submit Button */}
             <TouchableOpacity
-              style={{ height: 50 }}
-              className="bg-indigo-600 hover:bg-indigo-700 rounded-xl flex-row justify-center items-center mt-6 shadow-md shadow-indigo-500/15 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 active:opacity-90"
+              style={{ width: '100%', height: 50, backgroundColor: BRAND_COLORS.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 12 }}
               onPress={handleSubmit(onSubmit)}
               disabled={loading}
             >

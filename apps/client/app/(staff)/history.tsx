@@ -134,7 +134,7 @@ export default function StaffHistory() {
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#4f46e5" />
+        <ActivityIndicator size="large" color="#0d5984" />
       </View>
     );
   }
@@ -150,7 +150,7 @@ export default function StaffHistory() {
     <View style={{ flex: 1, backgroundColor: '#f8fafc', padding: 20 }}>
       {/* Header & Title */}
       <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: '800', color: '#0f172a' }}>Meeting History</Text>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: '#0d5984', letterSpacing: -0.5 }}>Meeting History</Text>
         <Text style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>Track live attendance & view past meeting ledgers</Text>
       </View>
 

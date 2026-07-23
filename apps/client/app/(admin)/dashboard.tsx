@@ -5,9 +5,10 @@ import { useDashboardMetrics } from '../../src/modules/dashboard/useDashboardMet
 import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
-import { Users, Calendar, IndianRupee, TrendingUp, Plus, UserPlus, ClipboardList, ChevronRight } from 'lucide-react-native';
+import { Users, Calendar, IndianRupee, TrendingUp, Plus, UserPlus, ClipboardList, ChevronRight, AlertCircle } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { useRouter } from 'expo-router';
+import { BRAND_COLORS } from '../../src/theme/colors';
 
 export default function AdminDashboard() {
   const { user } = useAuthStore();
@@ -61,34 +62,26 @@ export default function AdminDashboard() {
       });
     });
 
-    // Recent members (sort by createdAt and limit to 3)
-    const recentMembers = [...members]
-      .sort((a: any, b: any) => {
-        const aTime = (a as any).createdAt?.seconds || 0;
-        const bTime = (b as any).createdAt?.seconds || 0;
-        return bTime - aTime;
-      })
-      .slice(0, 3);
-
-    recentMembers.forEach((member) => {
+    // Recent members (limit to 3)
+    members.slice(0, 3).forEach((member) => {
       activities.push({
         id: `member-${member.id}`,
         type: 'member',
-        title: 'New Member Registered',
+        title: 'New Member Joined',
         detail: `${member.fullName} (${member.companyName})`,
         date: member.joinDate || 'Recently',
-        timestamp: (member as any).createdAt?.seconds || 0,
+        timestamp: (member as any).createdAt?.seconds || new Date(member.joinDate || Date.now()).getTime() / 1000 || 0,
       });
     });
 
-    // Sort combined activities by timestamp desc
+    // Sort chronologically (newest first)
     return activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
   };
 
   if (loading) {
     return (
-      <View style={{ backgroundColor: '#f8fafc' }} className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#4f46e5" />
+      <View style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
       </View>
     );
   }
@@ -102,7 +95,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: '#f3f4f8' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+    <ScrollView style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
       {/* Premium Header/Greeting Section */}
       <View className="mb-8 flex-row justify-between items-center">
         <View>
@@ -115,27 +108,29 @@ export default function AdminDashboard() {
         </View>
       </View>
 
-      {/* Metrics Grid */}
+      {/* Official Brand Palette Metrics Grid */}
       <View className="flex-row flex-wrap -mx-2 mb-8">
+        {/* Metric 1: Total Members (Primary Deep Ocean Blue #0d5984) */}
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-4 sm:p-5 border-t-4 border-t-indigo-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+          <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.primary }}>
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Members</Text>
-              <View className="bg-indigo-50 p-2.5 rounded-xl">
-                <Users size={18} color="#4f46e5" />
+              <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.primaryLight }}>
+                <Users size={18} color={BRAND_COLORS.primary} />
               </View>
             </View>
-            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{totalMembers}</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold" style={{ color: BRAND_COLORS.primary }}>{totalMembers}</Text>
             <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Active registrations</Text>
           </Card>
         </View>
 
+        {/* Metric 2: Total Meetings (Secondary Sky Accent #67bed9) */}
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-4 sm:p-5 border-t-4 border-t-purple-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+          <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.secondary }}>
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Meetings</Text>
-              <View className="bg-purple-50 p-2.5 rounded-xl">
-                <Calendar size={18} color="#a855f7" />
+              <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.secondaryLight }}>
+                <Calendar size={18} color={BRAND_COLORS.secondaryHover} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{totalMeetings}</Text>
@@ -143,25 +138,27 @@ export default function AdminDashboard() {
           </Card>
         </View>
 
+        {/* Metric 3: Total Revenue (Warm Amber #ec861a) */}
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-4 sm:p-5 border-t-4 border-t-emerald-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+          <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.accent }}>
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Revenue</Text>
-              <View className="bg-emerald-50 p-2.5 rounded-xl">
-                <IndianRupee size={18} color="#10b981" />
+              <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.accentLight }}>
+                <IndianRupee size={18} color={BRAND_COLORS.accent} />
               </View>
             </View>
-            <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{formatRupees(totalRevenue)}</Text>
+            <Text className="text-2xl sm:text-3xl font-extrabold" style={{ color: BRAND_COLORS.accentText }}>{formatRupees(totalRevenue)}</Text>
             <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Collections to date</Text>
           </Card>
         </View>
 
+        {/* Metric 4: Avg Attendance (Success Emerald #10b981) */}
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
-          <Card className="p-4 sm:p-5 border-t-4 border-t-amber-500 relative overflow-hidden bg-white shadow-sm rounded-2xl">
+          <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.success }}>
             <View className="flex-row justify-between items-start mb-4">
               <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Avg. Attendance</Text>
-              <View className="bg-amber-50 p-2.5 rounded-xl">
-                <TrendingUp size={18} color="#f59e0b" />
+              <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.successLight }}>
+                <TrendingUp size={18} color={BRAND_COLORS.success} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">84%</Text>
@@ -178,124 +175,83 @@ export default function AdminDashboard() {
           <Card className="p-4 bg-white shadow-sm rounded-2xl">
             {activities.length > 0 ? (
               <View className="space-y-4">
-                {activities.map((activity, index) => (
-                  <View 
-                    key={activity.id} 
-                    className={`flex-row items-center py-3 ${
-                      index !== activities.length - 1 ? 'border-b border-slate-100' : ''
-                    }`}
-                  >
-                    <View className={`w-10 h-10 rounded-xl flex items-center justify-center mr-4 ${
-                      activity.type === 'meeting' 
-                        ? 'bg-purple-50' 
-                        : 'bg-indigo-50'
-                    }`}>
-                      {activity.type === 'meeting' ? (
-                        <Calendar size={18} color="#a855f7" />
+                {activities.map((item, index) => (
+                  <View key={item.id} className={`flex-row items-center py-2 ${index !== activities.length - 1 ? 'border-b border-slate-100' : ''}`}>
+                    <View className="p-3 rounded-xl mr-4" style={{ backgroundColor: item.type === 'meeting' ? BRAND_COLORS.primaryLight : BRAND_COLORS.accentLight }}>
+                      {item.type === 'meeting' ? (
+                        <Calendar size={18} color={BRAND_COLORS.primary} />
                       ) : (
-                        <UserPlus size={18} color="#4f46e5" />
+                        <Users size={18} color={BRAND_COLORS.accent} />
                       )}
                     </View>
-                    <View className="flex-1 min-w-0">
-                      <Text className="text-sm font-bold text-slate-700">
-                        {activity.title}
-                      </Text>
-                      <Text className="text-xs text-slate-400 truncate mt-0.5">
-                        {activity.detail}
-                      </Text>
+                    <View className="flex-1">
+                      <Text className="text-sm font-bold text-slate-800">{item.title}</Text>
+                      <Text className="text-xs text-slate-500 mt-0.5">{item.detail}</Text>
                     </View>
-                    <Text className="text-xs font-semibold text-slate-400 ml-4">
-                      {activity.date}
-                    </Text>
+                    <Text className="text-xs text-slate-400 font-medium">{item.date}</Text>
                   </View>
                 ))}
               </View>
             ) : (
-              <View className="items-center py-8">
-                <Text className="text-slate-400">No recent activity detected.</Text>
+              <View className="py-8 items-center justify-center">
+                <Text className="text-slate-400 text-sm">No recent activities found</Text>
               </View>
             )}
           </Card>
         </View>
 
-        {/* Quick Actions & Membership Renewal Health */}
-        <View className="w-full lg:w-80 mb-8">
+        {/* Quick Actions Panel */}
+        <View className="w-full lg:w-80">
           <Text className="text-xl font-bold text-slate-800 mb-4">Quick Actions</Text>
-          <View className="space-y-3 mb-6">
+          <View className="space-y-3">
             <Pressable
               onPress={() => router.push('/(admin)/create-meeting')}
-              className="flex-row items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:bg-slate-50 hover:scale-[1.03] active:scale-[0.97] hover:shadow-md hover:border-slate-200 transition-all duration-300"
+              className="p-4 bg-white rounded-2xl border border-slate-100 flex-row items-center justify-between shadow-sm active:scale-[0.98] transition-transform"
             >
               <View className="flex-row items-center">
-                <View className="bg-indigo-500 p-2.5 rounded-xl mr-3.5 shadow-sm shadow-indigo-500/10">
-                  <Plus size={18} color="#ffffff" />
+                <View className="p-2.5 rounded-xl mr-3" style={{ backgroundColor: BRAND_COLORS.primaryLight }}>
+                  <Plus size={20} color={BRAND_COLORS.primary} />
                 </View>
                 <View>
-                  <Text className="font-bold text-slate-700 text-sm">Create Meeting</Text>
-                  <Text className="text-xs text-slate-400 font-normal">Schedule networking</Text>
+                  <Text className="text-sm font-bold text-slate-800">Create Meeting</Text>
+                  <Text className="text-xs text-slate-400">Schedule a new session</Text>
                 </View>
               </View>
-              <ChevronRight size={16} color="#94a3b8" />
+              <ChevronRight size={18} color="#94a3b8" />
             </Pressable>
 
             <Pressable
               onPress={() => router.push('/(admin)/add-member')}
-              className="flex-row items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:bg-slate-50 hover:scale-[1.03] active:scale-[0.97] hover:shadow-md hover:border-slate-200 transition-all duration-300"
+              className="p-4 bg-white rounded-2xl border border-slate-100 flex-row items-center justify-between shadow-sm active:scale-[0.98] transition-transform"
             >
               <View className="flex-row items-center">
-                <View className="bg-indigo-500 p-2.5 rounded-xl mr-3.5 shadow-sm shadow-indigo-500/10">
-                  <UserPlus size={18} color="#ffffff" />
+                <View className="p-2.5 rounded-xl mr-3" style={{ backgroundColor: BRAND_COLORS.secondaryLight }}>
+                  <UserPlus size={20} color={BRAND_COLORS.secondaryHover} />
                 </View>
                 <View>
-                  <Text className="font-bold text-slate-700 text-sm">Register Member</Text>
-                  <Text className="text-xs text-slate-400 font-normal">Add attendees & guests</Text>
+                  <Text className="text-sm font-bold text-slate-800">Add New Member</Text>
+                  <Text className="text-xs text-slate-400">Register new attendance profile</Text>
                 </View>
               </View>
-              <ChevronRight size={16} color="#94a3b8" />
+              <ChevronRight size={18} color="#94a3b8" />
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/(admin)/reports')}
-              className="flex-row items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:bg-slate-50 hover:scale-[1.03] active:scale-[0.97] hover:shadow-md hover:border-slate-200 transition-all duration-300"
+              onPress={() => router.push('/(admin)/dues')}
+              className="p-4 bg-white rounded-2xl border border-slate-100 flex-row items-center justify-between shadow-sm active:scale-[0.98] transition-transform"
             >
               <View className="flex-row items-center">
-                <View className="bg-emerald-500 p-2.5 rounded-xl mr-3.5 shadow-sm shadow-emerald-500/10">
-                  <ClipboardList size={18} color="#ffffff" />
+                <View className="p-2.5 rounded-xl mr-3" style={{ backgroundColor: BRAND_COLORS.accentLight }}>
+                  <ClipboardList size={20} color={BRAND_COLORS.accent} />
                 </View>
                 <View>
-                  <Text className="font-bold text-slate-700 text-sm">Financial Reports</Text>
-                  <Text className="text-xs text-slate-400 font-normal">View collections</Text>
+                  <Text className="text-sm font-bold text-slate-800">Dues & Payment Hub</Text>
+                  <Text className="text-xs text-slate-400">Collect fees & send reminders</Text>
                 </View>
               </View>
-              <ChevronRight size={16} color="#94a3b8" />
+              <ChevronRight size={18} color="#94a3b8" />
             </Pressable>
           </View>
-
-          {/* Membership Renewal Health Card */}
-          <Text className="text-xl font-bold text-slate-800 mb-4">Renewal Health</Text>
-          <Pressable 
-            onPress={() => router.push('/(admin)/members')}
-            className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-slate-200 transition-all"
-          >
-            <View className="flex-row items-center justify-between mb-3">
-              <View className="flex-row items-center">
-                <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
-                <Text className="text-xs font-bold text-slate-700 uppercase tracking-wider">1-Year Renewals</Text>
-              </View>
-              <Text className="text-xs font-bold text-indigo-600">View All →</Text>
-            </View>
-
-            <View className="flex-row gap-2">
-              <View className="flex-1 bg-amber-50 p-3 rounded-xl border border-amber-100 items-center">
-                <Text className="text-[10px] font-extrabold text-amber-800 uppercase">Due Soon</Text>
-                <Text className="text-lg font-extrabold text-amber-900 mt-0.5">{renewalStats.dueSoon}</Text>
-              </View>
-              <View className="flex-1 bg-rose-50 p-3 rounded-xl border border-rose-100 items-center">
-                <Text className="text-[10px] font-extrabold text-rose-800 uppercase">Expired</Text>
-                <Text className="text-lg font-extrabold text-rose-900 mt-0.5">{renewalStats.expired}</Text>
-              </View>
-            </View>
-          </Pressable>
         </View>
       </View>
     </ScrollView>

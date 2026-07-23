@@ -114,7 +114,7 @@ export default function AddMemberScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ maxWidth: 880, width: '100%', alignSelf: 'center' }}>
-        <Text className="text-2xl font-extrabold text-slate-800 mb-6">
+        <Text style={{ fontSize: 24, fontWeight: '800', color: '#0d5984', marginBottom: 24 }}>
           {isEditMode ? 'Edit Member Profile' : 'Register New Member'}
         </Text>
         

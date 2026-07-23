@@ -227,7 +227,7 @@ export default function CreateMeetingScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ maxWidth: 880, width: '100%', alignSelf: 'center' }}>
-        <Text className="text-2xl font-extrabold text-slate-800 mb-6">
+        <Text style={{ fontSize: 24, fontWeight: '800', color: '#0d5984', marginBottom: 24 }}>
           {isEditMode ? 'Edit Meeting Details' : 'Create New Meeting'}
         </Text>
         
@@ -323,70 +323,15 @@ export default function CreateMeetingScreen() {
               control={control}
               name="startTime"
               rules={{ required: "Start time is required" }}
-              render={({ field: { onChange, value } }) => {
-                if (Platform.OS === 'web') {
-                  const parts = value ? value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i) : null;
-                  const currentHour = parts ? parts[1].padStart(2, '0') : '08';
-                  const currentMinute = parts ? parts[2] : '00';
-                  const currentAmpm = parts ? parts[3].toUpperCase() : 'AM';
-
-                  const selectStyle = {
-                    flex: 1,
-                    padding: '0 10px',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    color: '#1e293b',
-                    fontSize: '14px',
-                    height: '48px',
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                    boxSizing: 'border-box' as const,
-                  };
-
-                  return (
-                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                      <select
-                        style={selectStyle}
-                        value={currentHour}
-                        onChange={(e) => onChange(`${e.target.value}:${currentMinute} ${currentAmpm}`)}
-                      >
-                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                      <select
-                        style={selectStyle}
-                        value={currentMinute}
-                        onChange={(e) => onChange(`${currentHour}:${e.target.value} ${currentAmpm}`)}
-                      >
-                        {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')).map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <select
-                        style={selectStyle}
-                        value={currentAmpm}
-                        onChange={(e) => onChange(`${currentHour}:${currentMinute} ${e.target.value}`)}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <TextInput
-                      style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
-                      placeholder="Enter start time (e.g., 08:00 AM)"
-                      placeholderTextColor="#94a3b8"
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  );
-                }
-              }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={{ flex: 1, width: '100%', height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
+                  placeholder="e.g., 08:30 AM"
+                  placeholderTextColor="#94a3b8"
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
             {errors.startTime && (
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.startTime.message}</Text>
@@ -399,70 +344,15 @@ export default function CreateMeetingScreen() {
               control={control}
               name="endTime"
               rules={{ required: "End time is required" }}
-              render={({ field: { onChange, value } }) => {
-                if (Platform.OS === 'web') {
-                  const parts = value ? value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i) : null;
-                  const currentHour = parts ? parts[1].padStart(2, '0') : '10';
-                  const currentMinute = parts ? parts[2] : '00';
-                  const currentAmpm = parts ? parts[3].toUpperCase() : 'AM';
-
-                  const selectStyle = {
-                    flex: 1,
-                    padding: '0 10px',
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    color: '#1e293b',
-                    fontSize: '14px',
-                    height: '48px',
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                    boxSizing: 'border-box' as const,
-                  };
-
-                  return (
-                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                      <select
-                        style={selectStyle}
-                        value={currentHour}
-                        onChange={(e) => onChange(`${e.target.value}:${currentMinute} ${currentAmpm}`)}
-                      >
-                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                      <select
-                        style={selectStyle}
-                        value={currentMinute}
-                        onChange={(e) => onChange(`${currentHour}:${e.target.value} ${currentAmpm}`)}
-                      >
-                        {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')).map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <select
-                        style={selectStyle}
-                        value={currentAmpm}
-                        onChange={(e) => onChange(`${currentHour}:${currentMinute} ${e.target.value}`)}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <TextInput
-                      style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
-                      placeholder="Enter end time (e.g., 10:00 AM)"
-                      placeholderTextColor="#94a3b8"
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  );
-                }
-              }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={{ flex: 1, width: '100%', height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
+                  placeholder="e.g., 11:30 AM"
+                  placeholderTextColor="#94a3b8"
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
             />
             {errors.endTime && (
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.endTime.message}</Text>

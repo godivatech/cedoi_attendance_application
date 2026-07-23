@@ -262,7 +262,7 @@ export default function StaffReportsScreen() {
       {/* Top Title & Export Action Header */}
       <View className="flex-row flex-wrap items-center justify-between gap-4 mb-6">
         <View>
-          <Text className="text-2xl font-black text-slate-800 tracking-tight">Monthly Reports</Text>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#0d5984', letterSpacing: -0.5 }}>Monthly Reports</Text>
           <Text className="text-xs text-slate-400 font-medium mt-0.5">
             Attendance analytics & pending dues overview
           </Text>
@@ -271,60 +271,31 @@ export default function StaffReportsScreen() {
         <TouchableOpacity
           onPress={handleExportCSV}
           activeOpacity={0.8}
-          className="bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] flex-row items-center px-4 py-3 rounded-2xl shadow-sm shadow-indigo-500/20"
+          style={{ backgroundColor: '#0d5984', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16, flexDirection: 'row', alignItems: 'center' }}
         >
-          <Download size={18} color="#ffffff" />
-          <Text className="text-white font-bold text-sm ml-2">Export Excel (.csv)</Text>
+          <Download size={18} color="#ffffff" style={{ marginRight: 8 }} />
+          <Text className="text-white font-bold text-sm">Export CSV</Text>
         </TouchableOpacity>
       </View>
 
       {/* Date Range & Month Filter Selector Card */}
       <View className="mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-        <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row flex-wrap items-center justify-between gap-3 mb-3">
           <View className="flex-row items-center">
-            <Calendar size={18} color="#4f46e5" />
+            <Calendar size={18} color="#0d5984" />
             <Text className="text-sm font-bold text-slate-800 ml-2">Date Range & Month Filter</Text>
           </View>
 
-          {/* Web Dropdown Select Box */}
-          {Platform.OS === 'web' ? (
-            <select
-              value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(e.target.value);
-                setStartDate('');
-                setEndDate('');
-              }}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '10px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#f8fafc',
-                fontWeight: '700',
-                fontSize: '13px',
-                color: '#1e293b',
-                cursor: 'pointer',
-                outline: 'none'
-              }}
-            >
-              <option value="ALL">All Months Summary</option>
-              {availableMonths.map(m => (
-                <option key={m} value={m}>
-                  {formatMonthLabel(m)}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <View className="px-3 py-1.5 rounded-lg bg-indigo-50">
-              <Text className="text-xs font-bold text-indigo-600">
-                {formatMonthLabel(selectedMonth)}
-              </Text>
-            </View>
-          )}
+          {/* Active Month Badge Pill */}
+          <View className="px-3 py-1.5 rounded-lg bg-[#f0f7fb] border border-[#c6def0]">
+            <Text className="text-xs font-bold text-[#0d5984]">
+              {formatMonthLabel(selectedMonth)}
+            </Text>
+          </View>
         </View>
 
         {/* Custom From Date to To Date Inputs */}
-        <View className="flex-row items-center gap-3 mb-3 pt-2 border-t border-slate-100">
+        <View className="flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3 pt-2 border-t border-slate-100">
           <View className="flex-1">
             <Text className="text-[11px] font-bold text-slate-500 mb-1">From Date (YYYY-MM-DD)</Text>
             <TextInput
@@ -360,7 +331,7 @@ export default function StaffReportsScreen() {
                 setEndDate('');
                 setSelectedMonth('ALL');
               }}
-              className="mt-4 px-3 py-2 bg-slate-100 rounded-xl"
+              className="sm:mt-4 px-3 py-2 bg-slate-100 rounded-xl items-center"
             >
               <Text className="text-xs font-bold text-slate-600">Clear</Text>
             </TouchableOpacity>
@@ -375,13 +346,17 @@ export default function StaffReportsScreen() {
               setStartDate('');
               setEndDate('');
             }}
-            className={`px-4 py-2 rounded-xl border ${
-              selectedMonth === 'ALL' && !startDate && !endDate
-                ? 'bg-indigo-600 border-indigo-600'
-                : 'bg-slate-50 border-slate-200'
-            }`}
+            style={{
+              backgroundColor: selectedMonth === 'ALL' && !startDate && !endDate ? '#0d5984' : '#f8fafc',
+              borderColor: selectedMonth === 'ALL' && !startDate && !endDate ? '#0d5984' : '#e2e8f0',
+              borderWidth: 1,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              borderRadius: 12,
+              marginRight: 6
+            }}
           >
-            <Text className={selectedMonth === 'ALL' && !startDate && !endDate ? 'text-white font-bold' : 'text-slate-600 font-semibold'}>
+            <Text style={{ color: selectedMonth === 'ALL' && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '700', fontSize: 12 }}>
               All Months
             </Text>
           </TouchableOpacity>
@@ -394,13 +369,17 @@ export default function StaffReportsScreen() {
                 setStartDate('');
                 setEndDate('');
               }}
-              className={`px-4 py-2 rounded-xl border ${
-                selectedMonth === m && !startDate && !endDate
-                  ? 'bg-indigo-600 border-indigo-600'
-                  : 'bg-slate-50 border-slate-200'
-              }`}
+              style={{
+                backgroundColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#f8fafc',
+                borderColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#e2e8f0',
+                borderWidth: 1,
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderRadius: 12,
+                marginRight: 6
+              }}
             >
-              <Text className={`text-xs ${selectedMonth === m && !startDate && !endDate ? 'text-white font-bold' : 'text-slate-600 font-semibold'}`}>
+              <Text style={{ color: selectedMonth === m && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '700', fontSize: 12 }}>
                 {formatMonthLabel(m)}
               </Text>
             </TouchableOpacity>

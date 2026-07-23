@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   accentDefault: {
-    backgroundColor: '#4f46e5', // Indigo 600
+    backgroundColor: '#0d5984', // Indigo 600
   },
   accentDestructive: {
     backgroundColor: '#ef4444', // Red 500
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonPrimary: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#0d5984',
   },
   buttonCancel: {
     backgroundColor: '#f1f5f9',

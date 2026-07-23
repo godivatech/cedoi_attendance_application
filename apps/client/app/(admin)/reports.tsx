@@ -338,13 +338,13 @@ export default function ReportsScreen() {
       {/* Header */}
       <View className="flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
         <View>
-          <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Reports & Analytics</Text>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#0d5984', letterSpacing: -0.5 }}>Reports & Analytics</Text>
           <Text className="text-slate-500 text-sm mt-0.5">Track financial performance & attendee metrics</Text>
         </View>
         {activeTab === 'meetings' && (
           <TouchableOpacity
             onPress={handleExportCSV}
-            className="flex-row items-center bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 self-start sm:self-auto"
+            style={{ backgroundColor: '#0d5984', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, flexDirection: 'row', alignItems: 'center' }}
           >
             <Download size={16} color="white" />
             <Text className="text-white font-bold ml-2 text-sm">Export CSV</Text>
@@ -880,7 +880,8 @@ export default function ReportsScreen() {
 
                         <TouchableOpacity
                           onPress={() => handleResolvePending(item)}
-                          className="bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3 rounded-xl flex-row items-center justify-center shadow-sm"
+                          style={{ backgroundColor: '#0d5984' }}
+                          className="py-1.5 px-3 rounded-xl flex-row items-center justify-center shadow-sm"
                         >
                           <Text className="text-[10px] font-extrabold text-white">COLLECT</Text>
                         </TouchableOpacity>

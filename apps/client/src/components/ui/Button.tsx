@@ -29,7 +29,7 @@ export const Button = ({
   };
 
   const variantStyles = {
-    primary: 'bg-indigo-600',
+    primary: 'bg-[#0d5984]',
     secondary: 'bg-slate-200',
     outline: 'border border-slate-300',
     danger: 'bg-red-500',

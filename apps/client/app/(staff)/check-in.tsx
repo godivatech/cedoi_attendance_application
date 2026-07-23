@@ -67,9 +67,9 @@ export default function CheckInSearchScreen() {
       {/* Header */}
       <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f1f5f9', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#0f172a' }}>Member Check-in</Text>
-          <View style={{ backgroundColor: '#eff6ff', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#4f46e5' }}>{presentCount} present</Text>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: '#0d5984', letterSpacing: -0.5 }}>Member Check-in</Text>
+          <View style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#0d5984' }}>{presentCount} present</Text>
           </View>
         </View>
 
@@ -105,9 +105,9 @@ export default function CheckInSearchScreen() {
             </View>
 
             {meetingInfo?.date || meetingInfo?.startTime ? (
-              <View style={{ alignItems: 'flex-end', backgroundColor: '#f8fafc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#f1f5f9' }}>
+              <View style={{ alignItems: 'flex-end', backgroundColor: '#f0f7fb', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#c6def0' }}>
                 <Text style={{ fontSize: 12, fontWeight: '700', color: '#475569' }}>{meetingInfo.date || 'Today'}</Text>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#4f46e5' }}>{meetingInfo.startTime || '09:00 AM'}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#0d5984' }}>{meetingInfo.startTime || '09:00 AM'}</Text>
               </View>
             ) : null}
           </View>
