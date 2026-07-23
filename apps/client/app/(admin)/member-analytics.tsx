@@ -14,6 +14,7 @@ import {
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
 import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
+import { Pagination } from '../../src/components/ui/Pagination';
 
 export default function AdminMemberAnalyticsScreen() {
   const router = useRouter();
@@ -803,52 +804,14 @@ export default function AdminMemberAnalyticsScreen() {
           </View>
         )}
 
-        {/* Pagination Bar */}
-        {displayLedger.length > PAGE_SIZE && (
-          <View className="flex-col sm:flex-row items-center justify-between mt-5 pt-4 border-t border-slate-100 gap-3">
-            <Text className="text-xs font-semibold text-slate-500">
-              Showing <Text className="font-extrabold text-slate-800">{(currentPage - 1) * PAGE_SIZE + 1}</Text> to <Text className="font-extrabold text-slate-800">{Math.min(currentPage * PAGE_SIZE, displayLedger.length)}</Text> of <Text className="font-extrabold text-slate-800">{displayLedger.length}</Text> records
-            </Text>
-
-            <View className="flex-row items-center gap-1.5">
-              <TouchableOpacity
-                disabled={currentPage === 1}
-                onPress={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                style={{ opacity: currentPage === 1 ? 0.4 : 1 }}
-                className="flex-row items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white shadow-xs"
-              >
-                <ChevronLeft size={14} color="#334155" style={{ marginRight: 4 }} />
-                <Text className="text-xs font-extrabold text-slate-700">Prev</Text>
-              </TouchableOpacity>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <TouchableOpacity
-                  key={page}
-                  onPress={() => setCurrentPage(page)}
-                  style={{
-                    backgroundColor: currentPage === page ? '#0d5984' : '#ffffff',
-                    borderColor: currentPage === page ? '#0d5984' : '#cbd5e1'
-                  }}
-                  className="w-8 h-8 rounded-lg border items-center justify-center"
-                >
-                  <Text style={{ color: currentPage === page ? '#ffffff' : '#334155' }} className="text-xs font-black">
-                    {page}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-
-              <TouchableOpacity
-                disabled={currentPage === totalPages}
-                onPress={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                style={{ opacity: currentPage === totalPages ? 0.4 : 1 }}
-                className="flex-row items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white shadow-xs"
-              >
-                <Text className="text-xs font-extrabold text-slate-700">Next</Text>
-                <ChevronRight size={14} color="#334155" style={{ marginLeft: 4 }} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+        {/* Reusable Pagination Component */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRecords={displayLedger.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setCurrentPage}
+        />
       </View>
     </ScrollView>
   );

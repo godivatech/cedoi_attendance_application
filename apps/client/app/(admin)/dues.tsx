@@ -12,6 +12,7 @@ import {
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
 import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
+import { Pagination } from '../../src/components/ui/Pagination';
 
 interface AttendanceRecord {
   id: string;
@@ -49,6 +50,10 @@ export default function AdminDuesScreen() {
   // Settlement Modal State
   const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
   const [settling, setSettling] = useState(false);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   // Fetch all attendance records across all meetings
   const fetchDuesData = async () => {
@@ -168,6 +173,18 @@ export default function AdminDuesScreen() {
     };
   }, [records, searchQuery, startDate, endDate, minDuesFilter]);
 
+  // Reset pagination when active filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTab, minDuesFilter, startDate, endDate]);
+
+  const activeDisplayList = activeTab === 'OVERDUE' ? overdueRecords : paidRecords;
+  const totalPages = Math.max(1, Math.ceil(activeDisplayList.length / PAGE_SIZE));
+  const paginatedDisplayList = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return activeDisplayList.slice(start, start + PAGE_SIZE);
+  }, [activeDisplayList, currentPage]);
+
   // 1-Tap Payment Settlement Submission
   const handleSettlePayment = async (record: AttendanceRecord, mode: 'CASH' | 'UPI' | 'WAIVED') => {
     setSettling(true);
@@ -284,23 +301,23 @@ export default function AdminDuesScreen() {
   return (
     <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
       {/* Top Banner & Header: Responsive stacking */}
-      <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <View className="flex-1 min-w-0 pr-2">
-          <Text className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+      <View style={{ width: '100%' }} className="flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <View style={{ flex: 1, width: '100%' }} className="pr-2 mb-2 sm:mb-0">
+          <Text style={{ width: '100%' }} className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Dues & Payment Center
           </Text>
-          <Text className="text-xs sm:text-sm color-[#475569] font-semibold mt-1">
+          <Text style={{ width: '100%' }} className="text-xs sm:text-sm color-[#475569] font-semibold mt-1">
             Track overdue entry fees, settle member payments, and export audit logs
           </Text>
         </View>
 
         {/* Action Buttons: Never shrink or text-wrap on Desktop */}
-        <View className="flex-row items-center gap-2.5 w-full sm:w-auto shrink-0">
+        <View className="flex-row items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <TouchableOpacity
             onPress={handleExportCSV}
             activeOpacity={0.85}
             style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5, minHeight: 42 }}
-            className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
+            className="px-4 py-2 rounded-xl shadow-xs flex-row items-center justify-center"
           >
             <Download size={15} color="#334155" style={{ marginRight: 6 }} />
             <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-slate-700 font-extrabold text-xs sm:text-sm">
@@ -312,8 +329,8 @@ export default function AdminDuesScreen() {
             <TouchableOpacity
               onPress={() => handleSendWhatsAppReminder()}
               activeOpacity={0.85}
-              style={{ backgroundColor: '#059669', minHeight: 42, minWidth: 165 }}
-              className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
+              style={{ backgroundColor: '#059669', minHeight: 42 }}
+              className="px-4 py-2 rounded-xl shadow-xs flex-row items-center justify-center"
             >
               <WhatsAppIcon size={16} color="#ffffff" style={{ marginRight: 6 }} />
               <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-white font-black text-xs sm:text-sm">
@@ -447,7 +464,7 @@ export default function AdminDuesScreen() {
       <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="rounded-2xl p-4 sm:p-5 shadow-xs">
         {/* Navigation Tabs Header */}
         <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
-          <View className="flex-row flex-wrap gap-2 w-full sm:w-auto">
+          <View className="flex-row flex-wrap gap-2 flex-1">
             <TouchableOpacity
               onPress={() => setActiveTab('OVERDUE')}
               style={{
@@ -455,10 +472,10 @@ export default function AdminDuesScreen() {
                 borderColor: activeTab === 'OVERDUE' ? '#fecdd3' : '#cbd5e1',
                 borderWidth: 1.5
               }}
-              className="flex-row items-center px-4 py-2.5 rounded-xl flex-1 sm:flex-initial justify-center"
+              className="flex-row items-center px-4 py-2.5 rounded-xl justify-center"
             >
               <AlertCircle size={15} color={activeTab === 'OVERDUE' ? '#be123c' : '#64748b'} style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 13, fontWeight: '900', color: activeTab === 'OVERDUE' ? '#be123c' : '#475569' }}>
+              <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className={`text-xs sm:text-sm font-black ${activeTab === 'OVERDUE' ? 'text-rose-800' : 'text-slate-700'}`}>
                 Overdue Dues ({overdueRecords.length})
               </Text>
             </TouchableOpacity>
@@ -470,99 +487,152 @@ export default function AdminDuesScreen() {
                 borderColor: activeTab === 'RECEIPTS' ? '#bbf7d0' : '#cbd5e1',
                 borderWidth: 1.5
               }}
-              className="flex-row items-center px-4 py-2.5 rounded-xl flex-1 sm:flex-initial justify-center"
+              className="flex-row items-center px-4 py-2.5 rounded-xl justify-center"
             >
               <CheckCircle2 size={15} color={activeTab === 'RECEIPTS' ? '#047857' : '#64748b'} style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 13, fontWeight: '900', color: activeTab === 'RECEIPTS' ? '#047857' : '#475569' }}>
+              <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className={`text-xs sm:text-sm font-black ${activeTab === 'RECEIPTS' ? 'text-emerald-800' : 'text-slate-700'}`}>
                 Receipts Log ({paidRecords.length})
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text className="text-xs text-slate-600 font-bold self-end sm:self-center">
-            {currentDisplayList.length} Records Found
+          <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-xs text-slate-500 font-extrabold shrink-0 self-start sm:self-center">
+            {activeDisplayList.length} Records Found
           </Text>
         </View>
 
         {/* Ledger Items List */}
-        {currentDisplayList.length > 0 ? (
+        {activeDisplayList.length > 0 ? (
           <View className="gap-3">
-            {currentDisplayList.map((item) => (
-              <View
-                key={item.id + '-' + item.meetingId}
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderWidth: 1.5,
-                  borderColor: item.paymentStatus === 'PENDING' || item.paymentStatus === 'ABSENT' ? '#fecdd3' : '#cbd5e1'
-                }}
-                className="rounded-2xl p-4 sm:p-5 shadow-2xs"
-              >
-                <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
-                  <View className="flex-1 min-w-0">
-                    <View className="flex-row items-center flex-wrap gap-2">
-                      <Text className="text-base sm:text-lg font-black text-slate-900">{item.memberFullName}</Text>
-                      <TouchableOpacity
-                        onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.memberId } })}
-                        style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1 }}
-                        className="px-2.5 py-1 rounded-full"
-                      >
-                        <Text className="text-xs font-extrabold text-[#0d5984]">Member 360° →</Text>
-                      </TouchableOpacity>
+            {paginatedDisplayList.map((item) => {
+              const isOverdue = item.paymentStatus === 'PENDING' || item.paymentStatus === 'ABSENT';
+              const initial = item.memberFullName ? item.memberFullName.charAt(0).toUpperCase() : 'U';
+
+              return (
+                <View
+                  key={item.id + '-' + item.meetingId}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderWidth: 1,
+                    borderColor: isOverdue ? '#fecdd3' : '#cbd5e1',
+                    borderRadius: 20,
+                    padding: 16,
+                    overflow: 'hidden'
+                  }}
+                  className="shadow-2xs gap-3.5 mb-3"
+                >
+                  {/* Top Block: Mobile friendly responsive layout */}
+                  <View className="flex-row items-start justify-between gap-2.5">
+                    {/* Left: Avatar + Details */}
+                    <View className="flex-row items-start flex-1 min-w-0">
+                      <View style={{ backgroundColor: '#fff1f2', width: 40, height: 40, borderRadius: 20 }} className="items-center justify-center mr-2.5 shrink-0">
+                        <Text style={{ color: '#be123c', fontSize: 16, fontWeight: '900' }}>{initial}</Text>
+                      </View>
+
+                      <View className="flex-1 min-w-0">
+                        <Text numberOfLines={1} className="text-[15px] sm:text-base font-extrabold text-slate-900 truncate">
+                          {item.memberFullName}
+                        </Text>
+                        <View className="flex-row items-center flex-wrap mt-0.5">
+                          <TouchableOpacity
+                            onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.memberId } })}
+                            style={{ backgroundColor: '#eff6ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 }}
+                            className="shrink-0"
+                          >
+                            <Text style={{ color: '#2563eb', fontSize: 10, fontWeight: '700' }}>Member 360° →</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <Text numberOfLines={1} className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 truncate">
+                          {[item.memberCompanyName, item.memberCategory].filter(Boolean).join(' • ') || 'CEDOI Member'}
+                        </Text>
+                      </View>
                     </View>
-                    <Text className="text-xs text-slate-600 font-semibold mt-1">
-                      {item.memberCompanyName || 'Company'} • {item.memberCategory || 'Member'} • {item.memberMobile}
-                    </Text>
+
+                    {/* Right: Fee Amount & Overdue Badge */}
+                    <View className="flex-col items-end shrink-0 pl-1">
+                      <Text style={{ color: isOverdue ? '#be123c' : '#047857' }} className="text-lg sm:text-xl font-black">
+                        ₹{item.entryFee.toLocaleString('en-IN')}
+                      </Text>
+                      {isOverdue ? (
+                        <View style={{ backgroundColor: '#fff1f2', borderColor: '#fecdd3', borderWidth: 1, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, marginTop: 3 }} className="flex-row items-center">
+                          <AlertCircle size={10} color="#be123c" style={{ marginRight: 3 }} />
+                          <Text style={{ color: '#be123c', fontSize: 10, fontWeight: '800' }}>Overdue</Text>
+                        </View>
+                      ) : (
+                        <View style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', borderWidth: 1, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, marginTop: 3 }} className="flex-row items-center">
+                          <CheckCircle2 size={10} color="#047857" style={{ marginRight: 3 }} />
+                          <Text style={{ color: '#047857', fontSize: 10, fontWeight: '800' }}>Paid</Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
 
-                  {/* Fee Highlight */}
-                  <View className="flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                    <Text className={`text-xl sm:text-2xl font-black ${item.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                      ₹{item.entryFee}
-                    </Text>
-                    <Text className={`text-xs font-black uppercase ${item.paymentStatus === 'PAID' ? 'text-emerald-800' : 'text-rose-800'}`}>
-                      {item.paymentStatus === 'PAID' ? `PAID VIA ${item.paymentMode || 'CASH'}` : 'OVERDUE FEE'}
-                    </Text>
-                  </View>
-                </View>
+                  {/* Middle Shaded Card */}
+                  <View style={{ backgroundColor: '#f8fafc', borderRadius: 12, borderWidth: 1, borderColor: '#f1f5f9' }} className="p-3 flex-row items-center justify-between mt-0.5">
+                    <View className="flex-row items-center flex-1 min-w-0 mr-2">
+                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#e2e8f0' }} className="items-center justify-center mr-2 shrink-0">
+                        <Calendar size={14} color="#475569" />
+                      </View>
+                      <View className="flex-1 min-w-0">
+                        <Text numberOfLines={1} className="text-[12px] sm:text-[13px] font-bold text-slate-900 truncate">
+                          {item.meetingTitle}
+                        </Text>
+                        <Text numberOfLines={1} className="text-[10px] font-medium text-slate-500 mt-0.5">
+                          ({item.meetingDate})
+                        </Text>
+                      </View>
+                    </View>
 
-                {/* Meeting Context & Actions Row */}
-                <View className="flex-col sm:flex-row items-start sm:items-center justify-between border-t border-slate-100 pt-3 gap-2">
-                  <View className="flex-row items-center flex-1 min-w-0 pr-2">
-                    <Calendar size={14} color="#475569" className="shrink-0" />
-                    <Text numberOfLines={1} className="text-xs text-slate-700 ml-1.5 font-bold truncate">
-                      {item.meetingTitle} ({item.meetingDate})
-                    </Text>
+                    <View style={{ width: 1, height: 24, backgroundColor: '#cbd5e1' }} className="mx-2" />
+
+                    <View className="items-end shrink-0 pl-1">
+                      <Text className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">
+                        {isOverdue ? 'Overdue Fee' : 'Paid Fee'}
+                      </Text>
+                      <Text style={{ color: isOverdue ? '#be123c' : '#047857' }} className="text-[13px] sm:text-sm font-black mt-0.5">
+                        ₹{item.entryFee.toLocaleString('en-IN')}
+                      </Text>
+                    </View>
                   </View>
 
-                  <View className="flex-row items-center gap-2 w-full sm:w-auto justify-end">
-                    {item.paymentStatus !== 'PAID' ? (
+                  {/* Bottom Action Buttons */}
+                  <View className="flex-row items-center justify-between gap-2 pt-1">
+                    {isOverdue ? (
                       <>
                         <TouchableOpacity
                           onPress={() => handleSendWhatsAppReminder(item)}
-                          style={{ backgroundColor: '#ecfdf5', borderWidth: 1.5, borderColor: '#a7f3d0' }}
-                          className="px-3 py-2 rounded-xl flex-row items-center flex-1 sm:flex-initial justify-center"
+                          activeOpacity={0.8}
+                          style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', borderWidth: 1, height: 40, borderRadius: 10 }}
+                          className="flex-1 flex-row items-center justify-center px-1"
                         >
-                          <WhatsAppIcon size={14} color="#047857" style={{ marginRight: 5 }} />
-                          <Text className="text-xs font-black text-emerald-800">WhatsApp</Text>
+                          <WhatsAppIcon size={14} color="#15803d" style={{ marginRight: 4 }} />
+                          <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-[12px] sm:text-[13px] font-extrabold text-emerald-800">
+                            WhatsApp
+                          </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                           onPress={() => setSelectedRecord(item)}
-                          style={{ backgroundColor: '#0d5984' }}
-                          className="px-4 py-2 rounded-xl flex-1 sm:flex-initial items-center justify-center"
+                          activeOpacity={0.8}
+                          style={{ backgroundColor: '#031b4e', height: 40, borderRadius: 10 }}
+                          className="flex-1 flex-row items-center justify-center px-1 shadow-xs"
                         >
-                          <Text className="text-xs font-black text-white">Collect Dues</Text>
+                          <CreditCard size={14} color="#ffffff" style={{ marginRight: 4 }} />
+                          <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-[12px] sm:text-[13px] font-bold text-white">
+                            Settle
+                          </Text>
                         </TouchableOpacity>
                       </>
                     ) : (
-                      <View style={{ backgroundColor: '#f0fdf4', borderWidth: 1.5, borderColor: '#bbf7d0' }} className="px-3 py-1.5 rounded-xl">
-                        <Text className="text-xs font-black text-emerald-800">✓ Receipt Verified</Text>
+                      <View style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', borderWidth: 1, height: 40, borderRadius: 10 }} className="flex-1 flex-row items-center justify-center px-1">
+                        <CheckCircle2 size={14} color="#047857" style={{ marginRight: 4 }} />
+                        <Text numberOfLines={1} className="text-[12px] sm:text-[13px] font-extrabold text-emerald-800">Paid Receipt Verified</Text>
                       </View>
                     )}
                   </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         ) : (
           <View className="items-center p-8 bg-slate-50 rounded-2xl border border-slate-200">
@@ -571,6 +641,15 @@ export default function AdminDuesScreen() {
             <Text className="color-[#475569] text-xs mt-1 font-semibold text-center">All dues are up to date or adjust your search filter above.</Text>
           </View>
         )}
+
+        {/* Pagination Component */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRecords={activeDisplayList.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setCurrentPage}
+        />
       </View>
 
       {/* Interactive Settlement Modal */}

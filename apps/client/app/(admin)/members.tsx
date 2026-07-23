@@ -3,13 +3,28 @@ import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2, Calendar } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import { Pagination } from '../../src/components/ui/Pagination';
 
 export default function AdminMembers() {
   const [searchTerm, setSearchTerm] = useState('');
   const { members, loading } = useMembers(searchTerm);
   const router = useRouter();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(members.length / PAGE_SIZE));
+  const paginatedMembers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return members.slice(start, start + PAGE_SIZE);
+  }, [members, currentPage]);
 
   // Helper to get initials for avatar
   const getInitials = (name: string) => {
@@ -68,7 +83,7 @@ export default function AdminMembers() {
         </View>
       ) : (
         <FlatList
-          data={members}
+          data={paginatedMembers}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
@@ -98,34 +113,28 @@ export default function AdminMembers() {
                           const join = new Date(item.joinDate);
                           const anniversary = new Date(join);
                           anniversary.setFullYear(join.getFullYear() + 1);
-                          const diffDays = Math.ceil((anniversary.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                          const now = new Date();
+                          const diffDays = Math.ceil((anniversary.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                           if (diffDays < 0) {
                             return (
-                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200/80">
-                                <View className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5" />
-                                <Text className="text-xs font-extrabold text-rose-700">Expired</Text>
+                              <View className="bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
+                                <Text className="text-[10px] font-black text-rose-700">Expired</Text>
                               </View>
                             );
                           } else if (diffDays <= 30) {
                             return (
-                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/80">
-                                <View className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5" />
-                                <Text className="text-xs font-extrabold text-amber-800">Renewal Due ({diffDays}d)</Text>
+                              <View className="bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                <Text className="text-[10px] font-black text-amber-700">Renews in {diffDays}d</Text>
                               </View>
                             );
                           }
-                          return (
-                            <View className="flex-row items-center px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80">
-                              <View className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-                              <Text className="text-xs font-extrabold text-emerald-700">Active</Text>
-                            </View>
-                          );
+                          return null;
                         } catch (e) {
                           return null;
                         }
                       })()}
                     </View>
-                    <Text numberOfLines={1} className="text-slate-600 text-xs sm:text-sm mt-0.5 font-semibold truncate">
+                    <Text numberOfLines={1} className="text-xs text-slate-500 font-medium truncate mt-0.5">
                       {item.companyName || 'Member'}
                     </Text>
                   </View>
@@ -180,6 +189,15 @@ export default function AdminMembers() {
                 No members found matching "{searchTerm}"
               </Text>
             </Card>
+          )}
+          ListFooterComponent={() => (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalRecords={members.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
           )}
         />
       )}
