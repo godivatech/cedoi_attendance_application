@@ -266,8 +266,9 @@ export default function AdminMemberAnalyticsScreen() {
   // Quick WhatsApp Launcher with dynamic personalized metrics summary
   const handleSendWhatsApp = () => {
     if (!member) return;
-    const cleanPhone = (member.mobileNumber || '').replace(/\D/g, '');
-    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    let cleanPhone = (member.mobileNumber || '').replace(/\D/g, '');
+    if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+    if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
     
     let text = `Hello ${member.fullName}, Greetings from CEDOI!\n\n`;
     text += `Your Performance Summary:\n`;
@@ -281,7 +282,7 @@ export default function AdminMemberAnalyticsScreen() {
       text += `\nAll dues are clear. Thank you for your active participation!`;
     }
 
-    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
     if (typeof window !== 'undefined') {
       window.open(url, '_blank');
     }

@@ -183,11 +183,16 @@ export default function StaffReportsScreen() {
   }, [meetings, members, selectedMonth, startDate, endDate, meetingsLoading, membersLoading]);
 
   // WhatsApp Reminder launcher for reports page
-  const handleSendWhatsApp = (mobile: string, name: string, pendingAmount: number) => {
-    const cleanPhone = mobile.replace(/\D/g, '');
-    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+  const handleSendWhatsApp = (name: string, mobile: string, pendingAmount: number) => {
+    let cleanPhone = (mobile || '').replace(/\D/g, '');
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = cleanPhone.substring(1);
+    }
+    if (cleanPhone.length === 10) {
+      cleanPhone = `91${cleanPhone}`;
+    }
     const text = `Hello ${name}, Greetings from CEDOI! This is a polite reminder regarding your pending attendance fee of ₹${pendingAmount}. Kindly clear your dues at your earliest convenience. Thank you!`;
-    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
     if (typeof window !== 'undefined') {
       window.open(url, '_blank');
     }

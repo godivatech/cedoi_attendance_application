@@ -107,10 +107,11 @@ export default function MemberDetailScreen() {
   // WhatsApp Reminder launcher
   const handleSendWhatsAppReminder = () => {
     if (!member) return;
-    const cleanPhone = member.mobileNumber.replace(/\D/g, '');
-    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    let cleanPhone = (member.mobileNumber || '').replace(/\D/g, '');
+    if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+    if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
     const text = `Hello ${member.fullName}, Greetings from CEDOI! This is a polite reminder regarding your pending fee of ₹${meetingFee} for ${meetingTitle || 'our meeting'}. Kindly clear your dues at your earliest convenience. Thank you!`;
-    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
     if (typeof window !== 'undefined') {
       window.open(url, '_blank');
     }

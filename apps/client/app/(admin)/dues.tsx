@@ -229,10 +229,11 @@ export default function AdminDuesScreen() {
   // 1-Tap Broadcast / Individual WhatsApp Payment Reminder
   const handleSendWhatsAppReminder = (record?: AttendanceRecord) => {
     if (record) {
-      const cleanPhone = (record.memberMobile || '').replace(/\D/g, '');
-      const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+      let cleanPhone = (record.memberMobile || '').replace(/\D/g, '');
+      if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+      if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
       const text = `Hello ${record.memberFullName}, Greetings from CEDOI!\n\nThis is a friendly reminder regarding your pending entry fee of ₹${record.entryFee} for "${record.meetingTitle}" (${record.meetingDate}).\n\nKindly clear your dues at your earliest convenience. Thank you!`;
-      const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+      const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
       if (typeof window !== 'undefined') window.open(url, '_blank');
     } else {
       // Broadcast reminder info
