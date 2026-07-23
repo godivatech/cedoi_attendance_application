@@ -7,7 +7,7 @@ import { doc, getDoc, collection, getDocs, collectionGroup, query, where, writeB
 import { db } from '../../src/services/firebase';
 import { Member, Meeting } from '@cedoi/shared';
 import {
-  ChevronLeft, Calendar, Clock, Briefcase, Phone, Mail, CheckCircle2,
+  ChevronLeft, ChevronRight, Calendar, Clock, Briefcase, Phone, Mail, CheckCircle2,
   XCircle, IndianRupee, Download, Search, MessageSquare,
   Filter, TrendingUp, Shirt, AlertTriangle, Edit2, CreditCard, BarChart2, Users
 } from 'lucide-react-native';
@@ -33,9 +33,11 @@ export default function AdminMemberAnalyticsScreen() {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
 
-  // Ledger Search & Filter
+  // Ledger Search, Filter & Pagination
   const [ledgerSearch, setLedgerSearch] = useState('');
   const [ledgerTab, setLedgerTab] = useState<'ALL' | 'PRESENT' | 'ABSENT' | 'PENDING'>('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 5;
 
   // Fetch Member, Meetings, and Attendance data
   const fetchData = async () => {
@@ -248,6 +250,17 @@ export default function AdminMemberAnalyticsScreen() {
       return true;
     });
   }, [analytics.historyItems, ledgerSearch, ledgerTab]);
+
+  // Reset pagination when search or tab filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [ledgerSearch, ledgerTab]);
+
+  const totalPages = Math.max(1, Math.ceil(displayLedger.length / PAGE_SIZE));
+  const paginatedLedger = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return displayLedger.slice(start, start + PAGE_SIZE);
+  }, [displayLedger, currentPage]);
 
   // Quick WhatsApp Launcher with dynamic personalized metrics summary
   const handleSendWhatsApp = () => {
@@ -706,9 +719,9 @@ export default function AdminMemberAnalyticsScreen() {
         </View>
 
         {/* Ledger List */}
-        {displayLedger.length > 0 ? (
+        {paginatedLedger.length > 0 ? (
           <View style={{ gap: 10 }}>
-            {displayLedger.map((item, idx) => (
+            {paginatedLedger.map((item, idx) => (
               <View
                 key={item.meetingId + '-' + idx}
                 style={{
@@ -787,6 +800,53 @@ export default function AdminMemberAnalyticsScreen() {
         ) : (
           <View style={{ alignItems: 'center', padding: 24, backgroundColor: '#f8fafc', borderRadius: 14 }}>
             <Text style={{ color: '#64748b', fontWeight: '500', fontSize: 13 }}>No meeting records match your search filter.</Text>
+          </View>
+        )}
+
+        {/* Pagination Bar */}
+        {displayLedger.length > PAGE_SIZE && (
+          <View className="flex-col sm:flex-row items-center justify-between mt-5 pt-4 border-t border-slate-100 gap-3">
+            <Text className="text-xs font-semibold text-slate-500">
+              Showing <Text className="font-extrabold text-slate-800">{(currentPage - 1) * PAGE_SIZE + 1}</Text> to <Text className="font-extrabold text-slate-800">{Math.min(currentPage * PAGE_SIZE, displayLedger.length)}</Text> of <Text className="font-extrabold text-slate-800">{displayLedger.length}</Text> records
+            </Text>
+
+            <View className="flex-row items-center gap-1.5">
+              <TouchableOpacity
+                disabled={currentPage === 1}
+                onPress={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                style={{ opacity: currentPage === 1 ? 0.4 : 1 }}
+                className="flex-row items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white shadow-xs"
+              >
+                <ChevronLeft size={14} color="#334155" style={{ marginRight: 4 }} />
+                <Text className="text-xs font-extrabold text-slate-700">Prev</Text>
+              </TouchableOpacity>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <TouchableOpacity
+                  key={page}
+                  onPress={() => setCurrentPage(page)}
+                  style={{
+                    backgroundColor: currentPage === page ? '#0d5984' : '#ffffff',
+                    borderColor: currentPage === page ? '#0d5984' : '#cbd5e1'
+                  }}
+                  className="w-8 h-8 rounded-lg border items-center justify-center"
+                >
+                  <Text style={{ color: currentPage === page ? '#ffffff' : '#334155' }} className="text-xs font-black">
+                    {page}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <TouchableOpacity
+                disabled={currentPage === totalPages}
+                onPress={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                style={{ opacity: currentPage === totalPages ? 0.4 : 1 }}
+                className="flex-row items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white shadow-xs"
+              >
+                <Text className="text-xs font-extrabold text-slate-700">Next</Text>
+                <ChevronRight size={14} color="#334155" style={{ marginLeft: 4 }} />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
