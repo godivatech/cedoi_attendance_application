@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Slot, Tabs, useRouter, usePathname, Redirect } from 'expo-router';
 import { LayoutDashboard, Users, CalendarDays, TrendingUp, LogOut, Bell, User as UserIcon, CreditCard } from 'lucide-react-native';
-import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme, ActivityIndicator } from 'react-native';
+import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme, ActivityIndicator, Image } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
 import { signOut } from 'firebase/auth';
@@ -89,16 +89,11 @@ export default function AdminLayout() {
         <View style={{ width: 256, backgroundColor: BRAND_COLORS.cardBg, borderRightWidth: 1, borderRightColor: BRAND_COLORS.border, justifyContent: 'space-between', padding: 16, paddingVertical: 24 }}>
           <View>
             {/* Header / Logo */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginBottom: 32 }}>
-              <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: BRAND_COLORS.primary, justifyContent: 'center', alignItems: 'center', shadowColor: BRAND_COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8 }}>
-                <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 22 }}>C</Text>
-              </View>
-              <View style={{ marginLeft: 12 }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: BRAND_COLORS.primary, letterSpacing: 0.5 }}>CEDOI</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: BRAND_COLORS.accentLight, borderColor: BRAND_COLORS.accentBorder, borderWidth: 1, borderRadius: 12, paddingHorizontal: 6, paddingVertical: 1, marginTop: 2 }}>
-                  <Text style={{ fontSize: 9, fontWeight: '800', color: BRAND_COLORS.accentText, textTransform: 'uppercase' }}>Admin Portal</Text>
-                </View>
-              </View>
+            <View style={{ paddingHorizontal: 4, marginBottom: 16, height: 64, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+              <Image
+                source={require('../../assets/Logo.png')}
+                style={{ width: 220, height: 120, resizeMode: 'contain' }}
+              />
             </View>
 
             {/* Menu Links */}
@@ -236,6 +231,16 @@ export default function AdminLayout() {
             borderTopColor: BRAND_COLORS.border,
           },
           headerShown: true,
+          headerTitle: '',
+          headerLeftContainerStyle: { paddingLeft: 0, marginLeft: 0 },
+          headerLeft: () => (
+            <View style={{ marginLeft: 4, width: 140, height: 38, justifyContent: 'center', alignItems: 'flex-start', overflow: 'hidden' }}>
+              <Image
+                source={require('../../assets/Logo.png')}
+                style={{ width: 180, height: 90, marginLeft: -25, resizeMode: 'contain' }}
+              />
+            </View>
+          ),
           headerStyle: {
             backgroundColor: BRAND_COLORS.cardBg,
           },

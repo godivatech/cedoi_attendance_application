@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -73,9 +73,12 @@ export default function LoginScreen() {
         <Card className="bg-white p-6 sm:p-8 rounded-3xl shadow-lg border border-slate-100 w-full my-4">
 
           {/* Official Brand Logo & Header */}
-          <View className="items-center mb-8">
-            <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: BRAND_COLORS.primary, justifyContent: 'center', alignItems: 'center', shadowColor: BRAND_COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, marginBottom: 16 }}>
-              <Text className="text-white font-black text-2xl">C</Text>
+          <View className="items-center mb-6">
+            <View style={{ width: 220, height: 70, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginBottom: 8 }}>
+              <Image
+                source={require('../../assets/Logo.png')}
+                style={{ width: 260, height: 130, resizeMode: 'contain' }}
+              />
             </View>
             <Text style={{ fontSize: 24, fontWeight: '900', color: BRAND_COLORS.primary, letterSpacing: -0.5 }}>CEDOI Platform</Text>
             <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, textAlign: 'center' }}>
