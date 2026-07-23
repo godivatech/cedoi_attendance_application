@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Slot, Tabs, useRouter, usePathname } from 'expo-router';
-import { Clock, History, LogOut, Bell, User as UserIcon, FileText } from 'lucide-react-native';
+import { Clock, History, LogOut, Bell, User as UserIcon, FileText, LayoutDashboard } from 'lucide-react-native';
 import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
@@ -23,6 +23,12 @@ export default function StaffLayout() {
   const { unreadCount } = useNotifications();
 
   const menuItems = [
+    {
+      name: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/(staff)/dashboard',
+    },
     {
       name: 'today',
       label: 'Today',
@@ -242,6 +248,13 @@ export default function StaffLayout() {
           ),
         }}
       >
+        <Tabs.Screen
+          name="dashboard"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
+          }}
+        />
         <Tabs.Screen
           name="today"
           options={{
