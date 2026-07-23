@@ -9,6 +9,7 @@ interface PaginationProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   accentColor?: string;
+  showSummary?: boolean;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -17,7 +18,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalRecords,
   pageSize,
   onPageChange,
-  accentColor = '#0d5984'
+  accentColor = '#0d5984',
+  showSummary = true
 }) => {
   if (totalRecords <= pageSize) return null;
 
@@ -43,13 +45,14 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers();
 
   return (
-    <View className="flex-col sm:flex-row items-center justify-between mt-5 pt-4 border-t border-slate-200/80 gap-3">
+    <View className={`flex-col sm:flex-row items-center ${showSummary ? 'justify-between' : 'justify-center'} mt-5 pt-4 border-t border-slate-200/80 gap-3`}>
       {/* Records Info */}
-      <Text className="text-xs font-semibold text-slate-500">
-        Showing <Text className="font-extrabold text-slate-800">{startRecord}</Text> to{' '}
-        <Text className="font-extrabold text-slate-800">{endRecord}</Text> of{' '}
-        <Text className="font-extrabold text-slate-800">{totalRecords}</Text> records
-      </Text>
+      {showSummary && (
+        <Text className="text-xs font-semibold text-slate-500">
+          Page <Text className="font-extrabold text-slate-800">{currentPage}</Text> of{' '}
+          <Text className="font-extrabold text-slate-800">{totalPages}</Text>
+        </Text>
+      )}
 
       {/* Page Controls */}
       <View className="flex-row items-center gap-1.5">
