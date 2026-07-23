@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Platform, FlatList
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { collectionGroup, query, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
+import { collectionGroup, query, getDocs, doc, writeBatch, increment, collection } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import {
   IndianRupee, Users, Calendar, Download, Search, CheckCircle2, Clock, AlertCircle,
@@ -55,56 +55,92 @@ export default function AdminDuesScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
-  // Fetch all attendance records across all meetings
+  // Fetch all attendance records across all meetings and chapter members
   const fetchDuesData = async () => {
     setLoading(true);
     try {
+      // Fetch all members
+      const membersSnap = await getDocs(query(collection(db, 'members')));
+      const membersList: any[] = [];
+      membersSnap.forEach(d => {
+        membersList.push({ id: d.id, ...d.data() });
+      });
+
+      // Fetch all meetings
+      const meetingsSnap = await getDocs(query(collection(db, 'meetings')));
+      const meetingsList: any[] = [];
+      meetingsSnap.forEach(d => {
+        meetingsList.push({ id: d.id, ...d.data() });
+      });
+
       // Fetch all attendance collection group items
       const attSnap = await getDocs(query(collectionGroup(db, 'attendance')));
-      
-      // Also fetch meetings map for meeting metadata fallback
-      const meetingsSnap = await getDocs(query(collectionGroup(db, 'meetings')));
-      const meetingsMap: Record<string, any> = {};
-      meetingsSnap.forEach(d => {
-        meetingsMap[d.id] = d.data();
+      const attendanceList: any[] = [];
+      attSnap.docs.forEach(d => {
+        const meetingId = d.ref.parent?.parent?.id || '';
+        attendanceList.push({
+          id: d.id,
+          meetingId,
+          ...d.data()
+        });
       });
 
       const list: AttendanceRecord[] = [];
 
-      attSnap.docs.forEach(d => {
-        const data = d.data();
-        const meetingId = d.ref.parent?.parent?.id || '';
-        const meetingMeta = meetingsMap[meetingId] || {};
+      // For every meeting and every member, resolve attendance/dues record
+      meetingsList.forEach(mtg => {
+        const entryFee = mtg.entryFee || 500;
+        const meetingTitle = mtg.title || 'CEDOI Meeting';
+        const meetingDate = mtg.date || 'N/A';
+        const venue = mtg.venue || 'Main Hall';
 
-        const entryFee = meetingMeta.entryFee || data.entryFee || 500;
-        const meetingTitle = meetingMeta.title || data.meetingTitle || 'CEDOI Meeting';
-        const meetingDate = meetingMeta.date || data.meetingDate || 'N/A';
-        const venue = meetingMeta.venue || 'Main Hall';
+        membersList.forEach(m => {
+          const att = attendanceList.find(a => a.meetingId === mtg.id && (a.memberId === m.id || a.id === m.id));
 
-        const memberSnap = data.memberSnapshot || {};
-        const memberFullName = memberSnap.fullName || data.memberName || 'CEDOI Member';
-        const memberCompanyName = memberSnap.companyName || '';
-        const memberMobile = memberSnap.mobileNumber || '';
-        const memberCategory = memberSnap.businessCategory || '';
+          if (att) {
+            const memberSnap = att.memberSnapshot || {};
+            const memberFullName = memberSnap.fullName || att.memberName || m.fullName || 'CEDOI Member';
+            const memberCompanyName = memberSnap.companyName || m.companyName || '';
+            const memberMobile = memberSnap.mobileNumber || m.mobileNumber || '';
+            const memberCategory = memberSnap.businessCategory || m.businessCategory || '';
 
-        list.push({
-          id: d.id,
-          meetingId,
-          meetingTitle,
-          meetingDate,
-          venue,
-          entryFee,
-          memberId: data.memberId || d.id,
-          memberFullName,
-          memberCompanyName,
-          memberMobile,
-          memberCategory,
-          paymentStatus: data.paymentStatus || 'PENDING',
-          paymentMode: data.paymentMode,
-          amountCollected: data.amountCollected || 0,
-          checkInTime: data.checkInTime,
-          punctualityStatus: data.punctualityStatus,
-          attireStatus: data.attireStatus
+            list.push({
+              id: att.id,
+              meetingId: mtg.id,
+              meetingTitle,
+              meetingDate,
+              venue,
+              entryFee,
+              memberId: m.id,
+              memberFullName,
+              memberCompanyName,
+              memberMobile,
+              memberCategory,
+              paymentStatus: att.paymentStatus || (att.isAbsent ? 'ABSENT' : 'PENDING'),
+              paymentMode: att.paymentMode,
+              amountCollected: att.amountCollected || 0,
+              checkInTime: att.checkInTime,
+              punctualityStatus: att.punctualityStatus,
+              attireStatus: att.attireStatus
+            });
+          } else {
+            // Member was absent/unmarked for this meeting -> Creates an overdue dues entry for this meeting
+            list.push({
+              id: `${mtg.id}_${m.id}`,
+              meetingId: mtg.id,
+              meetingTitle,
+              meetingDate,
+              venue,
+              entryFee,
+              memberId: m.id,
+              memberFullName: m.fullName || 'CEDOI Member',
+              memberCompanyName: m.companyName || '',
+              memberMobile: m.mobileNumber || '',
+              memberCategory: m.businessCategory || '',
+              paymentStatus: 'ABSENT',
+              amountCollected: 0
+            });
+          }
         });
       });
 
@@ -477,7 +513,7 @@ export default function AdminDuesScreen() {
             >
               <AlertCircle size={15} color={activeTab === 'OVERDUE' ? '#be123c' : '#64748b'} style={{ marginRight: 6 }} />
               <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className={`text-xs sm:text-sm font-black ${activeTab === 'OVERDUE' ? 'text-rose-800' : 'text-slate-700'}`}>
-                Overdue Dues ({overdueRecords.length})
+                Pending Dues ({overdueRecords.length})
               </Text>
             </TouchableOpacity>
 
@@ -492,7 +528,7 @@ export default function AdminDuesScreen() {
             >
               <CheckCircle2 size={15} color={activeTab === 'RECEIPTS' ? '#047857' : '#64748b'} style={{ marginRight: 6 }} />
               <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className={`text-xs sm:text-sm font-black ${activeTab === 'RECEIPTS' ? 'text-emerald-800' : 'text-slate-700'}`}>
-                Receipts Log ({paidRecords.length})
+                Paid Receipts ({paidRecords.length})
               </Text>
             </TouchableOpacity>
           </View>
