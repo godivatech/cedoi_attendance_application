@@ -36,7 +36,7 @@ export default function AdminLayout() {
   const menuItems = [
     {
       name: 'dashboard',
-      label: 'Dashboard',
+      label: 'Overview',
       icon: LayoutDashboard,
       path: '/(admin)/dashboard',
     },
@@ -164,12 +164,7 @@ export default function AdminLayout() {
         {/* Content Area */}
         <View style={{ flex: 1, backgroundColor: BRAND_COLORS.canvasBg }}>
           {/* Sleek Top Header for Desktop */}
-          <View style={{ height: 64, borderBottomWidth: 1, borderColor: BRAND_COLORS.border, backgroundColor: BRAND_COLORS.cardBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 32 }}>
-            <View>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: BRAND_COLORS.primary, textTransform: 'capitalize' }}>
-                {pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
-              </Text>
-            </View>
+          <View style={{ height: 64, borderBottomWidth: 1, borderColor: BRAND_COLORS.border, backgroundColor: BRAND_COLORS.cardBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingHorizontal: 32 }}>
 
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {/* Notification Bell */}
@@ -275,7 +270,7 @@ export default function AdminLayout() {
         <Tabs.Screen
           name="dashboard"
           options={{
-            title: 'Dashboard',
+            title: 'Overview',
             tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
           }}
         />
