@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native';
 import { useUpcomingMeetings } from '../../src/modules/meetings/useMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import {
   Calendar, MapPin, Users, ChevronRight, Clock,
   DollarSign, AlertCircle, CheckCircle2, MessageSquare,
-  FileText, Activity, Search, LayoutDashboard, TrendingUp
+  FileText, Activity, Search, LayoutDashboard, TrendingUp,
+  Lock, CheckSquare
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../src/utils/date';
 import { BRAND_COLORS } from '../../src/theme/colors';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, getDocs, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { useAuthStore } from '../../src/store/authStore';
 
@@ -27,6 +28,7 @@ export default function StaffDashboard() {
   const [liveAttendanceCount, setLiveAttendanceCount] = useState<number>(0);
   const [liveCollectedAmount, setLiveCollectedAmount] = useState<number>(0);
   const [livePendingCount, setLivePendingCount] = useState<number>(0);
+  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     if (!todaysMeeting?.id) return;
@@ -52,9 +54,9 @@ export default function StaffDashboard() {
         }
         list.push({
           id: d.id,
-          memberFullName: data.memberFullName || 'CEDOI Member',
+          memberFullName: data.memberFullName || data.memberName || 'CEDOI Member',
           paymentStatus: data.paymentStatus || 'PENDING',
-          updatedAt: data.updatedAt || new Date().toISOString(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt.toDate ? data.updatedAt.toDate() : data.updatedAt).toISOString() : new Date().toISOString(),
           amountPaid: data.amountPaid || todaysMeeting.entryFee || 1040,
         });
       });
@@ -85,6 +87,73 @@ export default function StaffDashboard() {
   const collectedTotal = liveCollectedAmount || todaysMeeting?.metrics?.totalCollected || 0;
   const totalRosterCount = members.length || 40;
   const attendancePercentage = totalRosterCount > 0 ? Math.round((checkedInCount / totalRosterCount) * 100) : 0;
+  const unmarkedCount = Math.max(0, totalRosterCount - checkedInCount);
+  const isMeetingCompleted = todaysMeeting?.status === 'COMPLETED';
+
+  const handleCloseMeetingAutoAbsent = async () => {
+    if (!todaysMeeting?.id || closing || isMeetingCompleted) return;
+
+    const confirmed = Platform.OS === 'web'
+      ? window.confirm(`Close "${todaysMeeting.title}"?\n\nThis will mark the remaining ${unmarkedCount} un-checked members as ABSENT (logged in Dues) and set meeting status to COMPLETED.`)
+      : true;
+
+    if (!confirmed) return;
+
+    setClosing(true);
+    try {
+      // 1. Fetch current attendance snapshot to find members without records
+      const attendanceRef = collection(db, `meetings/${todaysMeeting.id}/attendance`);
+      const attSnap = await getDocs(attendanceRef);
+      const checkedMemberIds = new Set<string>();
+      attSnap.forEach(d => checkedMemberIds.add(d.id));
+
+      // 2. Batch write records for un-checked members
+      const batch = writeBatch(db);
+      members.forEach(member => {
+        if (!checkedMemberIds.has(member.id)) {
+          const docRef = doc(db, `meetings/${todaysMeeting.id}/attendance`, member.id);
+          batch.set(docRef, {
+            memberId: member.id,
+            memberName: member.fullName,
+            memberSnapshot: {
+              fullName: member.fullName,
+              companyName: member.companyName || '',
+              mobileNumber: member.mobileNumber || '',
+              businessCategory: member.businessCategory || '',
+            },
+            paymentStatus: 'PENDING',
+            attendanceStatus: 'ABSENT',
+            entryFee: todaysMeeting.entryFee || 1040,
+            amountCollected: 0,
+            meetingTitle: todaysMeeting.title,
+            meetingDate: todaysMeeting.date,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+        }
+      });
+
+      // 3. Mark meeting status as COMPLETED
+      const meetingRef = doc(db, 'meetings', todaysMeeting.id);
+      batch.update(meetingRef, {
+        status: 'COMPLETED',
+        updatedAt: serverTimestamp(),
+      });
+
+      await batch.commit();
+
+      if (Platform.OS === 'web') {
+        alert(`Meeting successfully closed! ${unmarkedCount} members marked Absent and logged in Dues.`);
+      }
+    } catch (err: any) {
+      console.error('Error closing meeting:', err);
+      if (Platform.OS === 'web') {
+        alert('Failed to close meeting: ' + err.message);
+      }
+    } finally {
+      setClosing(false);
+    }
+  };
 
   return (
     <ScrollView style={{ backgroundColor: BRAND_COLORS.canvasBg }} className="flex-1">
@@ -107,11 +176,11 @@ export default function StaffDashboard() {
           {/* Main Hero Meeting Card */}
           <View style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: BRAND_COLORS.border }} className="shadow-2xs overflow-hidden">
             {/* Top Status Banner */}
-            <View style={{ backgroundColor: BRAND_COLORS.primary, paddingVertical: 10, paddingHorizontal: 16 }} className="flex-row items-center justify-between">
+            <View style={{ backgroundColor: isMeetingCompleted ? '#334155' : BRAND_COLORS.primary, paddingVertical: 10, paddingHorizontal: 16 }} className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: todaysMeeting.status === 'ONGOING' ? '#10b981' : BRAND_COLORS.secondary, marginRight: 8 }} />
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: isMeetingCompleted ? '#94a3b8' : '#10b981', marginRight: 8 }} />
                 <Text style={{ color: 'white', fontWeight: '800', fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>
-                  {todaysMeeting.status === 'ONGOING' ? 'In Progress' : todaysMeeting.status}
+                  {isMeetingCompleted ? 'Completed' : (todaysMeeting.status === 'ONGOING' ? 'In Progress' : todaysMeeting.status)}
                 </Text>
               </View>
               <Text className="text-white/80 text-xs font-bold">{formatDate(todaysMeeting.date)}</Text>
@@ -186,20 +255,22 @@ export default function StaffDashboard() {
               </View>
             </View>
 
-            {/* Primary Action Button: Start Check-in */}
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={{ margin: 16, marginTop: 0, backgroundColor: BRAND_COLORS.primary, borderRadius: 12, height: 48 }}
-              className="flex-row items-center justify-center px-4 shadow-sm"
-              onPress={() => router.push({
-                pathname: '/(staff)/check-in',
-                params: { meetingId: todaysMeeting.id }
-              })}
-            >
-              <Users size={18} color="white" style={{ marginRight: 8 }} />
-              <Text className="color-white font-extrabold text-sm">Start Member Check-in</Text>
-              <ChevronRight size={18} color="rgba(255,255,255,0.7)" style={{ marginLeft: 'auto' }} />
-            </TouchableOpacity>
+            {/* Primary Action Buttons */}
+            <View className="p-4 pt-0 gap-2.5">
+              <TouchableOpacity
+                activeOpacity={0.85}
+                style={{ backgroundColor: BRAND_COLORS.primary, borderRadius: 12, height: 48 }}
+                className="flex-row items-center justify-center px-4 shadow-sm"
+                onPress={() => router.push({
+                  pathname: '/(staff)/check-in',
+                  params: { meetingId: todaysMeeting.id }
+                })}
+              >
+                <Users size={18} color="white" style={{ marginRight: 8 }} />
+                <Text className="color-white font-extrabold text-sm">Start Member Check-in</Text>
+                <ChevronRight size={18} color="rgba(255,255,255,0.7)" style={{ marginLeft: 'auto' }} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Quick Workflow Action Bar */}
