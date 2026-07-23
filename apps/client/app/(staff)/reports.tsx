@@ -297,31 +297,91 @@ export default function StaffReportsScreen() {
         {/* Custom From Date to To Date Inputs */}
         <View className="flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3 pt-2 border-t border-slate-100">
           <View className="flex-1">
-            <Text className="text-[11px] font-bold text-slate-500 mb-1">From Date (YYYY-MM-DD)</Text>
-            <TextInput
-              value={startDate}
-              onChangeText={(val) => {
-                setStartDate(val);
-                if (val) setSelectedMonth('CUSTOM');
-              }}
-              placeholder="e.g. 2026-07-01"
-              placeholderTextColor="#94a3b8"
-              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
-            />
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">From Date</Text>
+            {Platform.OS === 'web' ? (
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  if (e.target.value) setSelectedMonth('CUSTOM');
+                }}
+                onClick={(e: any) => {
+                  try { e.currentTarget.showPicker?.(); } catch (err) {}
+                }}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '12px',
+                  padding: '0 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <TextInput
+                value={startDate}
+                onChangeText={(val) => {
+                  setStartDate(val);
+                  if (val) setSelectedMonth('CUSTOM');
+                }}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+                style={{ height: 42, color: '#1e293b' }}
+              />
+            )}
           </View>
 
           <View className="flex-1">
-            <Text className="text-[11px] font-bold text-slate-500 mb-1">To Date (YYYY-MM-DD)</Text>
-            <TextInput
-              value={endDate}
-              onChangeText={(val) => {
-                setEndDate(val);
-                if (val) setSelectedMonth('CUSTOM');
-              }}
-              placeholder="e.g. 2026-07-31"
-              placeholderTextColor="#94a3b8"
-              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
-            />
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">To Date</Text>
+            {Platform.OS === 'web' ? (
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  if (e.target.value) setSelectedMonth('CUSTOM');
+                }}
+                onClick={(e: any) => {
+                  try { e.currentTarget.showPicker?.(); } catch (err) {}
+                }}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '12px',
+                  padding: '0 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <TextInput
+                value={endDate}
+                onChangeText={(val) => {
+                  setEndDate(val);
+                  if (val) setSelectedMonth('CUSTOM');
+                }}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+                style={{ height: 42, color: '#1e293b' }}
+              />
+            )}
           </View>
 
           {(startDate || endDate) && (

@@ -386,8 +386,10 @@ export default function ReportsScreen() {
                     outline: 'none',
                     fontFamily: 'inherit',
                     width: '100%',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    cursor: 'pointer'
                   }}
+                  onClick={(e: any) => { try { e.currentTarget.showPicker?.(); } catch (err) {} }}
                   onChange={(e) => setStartDate(e.target.value)}
                   value={startDate || ''}
                 />
@@ -417,8 +419,10 @@ export default function ReportsScreen() {
                     outline: 'none',
                     fontFamily: 'inherit',
                     width: '100%',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    cursor: 'pointer'
                   }}
+                  onClick={(e: any) => { try { e.currentTarget.showPicker?.(); } catch (err) {} }}
                   onChange={(e) => setEndDate(e.target.value)}
                   value={endDate || ''}
                 />

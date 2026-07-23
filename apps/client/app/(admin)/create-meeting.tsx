@@ -276,8 +276,10 @@ export default function CreateMeetingScreen() {
                       outline: 'none',
                       fontFamily: 'inherit',
                       width: '100%',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      cursor: 'pointer'
                     }}
+                    onClick={(e: any) => { try { e.currentTarget.showPicker?.(); } catch (err) {} }}
                     onChange={(e) => onChange(e.target.value)}
                     value={value || ''}
                   />
