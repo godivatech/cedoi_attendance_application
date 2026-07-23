@@ -13,6 +13,7 @@ import {
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
+import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
 
 export default function AdminMemberAnalyticsScreen() {
   const router = useRouter();
@@ -422,7 +423,7 @@ export default function AdminMemberAnalyticsScreen() {
             onPress={handleSendWhatsApp}
             style={{ flex: isSmall ? 1 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#059669', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, flexShrink: 0, minWidth: 140 }}
           >
-            <MessageSquare size={15} color="#fff" style={{ marginRight: 6 }} />
+            <WhatsAppIcon size={16} color="#ffffff" style={{ marginRight: 6 }} />
             <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13 }}>Send WhatsApp</Text>
           </TouchableOpacity>
         </View>

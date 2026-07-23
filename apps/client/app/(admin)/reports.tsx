@@ -9,6 +9,7 @@ import { formatRupees } from '../../src/utils/currency';
 import { collectionGroup, query, where, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { showAlert } from '../../src/utils/platformAlert';
+import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
 import { useRouter } from 'expo-router';
 
 export default function ReportsScreen() {
@@ -881,8 +882,8 @@ export default function ReportsScreen() {
                           }}
                           className="bg-emerald-50 hover:bg-emerald-100 py-1.5 px-2.5 rounded-xl flex-row items-center justify-center border border-emerald-200"
                         >
-                          <MessageSquare size={12} color="#047857" style={{ marginRight: 4 }} />
-                          <Text className="text-[10px] font-extrabold text-emerald-700">WhatsApp</Text>
+                          <WhatsAppIcon size={14} color="#047857" style={{ marginRight: 5 }} />
+                          <Text className="text-[11px] font-extrabold text-emerald-800">WhatsApp</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity

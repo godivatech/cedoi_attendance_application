@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
+import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
 
 interface AttendanceRecord {
   id: string;
@@ -314,7 +315,7 @@ export default function AdminDuesScreen() {
               style={{ backgroundColor: '#059669', minHeight: 42, minWidth: 165 }}
               className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
             >
-              <MessageSquare size={15} color="#fff" style={{ marginRight: 6 }} />
+              <WhatsAppIcon size={16} color="#ffffff" style={{ marginRight: 6 }} />
               <Text numberOfLines={1} style={{ whiteSpace: 'nowrap' }} className="text-white font-black text-xs sm:text-sm">
                 Broadcast Reminders
               </Text>
@@ -541,7 +542,7 @@ export default function AdminDuesScreen() {
                           style={{ backgroundColor: '#ecfdf5', borderWidth: 1.5, borderColor: '#a7f3d0' }}
                           className="px-3 py-2 rounded-xl flex-row items-center flex-1 sm:flex-initial justify-center"
                         >
-                          <MessageSquare size={14} color="#047857" style={{ marginRight: 5 }} />
+                          <WhatsAppIcon size={14} color="#047857" style={{ marginRight: 5 }} />
                           <Text className="text-xs font-black text-emerald-800">WhatsApp</Text>
                         </TouchableOpacity>
 

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
+import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
 
 interface MemberReportItem {
   id: string;
@@ -637,8 +638,8 @@ export default function StaffReportsScreen() {
                       onPress={() => handleSendWhatsApp(item.fullName, item.mobileNumber, item.pendingDues)}
                       className="bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200/80 flex-row items-center"
                     >
-                      <MessageSquare size={13} color="#047857" style={{ marginRight: 4 }} />
-                      <Text className="text-[11px] font-extrabold text-emerald-700">WhatsApp</Text>
+                      <WhatsAppIcon size={14} color="#047857" style={{ marginRight: 5 }} />
+                      <Text className="text-[11px] font-extrabold text-emerald-800">WhatsApp</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (

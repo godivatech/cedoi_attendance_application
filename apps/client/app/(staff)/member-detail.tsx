@@ -9,6 +9,7 @@ import {
   UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle, Edit2, Shirt, MessageSquare, CheckCircle2
 } from 'lucide-react-native';
 import { showAlert } from '../../src/utils/platformAlert';
+import { WhatsAppIcon } from '../../src/components/ui/WhatsAppIcon';
 
 export default function MemberDetailScreen() {
   const { memberId, meetingId } = useLocalSearchParams<{ memberId: string; meetingId: string }>();
@@ -358,7 +359,7 @@ export default function MemberDetailScreen() {
                   onPress={handleSendWhatsAppReminder}
                   style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#dcfce7', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 }}
                 >
-                  <MessageSquare size={12} color="#166534" style={{ marginRight: 4 }} />
+                  <WhatsAppIcon size={14} color="#166534" style={{ marginRight: 5 }} />
                   <Text style={{ fontSize: 11, fontWeight: '800', color: '#166534' }}>WhatsApp</Text>
                 </TouchableOpacity>
               </View>

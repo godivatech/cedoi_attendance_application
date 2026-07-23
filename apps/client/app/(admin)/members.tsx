@@ -40,10 +40,10 @@ export default function AdminMembers() {
           <Text className="text-slate-500 text-sm mt-0.5">Manage member registry & performance intelligence</Text>
         </View>
         <View className="mt-4 sm:mt-0 self-start sm:self-auto">
-          <Button 
-            label="Add Member" 
+          <Button
+            label="Add Member"
             size="md"
-            onPress={() => router.push('/(admin)/add-member')} 
+            onPress={() => router.push('/(admin)/add-member')}
             className="shadow-sm"
           />
         </View>
@@ -76,7 +76,7 @@ export default function AdminMembers() {
               {/* Header block: Responsive stacking for Mobile vs Desktop */}
               <View className="flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 {/* Member Info Block */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
                   className="flex-row items-center flex-1"
                   activeOpacity={0.85}
@@ -85,7 +85,7 @@ export default function AdminMembers() {
                   <View className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl items-center justify-center mr-3 sm:mr-4 font-bold shrink-0 ${getAvatarBg(item.fullName)}`}>
                     <Text className="font-black text-base sm:text-lg">{getInitials(item.fullName)}</Text>
                   </View>
-                  
+
                   <View className="flex-1 min-w-0">
                     <View className="flex-row items-center flex-wrap gap-2">
                       <Text numberOfLines={1} className="text-base sm:text-lg font-black text-slate-900 hover:text-[#0d5984] truncate">
@@ -133,7 +133,7 @@ export default function AdminMembers() {
 
                 {/* Right Actions: Full Width / Wrap on Mobile */}
                 <View className="flex-row items-center justify-start sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
                     style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1.5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center' }}
                   >
@@ -141,7 +141,7 @@ export default function AdminMembers() {
                     <Text style={{ fontSize: 12, fontWeight: '900', color: '#0d5984' }}>Analytics 360°</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => router.push({ pathname: '/(admin)/add-member', params: { memberId: item.id } })}
                     className="bg-slate-100 hover:bg-slate-200/80 p-2 px-3 rounded-xl border border-slate-300/80 flex-row items-center"
                   >
