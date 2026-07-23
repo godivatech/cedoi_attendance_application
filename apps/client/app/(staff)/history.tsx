@@ -305,23 +305,23 @@ export default function HistoryScreen() {
 
             {/* Quick Metrics */}
             <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1f5f9', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
-                <View style={{ backgroundColor: '#eff6ff', padding: 8, borderRadius: 10, marginRight: 12 }}>
-                  <Users size={16} color="#4f46e5" />
+              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#cbd5e1', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+                <View style={{ backgroundColor: '#f0f7fb', padding: 10, borderRadius: 12, marginRight: 12 }}>
+                  <Users size={18} color="#0d5984" />
                 </View>
                 <View>
-                  <Text style={{ color: '#94a3b8', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Present</Text>
-                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#1e293b', marginTop: 2 }}>{presentCount}</Text>
+                  <Text style={{ color: '#0d5984', fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>Present</Text>
+                  <Text style={{ fontSize: 20, fontWeight: '900', color: '#0f172a', marginTop: 2 }}>{presentCount}</Text>
                 </View>
               </View>
 
-              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1f5f9', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
-                <View style={{ backgroundColor: '#e6f4ea', padding: 8, borderRadius: 10, marginRight: 12 }}>
-                  <IndianRupee size={16} color="#059669" />
+              <View style={{ flex: 1, backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#cbd5e1', padding: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+                <View style={{ backgroundColor: '#ecfdf5', padding: 10, borderRadius: 12, marginRight: 12 }}>
+                  <IndianRupee size={18} color="#047857" />
                 </View>
                 <View>
-                  <Text style={{ color: '#94a3b8', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Collected</Text>
-                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#059669', marginTop: 2 }}>
+                  <Text style={{ color: '#047857', fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>Collected</Text>
+                  <Text style={{ fontSize: 20, fontWeight: '900', color: '#047857', marginTop: 2 }}>
                     ₹{attendees.reduce((acc, curr) => acc + (curr.amountCollected || 0), 0)}
                   </Text>
                 </View>

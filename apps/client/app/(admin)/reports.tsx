@@ -455,38 +455,39 @@ export default function ReportsScreen() {
                 className="p-4 sm:p-5 rounded-2xl shadow-sm"
               >
                 <View className="flex-row justify-between items-center mb-3">
-                  <Text className="text-emerald-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Total Collection</Text>
+                  <Text className="text-emerald-800 text-xs sm:text-sm uppercase font-extrabold tracking-wider">Total Collection</Text>
                   <View className="bg-emerald-100 p-2 rounded-xl">
                     <IndianRupee size={16} color="#047857" />
                   </View>
                 </View>
-                <Text className="text-emerald-900 text-2xl sm:text-3xl font-extrabold tracking-tight">{formatRupees(totalRevenue)}</Text>
-                <Text className="text-emerald-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Filtered collections total</Text>
+                <Text className="text-emerald-950 text-2xl sm:text-3xl font-black tracking-tight">{formatRupees(totalRevenue)}</Text>
+                <Text className="text-emerald-700 text-xs mt-2 font-bold">Filtered collections total</Text>
               </View>
             </View>
 
             <View className="w-1/2 px-2">
               <View
-                style={{ backgroundColor: '#e0e7ff', borderColor: '#c7d2fe', borderWidth: 1 }}
+                style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1 }}
                 className="p-4 sm:p-5 rounded-2xl shadow-sm"
               >
                 <View className="flex-row justify-between items-center mb-3">
-                  <Text className="text-indigo-700 text-[10px] sm:text-xs uppercase font-extrabold tracking-wider">Total Footfall</Text>
-                  <View className="bg-indigo-100 p-2 rounded-xl">
-                    <Users size={16} color="#4338ca" />
+                  <Text className="text-[#0d5984] text-xs sm:text-sm uppercase font-extrabold tracking-wider">Total Footfall</Text>
+                  <View className="bg-[#c6def0] p-2 rounded-xl">
+                    <Users size={16} color="#0d5984" />
                   </View>
                 </View>
-                <Text className="text-indigo-900 text-2xl sm:text-3xl font-extrabold tracking-tight">{totalAttendance}</Text>
-                <Text className="text-indigo-600 text-[9px] sm:text-[10px] mt-2 font-semibold">Total registered check-ins</Text>
+                <Text className="text-[#0f172a] text-2xl sm:text-3xl font-black tracking-tight">{totalAttendance}</Text>
+                <Text className="text-[#0d5984] text-xs mt-2 font-bold">Total registered check-ins</Text>
               </View>
             </View>
           </View>
           {/* Month-wise Performance */}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 12, paddingHorizontal: 4 }}>Month-wise Performance</Text>
+          {/* Month-wise Performance */}
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#0f172a', marginBottom: 12, paddingHorizontal: 4 }}>Month-wise Performance</Text>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
+            contentContainerStyle={{ gap: 14, paddingBottom: 16 }}
             style={{ marginBottom: 16 }}
           >
             {getMonthlyStats().map(m => (
@@ -494,38 +495,38 @@ export default function ReportsScreen() {
                 key={m.month}
                 style={{ 
                   backgroundColor: '#fff', 
-                  borderWidth: 1, 
-                  borderColor: '#e2e8f0', 
+                  borderWidth: 1.5, 
+                  borderColor: '#cbd5e1', 
                   borderRadius: 16, 
                   padding: 16, 
-                  width: 170,
+                  width: 190,
                   shadowColor: '#0f172a',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.02,
+                  shadowOpacity: 0.04,
                   shadowRadius: 6,
                 }}
               >
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#1e293b' }}>{formatMonthName(m.month)}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '900', color: '#0d5984' }}>{formatMonthName(m.month)}</Text>
                 
-                <View style={{ borderTopWidth: 1, borderColor: '#f1f5f9', marginTop: 10, paddingTop: 10, gap: 6 }}>
+                <View style={{ borderTopWidth: 1, borderColor: '#e2e8f0', marginTop: 10, paddingTop: 10, gap: 8 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Meetings</Text>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569' }}>{m.count}</Text>
+                    <Text style={{ fontSize: 12, color: '#475569', fontWeight: '700' }}>Meetings</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: '#0f172a' }}>{m.count}</Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Attendees</Text>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569' }}>{m.attendees}</Text>
+                    <Text style={{ fontSize: 12, color: '#475569', fontWeight: '700' }}>Attendees</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: '#0f172a' }}>{m.attendees}</Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 10, color: '#94a3b8', fontWeight: '600' }}>Collection</Text>
-                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#059669' }}>₹{m.collected}</Text>
+                    <Text style={{ fontSize: 12, color: '#475569', fontWeight: '700' }}>Collection</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: '#047857' }}>₹{m.collected}</Text>
                   </View>
                 </View>
               </View>
             ))}
             {getMonthlyStats().length === 0 && (
-              <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, width: 200, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '500' }}>No monthly data available</Text>
+              <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, width: 220, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#cbd5e1' }}>
+                <Text style={{ fontSize: 12, color: '#64748b', fontWeight: '600' }}>No monthly data available</Text>
               </View>
             )}
           </ScrollView>
@@ -544,22 +545,22 @@ export default function ReportsScreen() {
                 </View>
                 <View className="flex-row items-center space-x-6">
                   <View className="items-end">
-                    <Text className="font-extrabold text-emerald-600 text-base">{formatRupees(item.metrics?.totalCollected || 0)}</Text>
-                    <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Collected</Text>
+                    <Text className="font-extrabold text-emerald-700 text-base">{formatRupees(item.metrics?.totalCollected || 0)}</Text>
+                    <Text className="text-slate-600 text-xs font-bold uppercase tracking-wider">Collected</Text>
                   </View>
-                  <View className="items-end border-l border-slate-100 pl-4 min-w-[70px]">
+                  <View className="items-end border-l border-slate-200 pl-4 min-w-[70px]">
                     <View className="flex-row items-center justify-end">
-                      <Users size={13} color="#94a3b8" />
-                      <Text className="font-extrabold text-slate-700 text-base ml-1.5">{item.metrics?.totalAttendees || 0}</Text>
+                      <Users size={13} color="#475569" />
+                      <Text className="font-extrabold text-slate-800 text-base ml-1.5">{item.metrics?.totalAttendees || 0}</Text>
                     </View>
-                    <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Attended</Text>
+                    <Text className="text-slate-600 text-xs font-bold uppercase tracking-wider">Attended</Text>
                   </View>
                 </View>
               </Card>
             ))}
             {filteredMeetings.length === 0 && (
               <Card className="items-center p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                <Text className="text-slate-500 text-center py-4 font-medium">No meeting records match the filters.</Text>
+                <Text className="text-slate-600 text-center py-4 font-semibold">No meeting records match the filters.</Text>
               </Card>
             )}
           </View>
@@ -571,9 +572,9 @@ export default function ReportsScreen() {
           {/* Members Panel */}
           <View className="w-full lg:w-1/3 h-80 lg:h-full">
             <View className="mb-4 flex-row items-center px-3 bg-white border border-slate-200 rounded-xl shadow-sm h-11">
-              <Search size={16} color="#94a3b8" />
+              <Search size={16} color="#64748b" />
               <TextInput
-                className="flex-1 ml-2 text-slate-800 py-0 text-sm h-full"
+                className="flex-1 ml-2 text-slate-800 py-0 text-sm h-full font-medium"
                 placeholder="Search member..."
                 placeholderTextColor="#94a3b8"
                 value={memberSearch}
@@ -583,25 +584,25 @@ export default function ReportsScreen() {
 
             {/* Sort Toggle Options */}
             <View className="flex-row justify-between items-center mb-3 px-1">
-              <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sort Members By:</Text>
+              <Text className="text-xs font-bold text-slate-700 uppercase tracking-wider">Sort Members By:</Text>
               <View className="flex-row bg-slate-100 p-0.5 rounded-lg border border-slate-200">
                 <TouchableOpacity
                   onPress={() => setSortByAttendance(false)}
                   className={`px-2.5 py-1 rounded-md ${!sortByAttendance ? 'bg-white shadow-xs' : ''}`}
                 >
-                  <Text style={{ fontSize: 9, fontWeight: '700', color: !sortByAttendance ? '#1e293b' : '#64748b' }}>Name</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: !sortByAttendance ? '#1e293b' : '#64748b' }}>Name</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setSortByAttendance(true)}
                   className={`px-2.5 py-1 rounded-md ${sortByAttendance ? 'bg-white shadow-xs' : ''}`}
                 >
-                  <Text style={{ fontSize: 9, fontWeight: '700', color: sortByAttendance ? '#1e293b' : '#64748b' }}>Attendance %</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: sortByAttendance ? '#1e293b' : '#64748b' }}>Attendance %</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             {membersLoading ? (
-              <ActivityIndicator size="small" color="#4f46e5" className="mt-4" />
+              <ActivityIndicator size="small" color="#0d5984" className="mt-4" />
             ) : (
               <FlatList
                 data={processedMembers}
@@ -612,13 +613,13 @@ export default function ReportsScreen() {
                     <TouchableOpacity
                       onPress={() => handleSelectMember(item)}
                       className={`p-3.5 mb-2 rounded-xl flex-row items-center justify-between border transition-all duration-150 ${isSelected
-                        ? 'bg-indigo-50 border-indigo-200'
+                        ? 'bg-[#f0f7fb] border-[#c6def0]'
                         : 'bg-white border-slate-100 hover:bg-slate-50'
                         }`}
                     >
                       <View className="flex-1 min-w-0 pr-2">
-                        <Text className={`font-bold text-sm truncate ${isSelected ? 'text-indigo-700' : 'text-slate-800'}`}>{item.fullName}</Text>
-                        <Text className="text-[10px] text-slate-400 truncate mt-0.5">{item.companyName}</Text>
+                        <Text className={`font-bold text-sm truncate ${isSelected ? 'text-[#0d5984]' : 'text-slate-800'}`}>{item.fullName}</Text>
+                        <Text className="text-xs text-slate-600 truncate mt-0.5 font-medium">{item.companyName}</Text>
                       </View>
                       
                       {/* Attendance % Badge */}
@@ -665,24 +666,24 @@ export default function ReportsScreen() {
                   </View>
                   
                   {/* Selected Member Metrics */}
-                  <View style={{ flexDirection: 'row', backgroundColor: '#f8fafc', borderRadius: 16, padding: 12, marginTop: 14, gap: 12 }}>
+                  <View style={{ flexDirection: 'row', backgroundColor: '#f0f7fb', borderRadius: 16, padding: 12, marginTop: 14, gap: 12, borderWidth: 1, borderColor: '#c6def0' }}>
                     <View style={{ flex: 1, alignItems: 'center' }}>
-                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Attendance Rate</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '800', color: (memberStats[selectedMember.id]?.percentage || 0) >= 80 ? '#059669' : '#ea580c', marginTop: 2 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: '#0d5984', textTransform: 'uppercase', letterSpacing: 0.5 }}>Attendance Rate</Text>
+                      <Text style={{ fontSize: 17, fontWeight: '900', color: (memberStats[selectedMember.id]?.percentage || 0) >= 80 ? '#059669' : '#ea580c', marginTop: 2 }}>
                         {memberStats[selectedMember.id]?.percentage || 0}%
                       </Text>
                     </View>
-                    <View style={{ width: 1, backgroundColor: '#e2e8f0' }} />
+                    <View style={{ width: 1, backgroundColor: '#c6def0' }} />
                     <View style={{ flex: 1, alignItems: 'center' }}>
-                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Attended</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginTop: 2 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: 0.5 }}>Attended</Text>
+                      <Text style={{ fontSize: 17, fontWeight: '900', color: '#0f172a', marginTop: 2 }}>
                         {memberStats[selectedMember.id]?.present || 0} / {meetings.length}
                       </Text>
                     </View>
-                    <View style={{ width: 1, backgroundColor: '#e2e8f0' }} />
+                    <View style={{ width: 1, backgroundColor: '#c6def0' }} />
                     <View style={{ flex: 1, alignItems: 'center' }}>
-                      <Text style={{ fontSize: 9, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Absent</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#ef4444', marginTop: 2 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Absent</Text>
+                      <Text style={{ fontSize: 17, fontWeight: '900', color: '#dc2626', marginTop: 2 }}>
                         {meetings.length - (memberStats[selectedMember.id]?.present || 0)}
                       </Text>
                     </View>

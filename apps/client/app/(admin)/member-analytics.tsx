@@ -707,19 +707,25 @@ export default function AdminMemberAnalyticsScreen() {
           <Text style={{ fontSize: 12, color: '#64748b', fontWeight: '500' }}>{displayLedger.length} Records Found</Text>
         </View>
 
-        {/* Filter Controls */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-          <View style={{ flex: 1, minWidth: 220, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, height: 40 }}>
-            <Search size={15} color="#94a3b8" />
+        {/* Filter Controls: Responsive Search & Horizontal Scroll Tabs */}
+        <View className="flex-col sm:flex-row gap-3 mb-4">
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1.5, borderColor: '#cbd5e1', borderRadius: 12, paddingHorizontal: 12, height: 44 }}>
+            <Search size={16} color="#64748b" />
             <TextInput
-              style={{ flex: 1, marginLeft: 8, fontSize: 13, color: '#1e293b' }}
+              style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#0f172a', fontWeight: '500' }}
               placeholder="Search meetings..."
+              placeholderTextColor="#94a3b8"
               value={ledgerSearch}
               onChangeText={setLedgerSearch}
             />
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 6 }}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={{ gap: 8 }}
+            style={{ flexGrow: 0 }}
+          >
             {[
               { key: 'ALL', label: 'All' },
               { key: 'PRESENT', label: 'Present' },
@@ -730,20 +736,20 @@ export default function AdminMemberAnalyticsScreen() {
                 key={tab.key}
                 onPress={() => setLedgerTab(tab.key as any)}
                 style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 10,
-                  backgroundColor: ledgerTab === tab.key ? '#3b82f6' : '#ffffff',
-                  borderWidth: 1,
-                  borderColor: ledgerTab === tab.key ? '#3b82f6' : '#e2e8f0'
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  backgroundColor: ledgerTab === tab.key ? '#0d5984' : '#ffffff',
+                  borderWidth: 1.5,
+                  borderColor: ledgerTab === tab.key ? '#0d5984' : '#cbd5e1'
                 }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '600', color: ledgerTab === tab.key ? '#ffffff' : '#475569' }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: ledgerTab === tab.key ? '#ffffff' : '#475569' }}>
                   {tab.label}
                 </Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
         {/* Ledger List */}

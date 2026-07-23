@@ -672,7 +672,7 @@ export default function MemberDetailScreen() {
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 24, gap: 10 }}>
               {/* Hour Input */}
               <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>HOUR</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#475569', marginBottom: 4, letterSpacing: 0.5 }}>HOUR</Text>
                 <TextInput
                   value={selectedHour}
                   onChangeText={(txt) => {
@@ -684,15 +684,15 @@ export default function MemberDetailScreen() {
                   }}
                   keyboardType="number-pad"
                   maxLength={2}
-                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#1e293b' }}
+                  style={{ width: 64, height: 52, backgroundColor: '#ffffff', borderWidth: 1.5, borderColor: '#cbd5e1', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '800', color: '#0f172a' }}
                 />
               </View>
               
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#cbd5e1', marginTop: 16 }}>:</Text>
+              <Text style={{ fontSize: 22, fontWeight: '800', color: '#475569', marginTop: 16 }}>:</Text>
               
               {/* Minute Input */}
               <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>MINUTE</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#475569', marginBottom: 4, letterSpacing: 0.5 }}>MINUTE</Text>
                 <TextInput
                   value={selectedMinute}
                   onChangeText={(txt) => {
@@ -704,19 +704,19 @@ export default function MemberDetailScreen() {
                   }}
                   keyboardType="number-pad"
                   maxLength={2}
-                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#1e293b' }}
+                  style={{ width: 64, height: 52, backgroundColor: '#ffffff', borderWidth: 1.5, borderColor: '#cbd5e1', borderRadius: 12, textAlign: 'center', fontSize: 18, fontWeight: '800', color: '#0f172a' }}
                 />
               </View>
 
               {/* AM/PM Toggle */}
               <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', marginBottom: 4 }}>AM/PM</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#475569', marginBottom: 4, letterSpacing: 0.5 }}>AM/PM</Text>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => setSelectedAmPm(prev => prev === 'AM' ? 'PM' : 'AM')}
-                  style={{ width: 60, height: 50, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}
+                  style={{ width: 64, height: 52, backgroundColor: '#f0f7fb', borderWidth: 1.5, borderColor: '#c6def0', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#475569' }}>{selectedAmPm}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '900', color: '#0d5984' }}>{selectedAmPm}</Text>
                 </TouchableOpacity>
               </View>
             </View>

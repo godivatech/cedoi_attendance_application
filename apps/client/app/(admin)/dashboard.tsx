@@ -114,13 +114,13 @@ export default function AdminDashboard() {
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.primary }}>
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Members</Text>
+              <Text className="text-slate-600 text-xs sm:text-sm font-extrabold uppercase tracking-wider">Total Members</Text>
               <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.primaryLight }}>
                 <Users size={18} color={BRAND_COLORS.primary} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold" style={{ color: BRAND_COLORS.primary }}>{totalMembers}</Text>
-            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Active registrations</Text>
+            <Text className="text-slate-600 text-xs mt-2 font-semibold">Active registrations</Text>
           </Card>
         </View>
 
@@ -128,13 +128,13 @@ export default function AdminDashboard() {
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.secondary }}>
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Meetings</Text>
+              <Text className="text-slate-600 text-xs sm:text-sm font-extrabold uppercase tracking-wider">Total Meetings</Text>
               <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.secondaryLight }}>
                 <Calendar size={18} color={BRAND_COLORS.secondaryHover} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">{totalMeetings}</Text>
-            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Scheduled & completed</Text>
+            <Text className="text-slate-600 text-xs mt-2 font-semibold">Scheduled & completed</Text>
           </Card>
         </View>
 
@@ -142,13 +142,13 @@ export default function AdminDashboard() {
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.accent }}>
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Revenue</Text>
+              <Text className="text-slate-600 text-xs sm:text-sm font-extrabold uppercase tracking-wider">Total Revenue</Text>
               <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.accentLight }}>
                 <IndianRupee size={18} color={BRAND_COLORS.accent} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold" style={{ color: BRAND_COLORS.accentText }}>{formatRupees(totalRevenue)}</Text>
-            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Collections to date</Text>
+            <Text className="text-slate-600 text-xs mt-2 font-semibold">Collections to date</Text>
           </Card>
         </View>
 
@@ -156,13 +156,13 @@ export default function AdminDashboard() {
         <View className="w-1/2 lg:w-1/4 px-2 mb-4">
           <Card className="p-4 sm:p-5 relative overflow-hidden bg-white shadow-sm rounded-2xl" style={{ borderTopWidth: 4, borderTopColor: BRAND_COLORS.success }}>
             <View className="flex-row justify-between items-start mb-4">
-              <Text className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Avg. Attendance</Text>
+              <Text className="text-slate-600 text-xs sm:text-sm font-extrabold uppercase tracking-wider">Avg. Attendance</Text>
               <View className="p-2.5 rounded-xl" style={{ backgroundColor: BRAND_COLORS.successLight }}>
                 <TrendingUp size={18} color={BRAND_COLORS.success} />
               </View>
             </View>
             <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800">84%</Text>
-            <Text className="text-slate-400 text-[10px] sm:text-xs mt-2 font-medium">Member turn-out rate</Text>
+            <Text className="text-slate-600 text-xs mt-2 font-semibold">Member turn-out rate</Text>
           </Card>
         </View>
       </View>
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
                 </View>
                 <View>
                   <Text className="text-sm font-bold text-slate-800">Create Meeting</Text>
-                  <Text className="text-xs text-slate-400">Schedule a new session</Text>
+                  <Text className="text-xs text-slate-600">Schedule a new session</Text>
                 </View>
               </View>
               <ChevronRight size={18} color="#94a3b8" />
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
                 </View>
                 <View>
                   <Text className="text-sm font-bold text-slate-800">Add New Member</Text>
-                  <Text className="text-xs text-slate-400">Register new attendance profile</Text>
+                  <Text className="text-xs text-slate-600">Register new attendance profile</Text>
                 </View>
               </View>
               <ChevronRight size={18} color="#94a3b8" />
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
                 </View>
                 <View>
                   <Text className="text-sm font-bold text-slate-800">Dues & Payment Hub</Text>
-                  <Text className="text-xs text-slate-400">Collect fees & send reminders</Text>
+                  <Text className="text-xs text-slate-600">Collect fees & send reminders</Text>
                 </View>
               </View>
               <ChevronRight size={18} color="#94a3b8" />

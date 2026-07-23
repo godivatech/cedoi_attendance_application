@@ -72,19 +72,23 @@ export default function AdminMembers() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <Card className="mb-4 bg-white border border-slate-100 p-5 rounded-2xl shadow-sm hover:border-indigo-100 transition-all">
-              <View className="flex-row justify-between items-start mb-4">
+            <Card className="mb-4 bg-white border border-slate-200/80 p-4 sm:p-5 rounded-2xl shadow-sm hover:border-[#c6def0] transition-all">
+              {/* Header block: Responsive stacking for Mobile vs Desktop */}
+              <View className="flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                {/* Member Info Block */}
                 <TouchableOpacity 
                   onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
-                  className="flex-row items-center flex-1 mr-4"
+                  className="flex-row items-center flex-1"
+                  activeOpacity={0.85}
                 >
                   {/* Styled Avatar */}
-                  <View className={`w-12 h-12 rounded-2xl items-center justify-center mr-4 font-bold ${getAvatarBg(item.fullName)}`}>
-                    <Text className="font-extrabold text-base">{getInitials(item.fullName)}</Text>
+                  <View className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl items-center justify-center mr-3 sm:mr-4 font-bold shrink-0 ${getAvatarBg(item.fullName)}`}>
+                    <Text className="font-black text-base sm:text-lg">{getInitials(item.fullName)}</Text>
                   </View>
+                  
                   <View className="flex-1 min-w-0">
                     <View className="flex-row items-center flex-wrap gap-2">
-                      <Text numberOfLines={1} className="text-lg font-bold text-slate-800 hover:text-indigo-600 truncate">
+                      <Text numberOfLines={1} className="text-base sm:text-lg font-black text-slate-900 hover:text-[#0d5984] truncate">
                         {item.fullName}
                       </Text>
                       {/* Renewal Status Badge */}
@@ -97,23 +101,23 @@ export default function AdminMembers() {
                           const diffDays = Math.ceil((anniversary.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                           if (diffDays < 0) {
                             return (
-                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200/60">
+                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200/80">
                                 <View className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5" />
-                                <Text className="text-[11px] font-bold text-rose-700">Expired</Text>
+                                <Text className="text-xs font-extrabold text-rose-700">Expired</Text>
                               </View>
                             );
                           } else if (diffDays <= 30) {
                             return (
-                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/60">
+                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/80">
                                 <View className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5" />
-                                <Text className="text-[11px] font-bold text-amber-800">Renewal Due ({diffDays}d)</Text>
+                                <Text className="text-xs font-extrabold text-amber-800">Renewal Due ({diffDays}d)</Text>
                               </View>
                             );
                           }
                           return (
-                            <View className="flex-row items-center px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60">
+                            <View className="flex-row items-center px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80">
                               <View className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-                              <Text className="text-[11px] font-bold text-emerald-700">Active</Text>
+                              <Text className="text-xs font-extrabold text-emerald-700">Active</Text>
                             </View>
                           );
                         } catch (e) {
@@ -121,50 +125,50 @@ export default function AdminMembers() {
                         }
                       })()}
                     </View>
-                    <Text numberOfLines={1} className="text-slate-500 text-sm mt-0.5 truncate">
-                      {item.companyName}
+                    <Text numberOfLines={1} className="text-slate-600 text-xs sm:text-sm mt-0.5 font-semibold truncate">
+                      {item.companyName || 'Member'}
                     </Text>
                   </View>
                 </TouchableOpacity>
 
-                {/* Right Actions */}
-                <View className="flex-row items-center gap-2">
+                {/* Right Actions: Full Width / Wrap on Mobile */}
+                <View className="flex-row items-center justify-start sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <TouchableOpacity 
                     onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
-                    style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center' }}
+                    style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1.5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center' }}
                   >
-                    <BarChart2 size={13} color="#0d5984" style={{ marginRight: 5 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#0d5984' }}>Analytics 360°</Text>
+                    <BarChart2 size={14} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '900', color: '#0d5984' }}>Analytics 360°</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity 
                     onPress={() => router.push({ pathname: '/(admin)/add-member', params: { memberId: item.id } })}
-                    className="bg-slate-50 hover:bg-slate-100 p-2 px-3 rounded-xl border border-slate-200 flex-row items-center"
+                    className="bg-slate-100 hover:bg-slate-200/80 p-2 px-3 rounded-xl border border-slate-300/80 flex-row items-center"
                   >
-                    <Edit2 size={13} color="#475569" style={{ marginRight: 4 }} />
-                    <Text className="text-xs font-bold text-slate-600">Edit</Text>
+                    <Edit2 size={14} color="#334155" style={{ marginRight: 5 }} />
+                    <Text className="text-xs font-extrabold text-slate-700">Edit</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               {/* Grid detail badges */}
-              <View className="flex-row flex-wrap border-t border-slate-100 pt-4 -mx-2">
+              <View className="flex-row flex-wrap border-t border-slate-100 pt-3 -mx-2">
                 {item.businessCategory && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Briefcase size={13} color="#94a3b8" />
-                    <Text numberOfLines={1} className="text-xs text-slate-500 ml-1.5 truncate">{item.businessCategory}</Text>
+                    <Briefcase size={14} color="#475569" />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">{item.businessCategory}</Text>
                   </View>
                 )}
                 {item.mobileNumber && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Phone size={13} color="#94a3b8" />
-                    <Text className="text-xs text-slate-500 ml-1.5">{item.mobileNumber}</Text>
+                    <Phone size={14} color="#475569" />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">{item.mobileNumber}</Text>
                   </View>
                 )}
                 {item.joinDate && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Mail size={13} color="#94a3b8" />
-                    <Text className="text-xs text-slate-500 ml-1.5">Joined: {item.joinDate}</Text>
+                    <Mail size={14} color="#475569" />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">Joined: {item.joinDate}</Text>
                   </View>
                 )}
               </View>

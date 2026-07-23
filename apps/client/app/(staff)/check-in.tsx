@@ -113,22 +113,22 @@ export default function CheckInSearchScreen() {
           </View>
 
           {/* Stat Cards Grid */}
-          <View style={{ flexDirection: 'row', gap: 8, borderTopWidth: 1, borderColor: '#f1f5f9', paddingTop: 10 }}>
-            <View style={{ flex: 1, backgroundColor: '#f8fafc', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#f1f5f9', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Total</Text>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#0f172a', marginTop: 2 }}>{members.length}</Text>
+          <View style={{ flexDirection: 'row', gap: 8, borderTopWidth: 1, borderColor: '#e2e8f0', paddingTop: 12 }}>
+            <View style={{ flex: 1, backgroundColor: '#f0f7fb', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 12, borderWidth: 1, borderColor: '#c6def0', alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#0d5984', textTransform: 'uppercase', letterSpacing: 0.5 }}>Total</Text>
+              <Text style={{ fontSize: 17, fontWeight: '900', color: '#0f172a', marginTop: 2 }}>{members.length}</Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: '#f0fdf4', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, fontWeight: '700', color: '#166534', textTransform: 'uppercase' }}>Present</Text>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#15803d', marginTop: 2 }}>{presentCount}</Text>
+            <View style={{ flex: 1, backgroundColor: '#f0fdf4', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 12, borderWidth: 1, borderColor: '#bbf7d0', alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>Present</Text>
+              <Text style={{ fontSize: 17, fontWeight: '900', color: '#15803d', marginTop: 2 }}>{presentCount}</Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: '#fef2f2', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#fecaca', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, fontWeight: '700', color: '#991b1b', textTransform: 'uppercase' }}>Absent</Text>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#b91c1c', marginTop: 2 }}>{absentCount}</Text>
+            <View style={{ flex: 1, backgroundColor: '#fef2f2', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 12, borderWidth: 1, borderColor: '#fecaca', alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Absent</Text>
+              <Text style={{ fontSize: 17, fontWeight: '900', color: '#b91c1c', marginTop: 2 }}>{absentCount}</Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: '#fffbeb', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#fde68a', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, fontWeight: '700', color: '#92400e', textTransform: 'uppercase' }}>Pending</Text>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#b45309', marginTop: 2 }}>{pendingCount}</Text>
+            <View style={{ flex: 1, backgroundColor: '#fffbeb', paddingVertical: 10, paddingHorizontal: 6, borderRadius: 12, borderWidth: 1, borderColor: '#fde68a', alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#92400e', textTransform: 'uppercase', letterSpacing: 0.5 }}>Pending</Text>
+              <Text style={{ fontSize: 17, fontWeight: '900', color: '#b45309', marginTop: 2 }}>{pendingCount}</Text>
             </View>
           </View>
         </View>

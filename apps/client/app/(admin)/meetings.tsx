@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextI
 import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { Calendar, MapPin, Users, IndianRupee, Clock, X, Search as SearchIcon, CheckCircle2, AlertCircle, Download } from 'lucide-react-native';
+import { Calendar, MapPin, Users, IndianRupee, Clock, X, Search as SearchIcon, CheckCircle2, AlertCircle, Download, Edit2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../src/utils/date';
 import { formatRupees } from '../../src/utils/currency';
@@ -176,72 +176,74 @@ export default function AdminMeetings() {
                 style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
                 className="p-5"
               >
-                <View className="flex-row justify-between items-start mb-3">
-                  <View className="flex-1 mr-4">
-                    <Text className="text-xl font-bold text-slate-800 leading-snug">{item.title}</Text>
+                {/* Header Row: Responsive stacking for Title vs Status */}
+                <View className="flex-col sm:flex-row justify-between items-start mb-3 gap-2">
+                  <View className="flex-1 min-w-0 pr-2">
+                    <Text className="text-lg sm:text-xl font-black text-slate-900 leading-snug">{item.title}</Text>
                     
                     {/* Date & Time Row */}
-                    <View className="flex-row items-center mt-2 flex-wrap">
-                      <View className="flex-row items-center mr-4 mb-1">
-                        <Calendar size={13} color="#94a3b8" />
-                        <Text className="text-slate-500 text-xs ml-1.5 font-medium">
+                    <View className="flex-row items-center mt-2 flex-wrap gap-y-1">
+                      <View className="flex-row items-center mr-4">
+                        <Calendar size={14} color="#475569" />
+                        <Text className="text-slate-600 text-xs sm:text-sm ml-1.5 font-semibold">
                           {formatDate(item.date)}
                         </Text>
                       </View>
-                      <View className="flex-row items-center mb-1">
-                        <Clock size={13} color="#94a3b8" />
-                        <Text className="text-slate-500 text-xs ml-1.5 font-medium">
+                      <View className="flex-row items-center">
+                        <Clock size={14} color="#475569" />
+                        <Text className="text-slate-600 text-xs sm:text-sm ml-1.5 font-semibold">
                           {item.startTime} • {item.endTime || 'End'}
                         </Text>
                       </View>
                     </View>
                   </View>
 
-                  {/* Status & Edit Block */}
-                  <View className="items-end">
-                    <View className={`px-3 py-1 rounded-full ${getStatusStyle(item.status)}`}>
-                      <Text className="text-[10px] font-extrabold tracking-wide uppercase">
+                  {/* Status & Edit Block: Side-by-side or stacked cleanly */}
+                  <View className="flex-row sm:flex-col items-center sm:items-end gap-2 shrink-0">
+                    <View className={`px-3 py-1 rounded-full border ${getStatusStyle(item.status)}`}>
+                      <Text className="text-xs font-black uppercase">
                         {item.status}
                       </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => router.push({ pathname: '/(admin)/create-meeting', params: { meetingId: item.id } })}
-                      className="mt-3 bg-slate-50 hover:bg-slate-100 py-1.5 px-3 rounded-lg border border-slate-100 hover:scale-[1.05] active:scale-[0.95] transition-all duration-150"
+                      className="bg-slate-100 hover:bg-slate-200/80 py-1 px-3 rounded-lg border border-slate-300/80 flex-row items-center"
                     >
-                      <Text className="text-[10px] font-bold text-slate-600">Edit</Text>
+                      <Edit2 size={12} color="#334155" style={{ marginRight: 4 }} />
+                      <Text className="text-xs font-bold text-slate-700">Edit</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
 
                 {/* Venue details */}
                 <View className="flex-row items-center mb-4">
-                  <MapPin size={13} color="#94a3b8" />
-                  <Text numberOfLines={1} className="text-slate-500 text-xs ml-1.5 font-medium truncate flex-1">{item.venue}</Text>
+                  <MapPin size={14} color="#475569" />
+                  <Text numberOfLines={1} className="text-slate-700 text-xs sm:text-sm ml-1.5 font-semibold truncate flex-1">{item.venue}</Text>
                 </View>
 
-                {/* Metrics Summary Area */}
-                <View className="flex-row border-t border-slate-100 pt-4 mt-2">
+                {/* Metrics Summary Area: High Legibility & Truncation Free */}
+                <View className="flex-row border-t border-slate-100 pt-3 mt-1">
                   {/* Total Attended Metric */}
-                  <View className="flex-1 flex-row items-center bg-slate-50 p-2.5 sm:p-3 rounded-xl mr-2">
-                    <View className="bg-indigo-100 p-1.5 rounded-lg mr-2">
-                      <Users size={14} color="#4f46e5" />
+                  <View className="flex-1 flex-row items-center bg-[#f0f7fb] p-2.5 sm:p-3 rounded-xl mr-1.5 sm:mr-2 border border-[#c6def0]">
+                    <View className="bg-[#c6def0] p-1.5 rounded-lg mr-2 shrink-0">
+                      <Users size={15} color="#0d5984" />
                     </View>
                     <View className="flex-1 min-w-0">
-                      <Text numberOfLines={1} className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Attended</Text>
-                      <Text numberOfLines={1} className="font-extrabold text-slate-800 text-sm sm:text-base">
+                      <Text className="text-xs text-[#0d5984] font-black uppercase">Attended</Text>
+                      <Text numberOfLines={1} className="font-black text-slate-900 text-sm sm:text-base mt-0.5">
                         {item.metrics?.totalAttendees || 0}
                       </Text>
                     </View>
                   </View>
 
                   {/* Total Collected Metric */}
-                  <View className="flex-1 flex-row items-center bg-slate-50 p-2.5 sm:p-3 rounded-xl ml-2">
-                    <View className="bg-emerald-100 p-1.5 rounded-lg mr-2">
-                      <IndianRupee size={14} color="#10b981" />
+                  <View className="flex-1 flex-row items-center bg-emerald-50 p-2.5 sm:p-3 rounded-xl ml-1.5 sm:ml-2 border border-emerald-200/80">
+                    <View className="bg-emerald-100 p-1.5 rounded-lg mr-2 shrink-0">
+                      <IndianRupee size={15} color="#047857" />
                     </View>
                     <View className="flex-1 min-w-0">
-                      <Text numberOfLines={1} className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Collected</Text>
-                      <Text numberOfLines={1} className="font-extrabold text-emerald-600 text-sm sm:text-base">
+                      <Text className="text-xs text-emerald-800 font-black uppercase">Collected</Text>
+                      <Text numberOfLines={1} className="font-black text-emerald-700 text-sm sm:text-base mt-0.5">
                         {formatRupees(item.metrics?.totalCollected || 0)}
                       </Text>
                     </View>
