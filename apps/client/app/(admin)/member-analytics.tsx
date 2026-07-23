@@ -400,30 +400,30 @@ export default function AdminMemberAnalyticsScreen() {
       <View style={{ flexDirection: isSmall ? 'column' : 'row', alignItems: isSmall ? 'stretch' : 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, alignSelf: isSmall ? 'flex-start' : 'auto' }}
+          style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: '#c6def0', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4, alignSelf: isSmall ? 'flex-start' : 'auto', flexShrink: 0 }}
         >
-          <ChevronLeft size={16} color="#0f172a" />
-          <Text style={{ color: '#0f172a', fontWeight: '600', fontSize: 13, marginLeft: 4 }}>
+          <ChevronLeft size={16} color="#0d5984" />
+          <Text style={{ color: '#0d5984', fontWeight: '800', fontSize: 13, marginLeft: 4 }}>
             Back to Directory
           </Text>
         </TouchableOpacity>
 
-        {/* Vector Action Buttons */}
-        <View style={{ flexDirection: 'row', gap: 10, alignSelf: isSmall ? 'stretch' : 'auto' }}>
+        {/* Action Buttons: Never shrink or stack vertically on Desktop */}
+        <View style={{ flexDirection: 'row', gap: 10, alignSelf: isSmall ? 'stretch' : 'auto', flexShrink: 0 }}>
           <TouchableOpacity
             onPress={handleExportCSV}
-            style={{ flex: isSmall ? 1 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4 }}
+            style={{ flex: isSmall ? 1 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: '#cbd5e1', flexShrink: 0, minWidth: 120 }}
           >
-            <Download size={14} color="#334155" style={{ marginRight: 6 }} />
-            <Text style={{ color: '#334155', fontWeight: '600', fontSize: 13 }}>Export CSV</Text>
+            <Download size={15} color="#334155" style={{ marginRight: 6 }} />
+            <Text style={{ color: '#334155', fontWeight: '800', fontSize: 13 }}>Export CSV</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleSendWhatsApp}
-            style={{ flex: isSmall ? 1 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#059669', paddingHorizontal: 16, paddingVertical: 9, borderRadius: 12 }}
+            style={{ flex: isSmall ? 1 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#059669', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, flexShrink: 0, minWidth: 140 }}
           >
-            <MessageSquare size={14} color="#fff" style={{ marginRight: 6 }} />
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>Send WhatsApp</Text>
+            <MessageSquare size={15} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13 }}>Send WhatsApp</Text>
           </TouchableOpacity>
         </View>
       </View>

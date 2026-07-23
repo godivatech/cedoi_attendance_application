@@ -281,90 +281,99 @@ export default function AdminDuesScreen() {
   const currentDisplayList = activeTab === 'OVERDUE' ? overdueRecords : paidRecords;
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 48 }}>
-      {/* Top Banner & Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <View>
-          <Text style={{ fontSize: 28, fontWeight: '800', color: '#0f172a', letterSpacing: -0.5 }}>
+    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
+      {/* Top Banner & Header: Responsive stacking */}
+      <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <View className="flex-1 min-w-0 pr-2">
+          <Text className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Dues & Payment Center
           </Text>
-          <Text style={{ fontSize: 14, color: '#64748b', fontWeight: '500', marginTop: 2 }}>
+          <Text className="text-xs sm:text-sm color-[#475569] font-semibold mt-1">
             Track overdue entry fees, settle member payments, and export audit logs
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        {/* Action Buttons: Never shrink or text-wrap on Desktop */}
+        <View className="flex-row items-center gap-2.5 w-full sm:w-auto shrink-0">
           <TouchableOpacity
             onPress={handleExportCSV}
-            style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.02, shadowRadius: 4 }}
+            activeOpacity={0.85}
+            style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5, minHeight: 42 }}
+            className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
           >
-            <Download size={14} color="#334155" style={{ marginRight: 6 }} />
-            <Text style={{ color: '#334155', fontWeight: '600', fontSize: 13 }}>Export CSV</Text>
+            <Download size={15} color="#334155" style={{ marginRight: 6 }} />
+            <Text numberOfLines={1} style={{ whiteSpace: 'nowrap' }} className="text-slate-700 font-extrabold text-xs sm:text-sm">
+              Export CSV
+            </Text>
           </TouchableOpacity>
 
           {overdueRecords.length > 0 && (
             <TouchableOpacity
               onPress={() => handleSendWhatsAppReminder()}
-              style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 16, paddingVertical: 9, borderRadius: 12 }}
+              activeOpacity={0.85}
+              style={{ backgroundColor: '#059669', minHeight: 42, minWidth: 165 }}
+              className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
             >
-              <MessageSquare size={14} color="#fff" style={{ marginRight: 6 }} />
-              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>Broadcast Reminders</Text>
+              <MessageSquare size={15} color="#fff" style={{ marginRight: 6 }} />
+              <Text numberOfLines={1} style={{ whiteSpace: 'nowrap' }} className="text-white font-black text-xs sm:text-sm">
+                Broadcast Reminders
+              </Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      {/* 3 Top Financial Scorecards */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -6, marginBottom: 20 }}>
+      {/* 3 Top Financial Scorecards: 1 Column on Mobile, 3 Columns on Tablet/Desktop */}
+      <View className="flex-row flex-wrap -mx-2 mb-6">
         {/* Scorecard 1: Total Overdue Dues */}
-        <View style={{ width: Platform.OS === 'web' ? '33.33%' : '100%', paddingHorizontal: 6, marginBottom: 12 }}>
-          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, borderWidth: 1, borderColor: '#fecdd3', padding: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Total Overdue Dues</Text>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fef2f2', justifyContent: 'center', alignItems: 'center' }}>
-                <IndianRupee size={18} color="#ef4444" />
+        <View className="w-full md:w-1/3 px-2 mb-3">
+          <View style={{ backgroundColor: '#ffffff', borderColor: '#fecdd3', borderWidth: 1.5 }} className="rounded-2xl p-4 sm:p-5 shadow-xs">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xs font-black text-rose-900 uppercase tracking-wider">Total Overdue Dues</Text>
+              <View className="w-9 h-9 rounded-xl bg-rose-50 items-center justify-center border border-rose-100">
+                <IndianRupee size={18} color="#be123c" />
               </View>
             </View>
-            <Text style={{ fontSize: 30, fontWeight: '800', color: '#be123c', letterSpacing: -0.5 }}>
+            <Text className="text-2xl sm:text-3xl font-black text-rose-700 tracking-tight">
               ₹{metrics.totalOverdue}
             </Text>
-            <Text style={{ fontSize: 12, color: '#9f1239', marginTop: 4, fontWeight: '500' }}>
+            <Text className="text-xs text-rose-800 mt-1.5 font-bold">
               {overdueRecords.length} Pending Fee Records
             </Text>
           </View>
         </View>
 
         {/* Scorecard 2: Total Dues Collected */}
-        <View style={{ width: Platform.OS === 'web' ? '33.33%' : '100%', paddingHorizontal: 6, marginBottom: 12 }}>
-          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, borderWidth: 1, borderColor: '#bbf7d0', padding: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>Total Dues Collected</Text>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#f0fdf4', justifyContent: 'center', alignItems: 'center' }}>
-                <ShieldCheck size={18} color="#10b981" />
+        <View className="w-full md:w-1/3 px-2 mb-3">
+          <View style={{ backgroundColor: '#ffffff', borderColor: '#bbf7d0', borderWidth: 1.5 }} className="rounded-2xl p-4 sm:p-5 shadow-xs">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xs font-black text-emerald-900 uppercase tracking-wider">Total Dues Collected</Text>
+              <View className="w-9 h-9 rounded-xl bg-emerald-50 items-center justify-center border border-emerald-100">
+                <ShieldCheck size={18} color="#047857" />
               </View>
             </View>
-            <Text style={{ fontSize: 30, fontWeight: '800', color: '#047857', letterSpacing: -0.5 }}>
+            <Text className="text-2xl sm:text-3xl font-black text-emerald-700 tracking-tight">
               ₹{metrics.totalCollected}
             </Text>
-            <Text style={{ fontSize: 12, color: '#15803d', marginTop: 4, fontWeight: '500' }}>
+            <Text className="text-xs text-emerald-800 mt-1.5 font-bold">
               {paidRecords.length} Settled Payment Receipts
             </Text>
           </View>
         </View>
 
         {/* Scorecard 3: Unpaid Members */}
-        <View style={{ width: Platform.OS === 'web' ? '33.33%' : '100%', paddingHorizontal: 6, marginBottom: 12 }}>
-          <View style={{ backgroundColor: '#ffffff', borderRadius: 18, borderWidth: 1, borderColor: '#fde68a', padding: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#92400e', textTransform: 'uppercase', letterSpacing: 0.5 }}>Unpaid Members</Text>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fffbeb', justifyContent: 'center', alignItems: 'center' }}>
-                <Users size={18} color="#d97706" />
+        <View className="w-full md:w-1/3 px-2 mb-3">
+          <View style={{ backgroundColor: '#ffffff', borderColor: '#fde68a', borderWidth: 1.5 }} className="rounded-2xl p-4 sm:p-5 shadow-xs">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xs font-black text-amber-900 uppercase tracking-wider">Unpaid Members</Text>
+              <View className="w-9 h-9 rounded-xl bg-amber-50 items-center justify-center border border-amber-100">
+                <Users size={18} color="#c66708" />
               </View>
             </View>
-            <Text style={{ fontSize: 30, fontWeight: '800', color: '#b45309', letterSpacing: -0.5 }}>
+            <Text className="text-2xl sm:text-3xl font-black text-amber-800 tracking-tight">
               {metrics.unpaidMembersCount} Members
             </Text>
-            <Text style={{ fontSize: 12, color: '#a16207', marginTop: 4, fontWeight: '500' }}>
+            <Text className="text-xs text-amber-900 mt-1.5 font-bold">
               Pending Dues Follow-up Required
             </Text>
           </View>
@@ -372,174 +381,181 @@ export default function AdminDuesScreen() {
       </View>
 
       {/* Multi-Filter Toolbar */}
-      <View style={{ backgroundColor: '#ffffff', borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', padding: 18, marginBottom: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+      <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="rounded-2xl p-3.5 sm:p-4 mb-6 shadow-xs">
+        <View className="flex-col sm:flex-row gap-3 items-stretch sm:items-center">
           {/* Search Input */}
-          <View style={{ flex: 1, minWidth: 260, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, height: 42 }}>
-            <Search size={16} color="#94a3b8" />
+          <View style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="flex-1 flex-row items-center rounded-xl px-3.5 h-11">
+            <Search size={16} color="#64748b" />
             <TextInput
-              style={{ flex: 1, marginLeft: 8, fontSize: 13, color: '#1e293b' }}
+              style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#0f172a', fontWeight: '500' }}
               placeholder="Search member, company, meeting, mobile..."
+              placeholderTextColor="#94a3b8"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
           </View>
 
-          {/* Amount Presets */}
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            {[
-              { key: 'ALL', label: 'All Dues' },
-              { key: '500', label: '≥ ₹500' },
-              { key: '1000', label: '≥ ₹1,000' }
-            ].map(preset => (
-              <TouchableOpacity
-                key={preset.key}
-                onPress={() => setMinDuesFilter(preset.key as any)}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 10,
-                  backgroundColor: minDuesFilter === preset.key ? '#0f172a' : '#ffffff',
-                  borderWidth: 1,
-                  borderColor: minDuesFilter === preset.key ? '#0f172a' : '#e2e8f0'
-                }}
-              >
-                <Text style={{ fontSize: 12, fontWeight: '600', color: minDuesFilter === preset.key ? '#ffffff' : '#475569' }}>
-                  {preset.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {/* Amount Presets & Refresh (Single-Line High Legibility Pills) */}
+          <View className="flex-row items-center gap-2">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 6 }}
+              style={{ flexGrow: 0 }}
+            >
+              {[
+                { key: 'ALL', label: 'All Dues' },
+                { key: '500', label: '≥ ₹500' },
+                { key: '1000', label: '≥ ₹1,000' }
+              ].map(preset => (
+                <TouchableOpacity
+                  key={preset.key}
+                  onPress={() => setMinDuesFilter(preset.key as any)}
+                  activeOpacity={0.85}
+                  style={{
+                    backgroundColor: minDuesFilter === preset.key ? '#0d5984' : '#ffffff',
+                    borderColor: minDuesFilter === preset.key ? '#0d5984' : '#cbd5e1',
+                    borderWidth: 1.5,
+                    height: 42,
+                    paddingHorizontal: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 12
+                  }}
+                >
+                  <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '800', color: minDuesFilter === preset.key ? '#ffffff' : '#475569', whiteSpace: 'nowrap' }}>
+                    {preset.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
 
-          <TouchableOpacity
-            onPress={fetchDuesData}
-            style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#e2e8f0' }}
-          >
-            <RefreshCw size={16} color="#475569" />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={fetchDuesData}
+              activeOpacity={0.85}
+              style={{ backgroundColor: '#f1f5f9', borderColor: '#cbd5e1', borderWidth: 1.5, width: 42, height: 42 }}
+              className="rounded-xl items-center justify-center shrink-0"
+            >
+              <RefreshCw size={16} color="#475569" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
       {/* Dual Audit Ledger Card */}
-      <View style={{ backgroundColor: '#ffffff', borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', padding: 20, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 8 }}>
-        {/* Navigation Tabs */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, borderBottomWidth: 1, borderColor: '#f1f5f9', paddingBottom: 14 }}>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="rounded-2xl p-4 sm:p-5 shadow-xs">
+        {/* Navigation Tabs Header */}
+        <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+          <View className="flex-row flex-wrap gap-2 w-full sm:w-auto">
             <TouchableOpacity
               onPress={() => setActiveTab('OVERDUE')}
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 9,
-                borderRadius: 12,
                 backgroundColor: activeTab === 'OVERDUE' ? '#fef2f2' : '#ffffff',
-                borderWidth: 1,
-                borderColor: activeTab === 'OVERDUE' ? '#fecdd3' : '#e2e8f0'
+                borderColor: activeTab === 'OVERDUE' ? '#fecdd3' : '#cbd5e1',
+                borderWidth: 1.5
               }}
+              className="flex-row items-center px-4 py-2.5 rounded-xl flex-1 sm:flex-initial justify-center"
             >
-              <AlertCircle size={15} color={activeTab === 'OVERDUE' ? '#ef4444' : '#64748b'} style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'OVERDUE' ? '#be123c' : '#475569' }}>
-                Overdue Dues Ledger ({overdueRecords.length})
+              <AlertCircle size={15} color={activeTab === 'OVERDUE' ? '#be123c' : '#64748b'} style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 13, fontWeight: '900', color: activeTab === 'OVERDUE' ? '#be123c' : '#475569' }}>
+                Overdue Dues ({overdueRecords.length})
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => setActiveTab('RECEIPTS')}
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 9,
-                borderRadius: 12,
                 backgroundColor: activeTab === 'RECEIPTS' ? '#f0fdf4' : '#ffffff',
-                borderWidth: 1,
-                borderColor: activeTab === 'RECEIPTS' ? '#bbf7d0' : '#e2e8f0'
+                borderColor: activeTab === 'RECEIPTS' ? '#bbf7d0' : '#cbd5e1',
+                borderWidth: 1.5
               }}
+              className="flex-row items-center px-4 py-2.5 rounded-xl flex-1 sm:flex-initial justify-center"
             >
-              <CheckCircle2 size={15} color={activeTab === 'RECEIPTS' ? '#10b981' : '#64748b'} style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'RECEIPTS' ? '#047857' : '#475569' }}>
-                Payment Receipts Log ({paidRecords.length})
+              <CheckCircle2 size={15} color={activeTab === 'RECEIPTS' ? '#047857' : '#64748b'} style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 13, fontWeight: '900', color: activeTab === 'RECEIPTS' ? '#047857' : '#475569' }}>
+                Receipts Log ({paidRecords.length})
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={{ fontSize: 12, color: '#64748b', fontWeight: '600' }}>
+          <Text className="text-xs text-slate-600 font-bold self-end sm:self-center">
             {currentDisplayList.length} Records Found
           </Text>
         </View>
 
         {/* Ledger Items List */}
         {currentDisplayList.length > 0 ? (
-          <View style={{ gap: 12 }}>
+          <View className="gap-3">
             {currentDisplayList.map((item) => (
               <View
                 key={item.id + '-' + item.meetingId}
                 style={{
                   backgroundColor: '#ffffff',
-                  borderWidth: 1,
-                  borderColor: item.paymentStatus === 'PENDING' || item.paymentStatus === 'ABSENT' ? '#fecdd3' : '#e2e8f0',
-                  borderRadius: 14,
-                  padding: 16
+                  borderWidth: 1.5,
+                  borderColor: item.paymentStatus === 'PENDING' || item.paymentStatus === 'ABSENT' ? '#fecdd3' : '#cbd5e1'
                 }}
+                className="rounded-2xl p-4 sm:p-5 shadow-2xs"
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <View style={{ flex: 1, marginRight: 12 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a' }}>{item.memberFullName}</Text>
+                <View className="flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+                  <View className="flex-1 min-w-0">
+                    <View className="flex-row items-center flex-wrap gap-2">
+                      <Text className="text-base sm:text-lg font-black text-slate-900">{item.memberFullName}</Text>
                       <TouchableOpacity
                         onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.memberId } })}
-                        style={{ backgroundColor: '#eff6ff', borderWidth: 1, borderColor: '#bfdbfe', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}
+                        style={{ backgroundColor: '#f0f7fb', borderColor: '#c6def0', borderWidth: 1 }}
+                        className="px-2.5 py-1 rounded-full"
                       >
-                        <Text style={{ fontSize: 10, fontWeight: '700', color: '#2563eb' }}>Member 360° →</Text>
+                        <Text className="text-xs font-extrabold text-[#0d5984]">Member 360° →</Text>
                       </TouchableOpacity>
                     </View>
-                    <Text style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
-                      {item.memberCompanyName} • {item.memberCategory || 'Member'} • {item.memberMobile}
+                    <Text className="text-xs text-slate-600 font-semibold mt-1">
+                      {item.memberCompanyName || 'Company'} • {item.memberCategory || 'Member'} • {item.memberMobile}
                     </Text>
                   </View>
 
                   {/* Fee Highlight */}
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 18, fontWeight: '800', color: item.paymentStatus === 'PAID' ? '#047857' : '#be123c' }}>
+                  <View className="flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    <Text className={`text-xl sm:text-2xl font-black ${item.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-rose-700'}`}>
                       ₹{item.entryFee}
                     </Text>
-                    <Text style={{ fontSize: 10, fontWeight: '700', color: item.paymentStatus === 'PAID' ? '#10b981' : '#ef4444', textTransform: 'uppercase' }}>
+                    <Text className={`text-xs font-black uppercase ${item.paymentStatus === 'PAID' ? 'text-emerald-800' : 'text-rose-800'}`}>
                       {item.paymentStatus === 'PAID' ? `PAID VIA ${item.paymentMode || 'CASH'}` : 'OVERDUE FEE'}
                     </Text>
                   </View>
                 </View>
 
                 {/* Meeting Context & Actions Row */}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 10, marginTop: 4 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Calendar size={13} color="#94a3b8" />
-                    <Text style={{ fontSize: 12, color: '#475569', marginLeft: 6, fontWeight: '500' }}>
+                <View className="flex-col sm:flex-row items-start sm:items-center justify-between border-t border-slate-100 pt-3 gap-2">
+                  <View className="flex-row items-center flex-1 min-w-0 pr-2">
+                    <Calendar size={14} color="#475569" className="shrink-0" />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 ml-1.5 font-bold truncate">
                       {item.meetingTitle} ({item.meetingDate})
                     </Text>
                   </View>
 
-                  <View style={{ flexDirection: 'row', gap: 8, marginTop: Platform.OS === 'web' ? 0 : 8 }}>
+                  <View className="flex-row items-center gap-2 w-full sm:w-auto justify-end">
                     {item.paymentStatus !== 'PAID' ? (
                       <>
                         <TouchableOpacity
                           onPress={() => handleSendWhatsAppReminder(item)}
-                          style={{ backgroundColor: '#ecfdf5', borderWidth: 1, borderColor: '#a7f3d0', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
+                          style={{ backgroundColor: '#ecfdf5', borderWidth: 1.5, borderColor: '#a7f3d0' }}
+                          className="px-3 py-2 rounded-xl flex-row items-center flex-1 sm:flex-initial justify-center"
                         >
-                          <MessageSquare size={12} color="#047857" style={{ marginRight: 4 }} />
-                          <Text style={{ fontSize: 11, fontWeight: '700', color: '#047857' }}>WhatsApp</Text>
+                          <MessageSquare size={14} color="#047857" style={{ marginRight: 5 }} />
+                          <Text className="text-xs font-black text-emerald-800">WhatsApp</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                           onPress={() => setSelectedRecord(item)}
-                          style={{ backgroundColor: '#0f172a', paddingHorizontal: 14, paddingVertical: 5, borderRadius: 8 }}
+                          style={{ backgroundColor: '#0d5984' }}
+                          className="px-4 py-2 rounded-xl flex-1 sm:flex-initial items-center justify-center"
                         >
-                          <Text style={{ fontSize: 11, fontWeight: '700', color: '#ffffff' }}>Collect Dues</Text>
+                          <Text className="text-xs font-black text-white">Collect Dues</Text>
                         </TouchableOpacity>
                       </>
                     ) : (
-                      <View style={{ backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: '#bbf7d0' }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#166534' }}>✓ Receipt Verified</Text>
+                      <View style={{ backgroundColor: '#f0fdf4', borderWidth: 1.5, borderColor: '#bbf7d0' }} className="px-3 py-1.5 rounded-xl">
+                        <Text className="text-xs font-black text-emerald-800">✓ Receipt Verified</Text>
                       </View>
                     )}
                   </View>
@@ -548,73 +564,77 @@ export default function AdminDuesScreen() {
             ))}
           </View>
         ) : (
-          <View style={{ alignItems: 'center', padding: 36, backgroundColor: '#f8fafc', borderRadius: 14 }}>
-            <ShieldCheck size={40} color="#94a3b8" />
-            <Text style={{ color: '#475569', fontWeight: '700', fontSize: 15, marginTop: 10 }}>No records match your active filter</Text>
-            <Text style={{ color: '#94a3b8', fontSize: 12, marginTop: 4 }}>All dues are up to date or adjust your search filter above.</Text>
+          <View className="items-center p-8 bg-slate-50 rounded-2xl border border-slate-200">
+            <ShieldCheck size={44} color="#64748b" />
+            <Text className="color-[#0f172a] font-extrabold text-base mt-3">No records match your active filter</Text>
+            <Text className="color-[#475569] text-xs mt-1 font-semibold text-center">All dues are up to date or adjust your search filter above.</Text>
           </View>
         )}
       </View>
 
       {/* Interactive Settlement Modal */}
       {selectedRecord && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <View style={{ width: '100%', maxWidth: 460, backgroundColor: '#ffffff', borderRadius: 20, padding: 24, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20 }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#0f172a', marginBottom: 4 }}>Settle Overdue Fee</Text>
-            <Text style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>
+        <View style={{ position: Platform.OS === 'web' ? ('fixed' as any) : 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', justifyContent: 'center', alignItems: 'center', padding: 16, zIndex: 9999 }}>
+          <View style={{ width: '100%', maxWidth: 460, backgroundColor: '#ffffff', borderRadius: 24, padding: 24, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 24, borderWidth: 1.5, borderColor: '#cbd5e1' }}>
+            <Text className="text-xl sm:text-2xl font-black text-slate-900 mb-1">Settle Overdue Fee</Text>
+            <Text className="text-xs sm:text-sm text-slate-600 font-semibold mb-4">
               {selectedRecord.memberFullName} • {selectedRecord.meetingTitle}
             </Text>
 
-            <View style={{ backgroundColor: '#f8fafc', padding: 14, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: '#e2e8f0' }}>
-              <Text style={{ fontSize: 12, color: '#64748b', fontWeight: '600' }}>Entry Fee Amount</Text>
-              <Text style={{ fontSize: 26, fontWeight: '800', color: '#0f172a', marginTop: 2 }}>₹{selectedRecord.entryFee}</Text>
+            <View style={{ backgroundColor: '#f0f7fb', borderWidth: 1.5, borderColor: '#c6def0' }} className="p-4 rounded-2xl mb-5">
+              <Text className="text-xs font-extrabold text-[#0d5984] uppercase tracking-wider">Entry Fee Amount</Text>
+              <Text className="text-3xl font-black text-slate-900 mt-1">₹{selectedRecord.entryFee}</Text>
             </View>
 
-            <Text style={{ fontSize: 12, fontWeight: '700', color: '#475569', textTransform: 'uppercase', marginBottom: 10, letterSpacing: 0.5 }}>Select Payment Collection Mode</Text>
+            <Text className="text-xs font-black text-slate-700 uppercase mb-3 tracking-wider">Select Payment Collection Mode</Text>
 
-            <View style={{ gap: 10, marginBottom: 20 }}>
+            <View className="gap-2.5 mb-5">
               <TouchableOpacity
                 onPress={() => handleSettlePayment(selectedRecord, 'CASH')}
                 disabled={settling}
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', borderWidth: 1.5, borderColor: '#22c55e', padding: 14, borderRadius: 12 }}
+                style={{ backgroundColor: '#f0fdf4', borderWidth: 1.5, borderColor: '#22c55e' }}
+                className="flex-row items-center p-3.5 rounded-xl"
               >
-                <Banknote size={20} color="#166534" style={{ marginRight: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#166534' }}>Collect Cash</Text>
-                  <Text style={{ fontSize: 11, color: '#15803d' }}>Received ₹{selectedRecord.entryFee} in cash</Text>
+                <Banknote size={22} color="#166534" style={{ marginRight: 12 }} />
+                <View className="flex-1">
+                  <Text className="text-sm font-black text-emerald-900">Collect Cash</Text>
+                  <Text className="text-xs font-bold text-emerald-700">Received ₹{selectedRecord.entryFee} in cash</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => handleSettlePayment(selectedRecord, 'UPI')}
                 disabled={settling}
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', borderWidth: 1.5, borderColor: '#3b82f6', padding: 14, borderRadius: 12 }}
+                style={{ backgroundColor: '#f0f7fb', borderWidth: 1.5, borderColor: '#67bed9' }}
+                className="flex-row items-center p-3.5 rounded-xl"
               >
-                <CreditCard size={20} color="#1d4ed8" style={{ marginRight: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#1d4ed8' }}>Collect UPI / Online</Text>
-                  <Text style={{ fontSize: 11, color: '#2563eb' }}>Received ₹{selectedRecord.entryFee} via UPI QR</Text>
+                <CreditCard size={22} color="#0d5984" style={{ marginRight: 12 }} />
+                <View className="flex-1">
+                  <Text className="text-sm font-black text-[#0d5984]">Collect UPI / Online</Text>
+                  <Text className="text-xs font-bold text-[#0d5984]">Received ₹{selectedRecord.entryFee} via UPI QR</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => handleSettlePayment(selectedRecord, 'WAIVED')}
                 disabled={settling}
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#faf5ff', borderWidth: 1, borderColor: '#c084fc', padding: 14, borderRadius: 12 }}
+                style={{ backgroundColor: '#faf5ff', borderWidth: 1.5, borderColor: '#c084fc' }}
+                className="flex-row items-center p-3.5 rounded-xl"
               >
-                <CheckCircle2 size={20} color="#7e22ce" style={{ marginRight: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#7e22ce' }}>Waive Fee (Complimentary)</Text>
-                  <Text style={{ fontSize: 11, color: '#9333ea' }}>Mark as complimentary entry</Text>
+                <CheckCircle2 size={22} color="#7e22ce" style={{ marginRight: 12 }} />
+                <View className="flex-1">
+                  <Text className="text-sm font-black text-purple-900">Waive Fee (Complimentary)</Text>
+                  <Text className="text-xs font-bold text-purple-700">Mark as complimentary entry</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
               onPress={() => setSelectedRecord(null)}
-              style={{ backgroundColor: '#f1f5f9', paddingVertical: 12, borderRadius: 12, alignItems: 'center' }}
+              style={{ backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#cbd5e1' }}
+              className="py-3 rounded-xl items-center"
             >
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569' }}>Cancel</Text>
+              <Text className="text-sm font-extrabold text-slate-700">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
