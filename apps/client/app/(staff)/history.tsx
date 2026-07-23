@@ -9,7 +9,10 @@ import { formatDate } from '../../src/utils/date';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
 
-export default function StaffHistory() {
+import { useRouter } from 'expo-router';
+
+export default function HistoryScreen() {
+  const router = useRouter();
   const { meetings, loading } = useAllMeetings();
   const { members } = useMembers('');
   const totalMembersCount = members ? members.length : 0;
@@ -215,7 +218,7 @@ export default function StaffHistory() {
               </View>
 
               {/* Date, Time & Stats Row */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', itemsCenter: 'center', gap: 14, borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 12, marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 12, marginBottom: 14 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Calendar size={14} color="#94a3b8" />
                   <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '600' }}>{formatDate(item.date)}</Text>

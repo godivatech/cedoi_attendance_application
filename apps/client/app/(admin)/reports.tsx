@@ -9,9 +9,11 @@ import { formatRupees } from '../../src/utils/currency';
 import { collectionGroup, query, where, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { showAlert } from '../../src/utils/platformAlert';
+import { useRouter } from 'expo-router';
 
 export default function ReportsScreen() {
-  const [activeTab, setActiveTab] = useState<'meetings' | 'members'>('meetings');
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'meetings' | 'members' | 'pending'>('meetings');
   const { meetings, loading: meetingsLoading } = useAllMeetings();
 
   // Meeting Filter States

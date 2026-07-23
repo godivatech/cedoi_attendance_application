@@ -634,7 +634,7 @@ export default function StaffReportsScreen() {
                     <Text className="text-[10px] uppercase font-extrabold text-amber-600 tracking-wider">Pending Due</Text>
                     <Text className="text-base font-black text-amber-600">{formatRupees(item.pendingDues)}</Text>
                     <TouchableOpacity
-                      onPress={() => handleSendWhatsAppReminder(item.fullName, item.mobileNumber, item.pendingDues)}
+                      onPress={() => handleSendWhatsApp(item.fullName, item.mobileNumber, item.pendingDues)}
                       className="bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200/80 flex-row items-center"
                     >
                       <MessageSquare size={13} color="#047857" style={{ marginRight: 4 }} />

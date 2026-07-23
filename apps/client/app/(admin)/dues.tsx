@@ -489,7 +489,7 @@ export default function AdminDuesScreen() {
                       <Text style={{ fontSize: 16, fontWeight: '800', color: '#0f172a' }}>{item.memberFullName}</Text>
                       <TouchableOpacity
                         onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.memberId } })}
-                        style={{ backgroundColor: '#eff6ff', borderContent: 1, borderColor: '#bfdbfe', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}
+                        style={{ backgroundColor: '#eff6ff', borderWidth: 1, borderColor: '#bfdbfe', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}
                       >
                         <Text style={{ fontSize: 10, fontWeight: '700', color: '#2563eb' }}>Member 360° →</Text>
                       </TouchableOpacity>

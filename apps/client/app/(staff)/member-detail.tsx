@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, StyleSheet
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
-import { Member, PaymentMode, PaymentStatus } from '@cedoi/shared';
+import { Member, PaymentMode, PaymentStatus, AttireStatus, PunctualityStatus } from '@cedoi/shared';
 import { useAttendanceActions, calculatePunctuality } from '../../src/modules/attendance/useAttendance';
 import {
   UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle, Edit2, Shirt, MessageSquare, CheckCircle2

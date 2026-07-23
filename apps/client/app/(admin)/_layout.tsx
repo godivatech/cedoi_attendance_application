@@ -95,7 +95,7 @@ export default function AdminLayout() {
               </View>
               <View style={{ marginLeft: 12 }}>
                 <Text style={{ fontSize: 18, fontWeight: '800', color: BRAND_COLORS.primary, letterSpacing: 0.5 }}>CEDOI</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: BRAND_COLORS.accentLight, borderContent: BRAND_COLORS.accentBorder, borderWidth: 1, borderRadius: 12, paddingHorizontal: 6, paddingVertical: 1, marginTop: 2 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: BRAND_COLORS.accentLight, borderColor: BRAND_COLORS.accentBorder, borderWidth: 1, borderRadius: 12, paddingHorizontal: 6, paddingVertical: 1, marginTop: 2 }}>
                   <Text style={{ fontSize: 9, fontWeight: '800', color: BRAND_COLORS.accentText, textTransform: 'uppercase' }}>Admin Portal</Text>
                 </View>
               </View>
