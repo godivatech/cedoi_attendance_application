@@ -10,7 +10,7 @@ import {
   CreditCard, UserCheck, ShieldCheck, ArrowRight, Sparkles
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { formatDate } from '../../src/utils/date';
+import { formatDate, formatTime12h } from '../../src/utils/date';
 import { BRAND_COLORS } from '../../src/theme/colors';
 import { collection, onSnapshot, getDocs, collectionGroup, query } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
@@ -100,9 +100,14 @@ export default function StaffDashboard() {
       const list: any[] = [];
       snap.forEach((d) => {
         const data = d.data();
+        const memberObj = members.find(m => m.id === d.id || m.id === data.memberId);
+        const resolvedName = memberObj?.fullName || data.memberSnapshot?.fullName || data.memberFullName || data.memberName || 'CEDOI Member';
+        const resolvedCompany = memberObj?.companyName || data.memberSnapshot?.companyName || data.companyName || 'Member';
+
         list.push({
           id: d.id,
-          memberFullName: data.memberFullName || data.memberName || 'CEDOI Member',
+          memberFullName: resolvedName,
+          companyName: resolvedCompany,
           paymentStatus: data.paymentStatus || 'PENDING',
           updatedAt: data.updatedAt ? new Date(data.updatedAt.toDate ? data.updatedAt.toDate() : data.updatedAt).toISOString() : new Date().toISOString(),
           amountPaid: data.amountPaid || todaysMeeting.entryFee || 1040,
@@ -331,13 +336,15 @@ export default function StaffDashboard() {
 
         {/* Live Attendance Stream Feed */}
         <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1 }} className="rounded-2xl p-4 sm:p-5 shadow-2xs gap-3">
-          <View className="flex-row items-center justify-between pb-3 border-b border-slate-100">
-            <View className="flex-row items-center">
+          <View className="flex-row items-center justify-between pb-3 border-b border-slate-100 gap-2">
+            <View className="flex-row items-center flex-1 min-w-0 mr-2">
               <Activity size={18} color={BRAND_COLORS.primary} style={{ marginRight: 8 }} />
-              <Text className="text-base font-extrabold text-slate-900">Live Attendance Activity Stream</Text>
+              <Text numberOfLines={1} className="text-sm sm:text-base font-black text-slate-900 truncate">
+                Live Attendance Feed
+              </Text>
             </View>
-            <View className="bg-slate-100 px-2.5 py-1 rounded-md">
-              <Text className="text-xs font-bold text-slate-600">{recentCheckIns.length} Recent</Text>
+            <View className="bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
+              <Text className="text-xs font-black text-slate-700">{recentCheckIns.length} Recent</Text>
             </View>
           </View>
 
@@ -346,33 +353,33 @@ export default function StaffDashboard() {
               {recentCheckIns.map((record) => {
                 const isPaid = record.paymentStatus === 'PAID';
                 return (
-                  <View key={record.id} className="flex-row items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <View key={record.id} className="flex-row items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                     <View className="flex-row items-center flex-1 min-w-0 mr-2">
-                      <View style={{ backgroundColor: isPaid ? '#f0fdf4' : '#fff1f2', width: 36, height: 36, borderRadius: 18 }} className="items-center justify-center mr-3 shrink-0">
-                        <Text style={{ color: isPaid ? '#166534' : '#be123c', fontWeight: '900', fontSize: 14 }}>
+                      <View style={{ backgroundColor: isPaid ? '#f0fdf4' : '#fff1f2', width: 40, height: 40, borderRadius: 20 }} className="items-center justify-center mr-3 shrink-0 border border-slate-200">
+                        <Text style={{ color: isPaid ? '#166534' : '#be123c', fontWeight: '900', fontSize: 16 }}>
                           {record.memberFullName?.charAt(0) || 'M'}
                         </Text>
                       </View>
                       <View className="flex-1 min-w-0">
-                        <Text numberOfLines={1} className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                        <Text numberOfLines={1} className="text-sm sm:text-base font-black text-slate-900 truncate">
                           {record.memberFullName}
                         </Text>
-                        <Text className="text-[11px] font-medium text-slate-500 mt-0.5">
-                          Checked in at {new Date(record.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <Text className="text-xs font-bold text-slate-500 mt-0.5">
+                          {record.companyName} • Checked in {formatTime12h(record.updatedAt)}
                         </Text>
                       </View>
                     </View>
 
                     <View className="items-end shrink-0">
                       {isPaid ? (
-                        <View className="bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex-row items-center">
-                          <CheckCircle2 size={12} color="#16a34a" style={{ marginRight: 4 }} />
-                          <Text className="text-xs font-extrabold text-emerald-800">Paid ₹{record.amountPaid}</Text>
+                        <View className="bg-emerald-50 border border-emerald-300 px-3 py-1 rounded-lg flex-row items-center">
+                          <CheckCircle2 size={14} color="#16a34a" style={{ marginRight: 5 }} />
+                          <Text className="text-xs font-black text-emerald-800">Paid ₹{record.amountPaid}</Text>
                         </View>
                       ) : (
-                        <View className="bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg flex-row items-center">
-                          <AlertCircle size={12} color="#be123c" style={{ marginRight: 4 }} />
-                          <Text className="text-xs font-extrabold text-rose-800">Pending Dues</Text>
+                        <View className="bg-rose-50 border border-rose-300 px-3 py-1 rounded-lg flex-row items-center">
+                          <AlertCircle size={14} color="#be123c" style={{ marginRight: 5 }} />
+                          <Text className="text-xs font-black text-rose-800">Pending Dues</Text>
                         </View>
                       )}
                     </View>
@@ -381,10 +388,10 @@ export default function StaffDashboard() {
               })}
             </View>
           ) : (
-            <View className="items-center justify-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <Users size={32} color="#94a3b8" />
-              <Text className="text-xs sm:text-sm font-bold text-slate-600 mt-2">No check-ins recorded yet today</Text>
-              <Text className="text-xs font-medium text-slate-400 mt-0.5">Tap 'Start Check-in' to begin recording attendance</Text>
+            <View className="items-center justify-center py-7 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+              <Users size={32} color="#64748b" />
+              <Text className="text-sm sm:text-base font-black text-slate-800 mt-2.5 text-center">No check-ins recorded yet today</Text>
+              <Text className="text-xs sm:text-sm font-semibold text-slate-600 mt-1 text-center">Tap 'Start Check-in' above to begin recording attendance</Text>
             </View>
           )}
         </View>

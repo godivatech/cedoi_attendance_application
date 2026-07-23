@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, 
 import { useUpcomingMeetings } from '../../src/modules/meetings/useMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
-import { Calendar, MapPin, Users, ChevronRight, Clock, Lock, CheckCircle2 } from 'lucide-react-native';
+import { Calendar, MapPin, Users, ChevronRight, Clock, Lock, CheckCircle2, Banknote } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../src/utils/date';
 import { BRAND_COLORS } from '../../src/theme/colors';
@@ -205,6 +205,16 @@ export default function StaffToday() {
                   <View>
                     <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Venue</Text>
                     <Text style={{ color: BRAND_COLORS.textHeading, fontSize: 14, fontWeight: '600', marginTop: 1 }}>{todaysMeeting.venue}</Text>
+                  </View>
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: '#f0fdf4', justifyContent: 'center', alignItems: 'center', marginRight: 14, borderWidth: 1, borderColor: '#bbf7d0' }}>
+                    <Banknote size={18} color="#16a34a" />
+                  </View>
+                  <View>
+                    <Text style={{ color: BRAND_COLORS.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Meeting Fee</Text>
+                    <Text style={{ color: '#166534', fontSize: 14, fontWeight: '800', marginTop: 1 }}>₹{todaysMeeting.entryFee || 1040} per member</Text>
                   </View>
                 </View>
               </View>

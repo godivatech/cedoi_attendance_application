@@ -6,6 +6,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "seed": "ts-node src/seed.ts",
+    "clean:meetings": "ts-node src/cleanMeetings.ts",
     "build": "tsc"
   },
   "dependencies": {
