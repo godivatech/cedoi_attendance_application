@@ -2,7 +2,7 @@ import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator } 
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2 } from 'lucide-react-native';
+import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2, Calendar } from 'lucide-react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -151,24 +151,24 @@ export default function AdminMembers() {
                 </View>
               </View>
 
-              {/* Grid detail badges */}
-              <View className="flex-row flex-wrap border-t border-slate-100 pt-3 -mx-2">
+              {/* Cohesive detail badges: Inline row with tight horizontal spacing */}
+              <View className="flex-row flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 pt-3">
                 {item.businessCategory && (
-                  <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Briefcase size={14} color="#475569" />
-                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">{item.businessCategory}</Text>
+                  <View className="flex-row items-center">
+                    <Briefcase size={14} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 font-semibold truncate">{item.businessCategory}</Text>
                   </View>
                 )}
                 {item.mobileNumber && (
-                  <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Phone size={14} color="#475569" />
-                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">{item.mobileNumber}</Text>
+                  <View className="flex-row items-center">
+                    <Phone size={14} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text numberOfLines={1} className="text-xs text-slate-700 font-semibold truncate">{item.mobileNumber}</Text>
                   </View>
                 )}
                 {item.joinDate && (
-                  <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
-                    <Mail size={14} color="#475569" />
-                    <Text numberOfLines={1} className="text-xs text-slate-700 font-medium ml-1.5 truncate">Joined: {item.joinDate}</Text>
+                  <View className="flex-row items-center">
+                    <Calendar size={14} color="#0d5984" style={{ marginRight: 6 }} />
+                    <Text numberOfLines={1} className="text-xs text-slate-600 font-semibold truncate">Joined: {item.joinDate}</Text>
                   </View>
                 )}
               </View>
