@@ -34,6 +34,18 @@ interface AttendanceRecord {
   attireStatus?: string;
 }
 
+// Helper to format ISO month (2026-07) to human readable label (July 2026)
+function formatMonthLabel(isoMonth: string): string {
+  if (isoMonth === 'ALL') return 'All Months';
+  if (isoMonth === 'CUSTOM') return 'Custom Range';
+  const parts = isoMonth.split('-');
+  if (parts.length !== 2) return isoMonth;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const date = new Date(year, month, 1);
+  return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+
 export default function AdminDuesScreen() {
   const router = useRouter();
   
@@ -44,6 +56,7 @@ export default function AdminDuesScreen() {
   const [activeTab, setActiveTab] = useState<'OVERDUE' | 'RECEIPTS'>('OVERDUE');
   const [viewMode, setViewMode] = useState<'BY_MEMBER' | 'BY_MEETING'>('BY_MEMBER');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [minDuesFilter, setMinDuesFilter] = useState<'ALL' | '500' | '1000'>('ALL');
@@ -160,6 +173,17 @@ export default function AdminDuesScreen() {
     fetchDuesData();
   }, []);
 
+  // Extract available months from records
+  const availableMonths = useMemo(() => {
+    const setMonths = new Set<string>();
+    records.forEach(r => {
+      if (r.meetingDate && r.meetingDate !== 'N/A') {
+        setMonths.add(r.meetingDate.substring(0, 7));
+      }
+    });
+    return Array.from(setMonths).sort().reverse();
+  }, [records]);
+
   // Filtered Lists & Metrics Calculation
   const { overdueRecords, paidRecords, metrics } = useMemo(() => {
     let totalOverdue = 0;
@@ -171,6 +195,9 @@ export default function AdminDuesScreen() {
 
     records.forEach(r => {
       // Date filtering
+      if (!startDate && !endDate && selectedMonth !== 'ALL') {
+        if (!r.meetingDate.startsWith(selectedMonth)) return;
+      }
       if (startDate && r.meetingDate < startDate) return;
       if (endDate && r.meetingDate > endDate) return;
 
@@ -208,7 +235,7 @@ export default function AdminDuesScreen() {
         unpaidMembersCount: unpaidMembersSet.size
       }
     };
-  }, [records, searchQuery, startDate, endDate, minDuesFilter]);
+  }, [records, searchQuery, selectedMonth, startDate, endDate, minDuesFilter]);
 
   // Group Overdue Records by Member for clean aggregated cards
   const groupedMembersOverdue = useMemo(() => {
@@ -423,6 +450,173 @@ export default function AdminDuesScreen() {
             </TouchableOpacity>
           )}
         </View>
+      </View>
+
+      {/* Date Range & Month Filter Card */}
+      <View style={{ backgroundColor: '#ffffff', borderColor: '#cbd5e1', borderWidth: 1.5 }} className="rounded-2xl p-4 mb-6 shadow-xs">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-row items-center">
+            <Calendar size={16} color="#0d5984" />
+            <Text className="text-sm font-black text-slate-800 ml-2">Date Range & Month Filter</Text>
+          </View>
+          <View className="px-3 py-1 rounded-lg bg-[#f0f7fb] border border-[#c6def0]">
+            <Text className="text-xs font-bold text-[#0d5984]">
+              {formatMonthLabel(selectedMonth)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Custom From Date to To Date Inputs */}
+        <View className="flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3">
+          <View className="flex-1">
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">From Date</Text>
+            {Platform.OS === 'web' ? (
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  if (e.target.value) setSelectedMonth('CUSTOM');
+                }}
+                onClick={(e: any) => {
+                  try { e.currentTarget.showPicker?.(); } catch (err) {}
+                }}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '12px',
+                  padding: '0 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <TextInput
+                value={startDate}
+                onChangeText={(val) => {
+                  setStartDate(val);
+                  if (val) setSelectedMonth('CUSTOM');
+                }}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+                style={{ height: 42, color: '#1e293b' }}
+              />
+            )}
+          </View>
+
+          <View className="flex-1">
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">To Date</Text>
+            {Platform.OS === 'web' ? (
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  if (e.target.value) setSelectedMonth('CUSTOM');
+                }}
+                onClick={(e: any) => {
+                  try { e.currentTarget.showPicker?.(); } catch (err) {}
+                }}
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '12px',
+                  padding: '0 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <TextInput
+                value={endDate}
+                onChangeText={(val) => {
+                  setEndDate(val);
+                  if (val) setSelectedMonth('CUSTOM');
+                }}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+                style={{ height: 42, color: '#1e293b' }}
+              />
+            )}
+          </View>
+
+          {(startDate || endDate || selectedMonth !== 'ALL') && (
+            <TouchableOpacity
+              onPress={() => {
+                setStartDate('');
+                setEndDate('');
+                setSelectedMonth('ALL');
+              }}
+              className="sm:mt-4 px-3.5 py-2 bg-slate-100 rounded-xl items-center"
+            >
+              <Text className="text-xs font-bold text-slate-600">Clear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Quick Month Filter Pills */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedMonth('ALL');
+              setStartDate('');
+              setEndDate('');
+            }}
+            style={{
+              backgroundColor: selectedMonth === 'ALL' && !startDate && !endDate ? '#0d5984' : '#ffffff',
+              borderColor: selectedMonth === 'ALL' && !startDate && !endDate ? '#0d5984' : '#cbd5e1',
+              borderWidth: 1.5,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              borderRadius: 12,
+              marginRight: 6
+            }}
+          >
+            <Text style={{ color: selectedMonth === 'ALL' && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '800', fontSize: 12 }}>
+              All Months
+            </Text>
+          </TouchableOpacity>
+
+          {availableMonths.map(m => (
+            <TouchableOpacity
+              key={m}
+              onPress={() => {
+                setSelectedMonth(m);
+                setStartDate('');
+                setEndDate('');
+              }}
+              style={{
+                backgroundColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#ffffff',
+                borderColor: selectedMonth === m && !startDate && !endDate ? '#0d5984' : '#cbd5e1',
+                borderWidth: 1.5,
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderRadius: 12,
+                marginRight: 6
+              }}
+            >
+              <Text style={{ color: selectedMonth === m && !startDate && !endDate ? '#ffffff' : '#475569', fontWeight: '800', fontSize: 12 }}>
+                {formatMonthLabel(m)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* 3 Top Financial Scorecards: 1 Column on Mobile, 3 Columns on Tablet/Desktop */}
