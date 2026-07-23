@@ -470,7 +470,7 @@ export default function MemberDetailScreen() {
 
         {/* SECTION 1: Attendance Status */}
         <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 12 }}>1. Attendance Status</Text>
+          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 12 }}>Attendance Status</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -505,7 +505,7 @@ export default function MemberDetailScreen() {
         {/* SECTION 2: Attire Compliance Marking */}
         {isPresent && (
           <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>2. Attire Compliance</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>Attire Compliance</Text>
             <Text style={{ fontSize: 12, color: '#94a3b8', marginBottom: 10 }}>Track proper meeting dress code compliance:</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity
@@ -555,7 +555,7 @@ export default function MemberDetailScreen() {
 
         {/* SECTION 3: Payment Mode Grid */}
         <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>3. Payment Mode</Text>
+          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>Payment Mode</Text>
           <Text style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14 }}>
             {isPresent
               ? `Select payment collection method (Entry Fee: ₹${meetingFee}):`
