@@ -59,7 +59,7 @@ export default function StaffLayout() {
 
   const isActive = (itemPath: string) => {
     const name = itemPath.split('/').pop() || '';
-    if (name === 'today' && (pathname === '/' || pathname === '/today' || pathname === '/(staff)/today')) {
+    if (name === 'dashboard' && (pathname === '/' || pathname === '/dashboard' || pathname === '/(staff)/dashboard')) {
       return true;
     }
     return pathname.includes(name);

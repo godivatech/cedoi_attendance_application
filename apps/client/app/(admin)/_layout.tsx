@@ -27,7 +27,7 @@ export default function AdminLayout() {
   }
 
   if (role !== 'ADMIN') {
-    return <Redirect href="/(staff)/today" />;
+    return <Redirect href="/(staff)/dashboard" />;
   }
 
   const isDark = false; // Lock navigation to light mode for consistent SaaS aesthetic

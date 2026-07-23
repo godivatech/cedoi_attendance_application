@@ -141,8 +141,8 @@ export default function RootLayout() {
           console.log('[_layout] Guard: Redirecting Admin to dashboard');
           router.replace('/(admin)/dashboard');
         } else {
-          console.log('[_layout] Guard: Redirecting Member to today');
-          router.replace('/(staff)/today');
+          console.log('[_layout] Guard: Redirecting Member to dashboard');
+          router.replace('/(staff)/dashboard');
         }
       }
     }
