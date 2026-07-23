@@ -303,7 +303,7 @@ export default function AdminDuesScreen() {
             className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
           >
             <Download size={15} color="#334155" style={{ marginRight: 6 }} />
-            <Text numberOfLines={1} style={{ whiteSpace: 'nowrap' }} className="text-slate-700 font-extrabold text-xs sm:text-sm">
+            <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-slate-700 font-extrabold text-xs sm:text-sm">
               Export CSV
             </Text>
           </TouchableOpacity>
@@ -316,7 +316,7 @@ export default function AdminDuesScreen() {
               className="flex-1 sm:flex-initial shrink-0 flex-row items-center justify-center px-4 py-2 rounded-xl shadow-xs"
             >
               <WhatsAppIcon size={16} color="#ffffff" style={{ marginRight: 6 }} />
-              <Text numberOfLines={1} style={{ whiteSpace: 'nowrap' }} className="text-white font-black text-xs sm:text-sm">
+              <Text numberOfLines={1} style={Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined} className="text-white font-black text-xs sm:text-sm">
                 Broadcast Reminders
               </Text>
             </TouchableOpacity>
@@ -424,7 +424,7 @@ export default function AdminDuesScreen() {
                     borderRadius: 12
                   }}
                 >
-                  <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '800', color: minDuesFilter === preset.key ? '#ffffff' : '#475569', whiteSpace: 'nowrap' }}>
+                  <Text numberOfLines={1} style={[{ fontSize: 13, fontWeight: '800', color: minDuesFilter === preset.key ? '#ffffff' : '#475569' }, Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as any) : undefined]}>
                     {preset.label}
                   </Text>
                 </TouchableOpacity>
