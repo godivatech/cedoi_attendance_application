@@ -226,20 +226,21 @@ export default function CreateMeetingScreen() {
       contentContainerStyle={{ padding: 24, paddingBottom: 60 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text className="text-2xl font-extrabold text-slate-800 mb-6">
-        {isEditMode ? 'Edit Meeting Details' : 'Create New Meeting'}
-      </Text>
-      
-      <Card className="space-y-4 mb-10 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
-        <View>
-          <Text className="text-sm font-bold text-slate-600 mb-1.5">Title</Text>
+      <View style={{ maxWidth: 880, width: '100%', alignSelf: 'center' }}>
+        <Text className="text-2xl font-extrabold text-slate-800 mb-6">
+          {isEditMode ? 'Edit Meeting Details' : 'Create New Meeting'}
+        </Text>
+        
+        <Card className="space-y-5 mb-10 p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Title</Text>
           <Controller
             control={control}
             name="title"
             rules={{ required: "Meeting title is required" }}
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                 placeholder="Enter meeting title"
                 placeholderTextColor="#94a3b8"
                 onChangeText={onChange}
@@ -252,9 +253,10 @@ export default function CreateMeetingScreen() {
           )}
         </View>
 
-        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Date</Text>
+        {/* Row 1: Date & Entry Fee */}
+        <View style={{ flexDirection: Platform.OS === 'web' ? 'row' : 'column', gap: 16, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Date</Text>
             <Controller
               control={control}
               name="date"
@@ -264,13 +266,13 @@ export default function CreateMeetingScreen() {
                   <input
                     type="date"
                     style={{
-                      padding: '16px',
+                      padding: '0 16px',
                       backgroundColor: '#f8fafc',
                       border: '1px solid #e2e8f0',
                       borderRadius: '12px',
                       color: '#1e293b',
                       fontSize: '14px',
-                      height: '52px',
+                      height: '48px',
                       outline: 'none',
                       fontFamily: 'inherit',
                       width: '100%',
@@ -281,7 +283,7 @@ export default function CreateMeetingScreen() {
                   />
                 ) : (
                   <TextInput
-                    className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                    style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                     placeholder="Enter date (YYYY-MM-DD)"
                     placeholderTextColor="#94a3b8"
                     onChangeText={onChange}
@@ -294,14 +296,14 @@ export default function CreateMeetingScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.date.message}</Text>
             )}
           </View>
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Entry Fee (₹)</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Entry Fee (₹)</Text>
             <Controller
               control={control}
               name="entryFee"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   keyboardType="numeric"
                   placeholder="Enter entry fee amount"
                   placeholderTextColor="#94a3b8"
@@ -313,9 +315,10 @@ export default function CreateMeetingScreen() {
           </View>
         </View>
 
-        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Start Time</Text>
+        {/* Row 2: Start Time & End Time */}
+        <View style={{ flexDirection: Platform.OS === 'web' ? 'row' : 'column', gap: 16, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Start Time</Text>
             <Controller
               control={control}
               name="startTime"
@@ -329,16 +332,17 @@ export default function CreateMeetingScreen() {
 
                   const selectStyle = {
                     flex: 1,
-                    padding: '12px',
+                    padding: '0 10px',
                     backgroundColor: '#f8fafc',
                     border: '1px solid #e2e8f0',
                     borderRadius: '12px',
                     color: '#1e293b',
                     fontSize: '14px',
-                    height: '52px',
+                    height: '48px',
                     outline: 'none',
                     fontFamily: 'inherit',
                     cursor: 'pointer',
+                    boxSizing: 'border-box' as const,
                   };
 
                   return (
@@ -374,7 +378,7 @@ export default function CreateMeetingScreen() {
                 } else {
                   return (
                     <TextInput
-                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                      style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                       placeholder="Enter start time (e.g., 08:00 AM)"
                       placeholderTextColor="#94a3b8"
                       onChangeText={onChange}
@@ -388,8 +392,9 @@ export default function CreateMeetingScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.startTime.message}</Text>
             )}
           </View>
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">End Time</Text>
+
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>End Time</Text>
             <Controller
               control={control}
               name="endTime"
@@ -403,16 +408,17 @@ export default function CreateMeetingScreen() {
 
                   const selectStyle = {
                     flex: 1,
-                    padding: '12px',
+                    padding: '0 10px',
                     backgroundColor: '#f8fafc',
                     border: '1px solid #e2e8f0',
                     borderRadius: '12px',
                     color: '#1e293b',
                     fontSize: '14px',
-                    height: '52px',
+                    height: '48px',
                     outline: 'none',
                     fontFamily: 'inherit',
                     cursor: 'pointer',
+                    boxSizing: 'border-box' as const,
                   };
 
                   return (
@@ -448,7 +454,7 @@ export default function CreateMeetingScreen() {
                 } else {
                   return (
                     <TextInput
-                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                      style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                       placeholder="Enter end time (e.g., 10:00 AM)"
                       placeholderTextColor="#94a3b8"
                       onChangeText={onChange}
@@ -464,15 +470,16 @@ export default function CreateMeetingScreen() {
           </View>
         </View>
 
-        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Maximum Capacity</Text>
+        {/* Row 3: Maximum Capacity & Venue */}
+        <View style={{ flexDirection: Platform.OS === 'web' ? 'row' : 'column', gap: 16, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Maximum Capacity</Text>
             <Controller
               control={control}
               name="maxCapacity"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   keyboardType="numeric"
                   placeholder="Enter maximum capacity"
                   placeholderTextColor="#94a3b8"
@@ -482,14 +489,14 @@ export default function CreateMeetingScreen() {
               )}
             />
           </View>
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Venue</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Venue</Text>
             <Controller
               control={control}
               name="venue"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm"
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   placeholder="Enter meeting venue"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
@@ -500,14 +507,15 @@ export default function CreateMeetingScreen() {
           </View>
         </View>
 
-        <View>
-          <Text className="text-sm font-bold text-slate-600 mb-1.5">Description</Text>
+        {/* Row 4: Description */}
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Description</Text>
           <Controller
             control={control}
             name="description"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm min-h-[80px]"
+                style={{ minHeight: 90, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, padding: 14, fontSize: 14, color: '#1e293b', textAlignVertical: 'top' }}
                 placeholder="Enter meeting description or agenda"
                 placeholderTextColor="#94a3b8"
                 multiline={true}
@@ -526,6 +534,7 @@ export default function CreateMeetingScreen() {
           className="mt-4"
         />
       </Card>
-    </ScrollView>
-  );
+    </View>
+  </ScrollView>
+);
 }

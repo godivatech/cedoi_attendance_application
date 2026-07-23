@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useDashboardMetrics } from '../../src/modules/dashboard/useDashboardMetrics';
@@ -16,6 +17,25 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   const loading = metricsLoading || meetingsLoading || membersLoading;
+
+  const renewalStats = useMemo(() => {
+    let expired = 0;
+    let dueSoon = 0;
+    const now = new Date();
+    (members || []).forEach(m => {
+      if (m.joinDate) {
+        try {
+          const join = new Date(m.joinDate);
+          const anniversary = new Date(join);
+          anniversary.setFullYear(join.getFullYear() + 1);
+          const diffDays = Math.ceil((anniversary.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 0) expired++;
+          else if (diffDays <= 30) dueSoon++;
+        } catch (e) {}
+      }
+    });
+    return { expired, dueSoon };
+  }, [members]);
 
   // Get current greeting based on time of day
   const getGreeting = () => {
@@ -82,12 +102,12 @@ export default function AdminDashboard() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+    <ScrollView style={{ backgroundColor: '#f3f4f8' }} className="flex-1" contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
       {/* Premium Header/Greeting Section */}
       <View className="mb-8 flex-row justify-between items-center">
         <View>
           <Text className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-            {getGreeting()}, {getDisplayName()} 👋
+            {getGreeting()}, {getDisplayName()}
           </Text>
           <Text className="text-slate-500 mt-1 text-sm font-medium">
             Here's what's happening at CEDOI today.
@@ -198,10 +218,10 @@ export default function AdminDashboard() {
           </Card>
         </View>
 
-        {/* Quick Actions Panel */}
+        {/* Quick Actions & Membership Renewal Health */}
         <View className="w-full lg:w-80 mb-8">
           <Text className="text-xl font-bold text-slate-800 mb-4">Quick Actions</Text>
-          <View className="space-y-3">
+          <View className="space-y-3 mb-6">
             <Pressable
               onPress={() => router.push('/(admin)/create-meeting')}
               className="flex-row items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:bg-slate-50 hover:scale-[1.03] active:scale-[0.97] hover:shadow-md hover:border-slate-200 transition-all duration-300"
@@ -250,6 +270,32 @@ export default function AdminDashboard() {
               <ChevronRight size={16} color="#94a3b8" />
             </Pressable>
           </View>
+
+          {/* Membership Renewal Health Card */}
+          <Text className="text-xl font-bold text-slate-800 mb-4">Renewal Health</Text>
+          <Pressable 
+            onPress={() => router.push('/(admin)/members')}
+            className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-slate-200 transition-all"
+          >
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-row items-center">
+                <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                <Text className="text-xs font-bold text-slate-700 uppercase tracking-wider">1-Year Renewals</Text>
+              </View>
+              <Text className="text-xs font-bold text-indigo-600">View All →</Text>
+            </View>
+
+            <View className="flex-row gap-2">
+              <View className="flex-1 bg-amber-50 p-3 rounded-xl border border-amber-100 items-center">
+                <Text className="text-[10px] font-extrabold text-amber-800 uppercase">Due Soon</Text>
+                <Text className="text-lg font-extrabold text-amber-900 mt-0.5">{renewalStats.dueSoon}</Text>
+              </View>
+              <View className="flex-1 bg-rose-50 p-3 rounded-xl border border-rose-100 items-center">
+                <Text className="text-[10px] font-extrabold text-rose-800 uppercase">Expired</Text>
+                <Text className="text-lg font-extrabold text-rose-900 mt-0.5">{renewalStats.expired}</Text>
+              </View>
+            </View>
+          </Pressable>
         </View>
       </View>
     </ScrollView>

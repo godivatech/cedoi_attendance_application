@@ -2,7 +2,7 @@ import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator } 
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { Plus, Search, Mail, Phone, Briefcase } from 'lucide-react-native';
+import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -72,31 +72,79 @@ export default function AdminMembers() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <Card className="mb-4 bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
+            <Card className="mb-4 bg-white border border-slate-100 p-5 rounded-2xl shadow-sm hover:border-indigo-100 transition-all">
               <View className="flex-row justify-between items-start mb-4">
-                <View className="flex-row items-center flex-1 mr-4">
+                <TouchableOpacity 
+                  onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
+                  className="flex-row items-center flex-1 mr-4"
+                >
                   {/* Styled Avatar */}
                   <View className={`w-12 h-12 rounded-2xl items-center justify-center mr-4 font-bold ${getAvatarBg(item.fullName)}`}>
                     <Text className="font-extrabold text-base">{getInitials(item.fullName)}</Text>
                   </View>
                   <View className="flex-1 min-w-0">
-                    <View className="flex-row items-center flex-wrap">
-                      <Text numberOfLines={1} className="text-lg font-bold text-slate-800 mr-2 truncate">
+                    <View className="flex-row items-center flex-wrap gap-2">
+                      <Text numberOfLines={1} className="text-lg font-bold text-slate-800 hover:text-indigo-600 truncate">
                         {item.fullName}
                       </Text>
+                      {/* Renewal Status Badge */}
+                      {(() => {
+                        if (!item.joinDate) return null;
+                        try {
+                          const join = new Date(item.joinDate);
+                          const anniversary = new Date(join);
+                          anniversary.setFullYear(join.getFullYear() + 1);
+                          const diffDays = Math.ceil((anniversary.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                          if (diffDays < 0) {
+                            return (
+                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200/60">
+                                <View className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5" />
+                                <Text className="text-[11px] font-bold text-rose-700">Expired</Text>
+                              </View>
+                            );
+                          } else if (diffDays <= 30) {
+                            return (
+                              <View className="flex-row items-center px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/60">
+                                <View className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5" />
+                                <Text className="text-[11px] font-bold text-amber-800">Renewal Due ({diffDays}d)</Text>
+                              </View>
+                            );
+                          }
+                          return (
+                            <View className="flex-row items-center px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60">
+                              <View className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
+                              <Text className="text-[11px] font-bold text-emerald-700">Active</Text>
+                            </View>
+                          );
+                        } catch (e) {
+                          return null;
+                        }
+                      })()}
                     </View>
                     <Text numberOfLines={1} className="text-slate-500 text-sm mt-0.5 truncate">
                       {item.companyName}
                     </Text>
                   </View>
-                </View>
-
-                <TouchableOpacity 
-                  onPress={() => router.push({ pathname: '/(admin)/add-member', params: { memberId: item.id } })}
-                  className="bg-slate-50 hover:bg-slate-100 p-2 px-3.5 rounded-xl border border-slate-100 hover:scale-[1.05] active:scale-[0.95] transition-all duration-200"
-                >
-                  <Text className="text-xs font-bold text-slate-600">Edit</Text>
                 </TouchableOpacity>
+
+                {/* Right Actions */}
+                <View className="flex-row items-center gap-2">
+                  <TouchableOpacity 
+                    onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: item.id } })}
+                    className="bg-indigo-50 hover:bg-indigo-100 p-2 px-3 rounded-xl border border-indigo-200 flex-row items-center"
+                  >
+                    <BarChart2 size={13} color="#4338ca" style={{ marginRight: 5 }} />
+                    <Text className="text-xs font-extrabold text-indigo-700">Analytics 360°</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    onPress={() => router.push({ pathname: '/(admin)/add-member', params: { memberId: item.id } })}
+                    className="bg-slate-50 hover:bg-slate-100 p-2 px-3 rounded-xl border border-slate-200 flex-row items-center"
+                  >
+                    <Edit2 size={13} color="#475569" style={{ marginRight: 4 }} />
+                    <Text className="text-xs font-bold text-slate-600">Edit</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Grid detail badges */}
@@ -113,10 +161,10 @@ export default function AdminMembers() {
                     <Text className="text-xs text-slate-500 ml-1.5">{item.mobileNumber}</Text>
                   </View>
                 )}
-                {item.email && (
+                {item.joinDate && (
                   <View className="flex-row items-center px-2 mb-2 w-full sm:w-1/2 md:w-auto">
                     <Mail size={13} color="#94a3b8" />
-                    <Text numberOfLines={1} className="text-xs text-slate-500 ml-1.5 truncate">{item.email}</Text>
+                    <Text className="text-xs text-slate-500 ml-1.5">Joined: {item.joinDate}</Text>
                   </View>
                 )}
               </View>

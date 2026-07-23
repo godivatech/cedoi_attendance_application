@@ -6,7 +6,7 @@ import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import {
-  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, TrendingUp
+  FileText, Download, Search, Users, Calendar, IndianRupee, AlertCircle, TrendingUp, MessageSquare
 } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { showAlert } from '../../src/utils/platformAlert';
@@ -42,6 +42,8 @@ export default function StaffReportsScreen() {
   const { members, loading: membersLoading } = useMembers(''); // Fetch all members once
 
   const [selectedMonth, setSelectedMonth] = useState<string>('ALL'); // 'ALL' or 'YYYY-MM'
+  const [startDate, setStartDate] = useState<string>(''); // YYYY-MM-DD
+  const [endDate, setEndDate] = useState<string>(''); // YYYY-MM-DD
   const [viewFilter, setViewFilter] = useState<'ALL' | 'PENDING'>('ALL'); // 'ALL' or 'PENDING'
   const [loading, setLoading] = useState<boolean>(true);
   const [reportData, setReportData] = useState<MemberReportItem[]>([]);
@@ -73,10 +75,15 @@ export default function StaffReportsScreen() {
       if (reportData.length === 0) setLoading(true);
 
       try {
-        // Filter meetings by selected month
+        // Filter meetings by selected date range or month
         const relevantMeetings = meetings.filter(m => {
-          if (selectedMonth === 'ALL') return true;
-          return m.date && m.date.startsWith(selectedMonth);
+          if (!m.date) return false;
+          if (startDate && m.date < startDate) return false;
+          if (endDate && m.date > endDate) return false;
+          if (!startDate && !endDate && selectedMonth !== 'ALL') {
+            return m.date.startsWith(selectedMonth);
+          }
+          return true;
         });
 
         const meetingIds = new Set(relevantMeetings.map(m => m.id));
@@ -172,7 +179,18 @@ export default function StaffReportsScreen() {
     }
 
     buildReport();
-  }, [meetings, members, selectedMonth, meetingsLoading, membersLoading]);
+  }, [meetings, members, selectedMonth, startDate, endDate, meetingsLoading, membersLoading]);
+
+  // WhatsApp Reminder launcher for reports page
+  const handleSendWhatsApp = (mobile: string, name: string, pendingAmount: number) => {
+    const cleanPhone = mobile.replace(/\D/g, '');
+    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    const text = `Hello ${name}, Greetings from CEDOI! This is a polite reminder regarding your pending attendance fee of ₹${pendingAmount}. Kindly clear your dues at your earliest convenience. Thank you!`;
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    }
+  };
 
   // Export Report to Excel (CSV)
   const handleExportCSV = () => {
@@ -260,19 +278,23 @@ export default function StaffReportsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Month Filter Selector Card */}
+      {/* Date Range & Month Filter Selector Card */}
       <View className="mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center">
             <Calendar size={18} color="#4f46e5" />
-            <Text className="text-sm font-bold text-slate-800 ml-2">Select Month</Text>
+            <Text className="text-sm font-bold text-slate-800 ml-2">Date Range & Month Filter</Text>
           </View>
 
           {/* Web Dropdown Select Box */}
           {Platform.OS === 'web' ? (
             <select
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => {
+                setSelectedMonth(e.target.value);
+                setStartDate('');
+                setEndDate('');
+              }}
               style={{
                 padding: '8px 12px',
                 borderRadius: '10px',
@@ -301,17 +323,65 @@ export default function StaffReportsScreen() {
           )}
         </View>
 
+        {/* Custom From Date to To Date Inputs */}
+        <View className="flex-row items-center gap-3 mb-3 pt-2 border-t border-slate-100">
+          <View className="flex-1">
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">From Date (YYYY-MM-DD)</Text>
+            <TextInput
+              value={startDate}
+              onChangeText={(val) => {
+                setStartDate(val);
+                if (val) setSelectedMonth('CUSTOM');
+              }}
+              placeholder="e.g. 2026-07-01"
+              placeholderTextColor="#94a3b8"
+              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+            />
+          </View>
+
+          <View className="flex-1">
+            <Text className="text-[11px] font-bold text-slate-500 mb-1">To Date (YYYY-MM-DD)</Text>
+            <TextInput
+              value={endDate}
+              onChangeText={(val) => {
+                setEndDate(val);
+                if (val) setSelectedMonth('CUSTOM');
+              }}
+              placeholder="e.g. 2026-07-31"
+              placeholderTextColor="#94a3b8"
+              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 font-semibold"
+            />
+          </View>
+
+          {(startDate || endDate) && (
+            <TouchableOpacity
+              onPress={() => {
+                setStartDate('');
+                setEndDate('');
+                setSelectedMonth('ALL');
+              }}
+              className="mt-4 px-3 py-2 bg-slate-100 rounded-xl"
+            >
+              <Text className="text-xs font-bold text-slate-600">Clear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {/* Quick Month Filter Pills */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
           <TouchableOpacity
-            onPress={() => setSelectedMonth('ALL')}
+            onPress={() => {
+              setSelectedMonth('ALL');
+              setStartDate('');
+              setEndDate('');
+            }}
             className={`px-4 py-2 rounded-xl border ${
-              selectedMonth === 'ALL'
+              selectedMonth === 'ALL' && !startDate && !endDate
                 ? 'bg-indigo-600 border-indigo-600'
                 : 'bg-slate-50 border-slate-200'
             }`}
           >
-            <Text className={selectedMonth === 'ALL' ? 'text-white font-bold' : 'text-slate-600 font-semibold'}>
+            <Text className={selectedMonth === 'ALL' && !startDate && !endDate ? 'text-white font-bold' : 'text-slate-600 font-semibold'}>
               All Months
             </Text>
           </TouchableOpacity>
@@ -319,14 +389,18 @@ export default function StaffReportsScreen() {
           {availableMonths.map(m => (
             <TouchableOpacity
               key={m}
-              onPress={() => setSelectedMonth(m)}
+              onPress={() => {
+                setSelectedMonth(m);
+                setStartDate('');
+                setEndDate('');
+              }}
               className={`px-4 py-2 rounded-xl border ${
-                selectedMonth === m
+                selectedMonth === m && !startDate && !endDate
                   ? 'bg-indigo-600 border-indigo-600'
                   : 'bg-slate-50 border-slate-200'
               }`}
             >
-              <Text className={`text-xs ${selectedMonth === m ? 'text-white font-bold' : 'text-slate-600 font-semibold'}`}>
+              <Text className={`text-xs ${selectedMonth === m && !startDate && !endDate ? 'text-white font-bold' : 'text-slate-600 font-semibold'}`}>
                 {formatMonthLabel(m)}
               </Text>
             </TouchableOpacity>
@@ -520,6 +594,13 @@ export default function StaffReportsScreen() {
                   <View className="items-end">
                     <Text className="text-[10px] uppercase font-extrabold text-amber-600 tracking-wider">Pending Due</Text>
                     <Text className="text-base font-black text-amber-600">{formatRupees(item.pendingDues)}</Text>
+                    <TouchableOpacity
+                      onPress={() => handleSendWhatsAppReminder(item.fullName, item.mobileNumber, item.pendingDues)}
+                      className="bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200/80 flex-row items-center"
+                    >
+                      <MessageSquare size={13} color="#047857" style={{ marginRight: 4 }} />
+                      <Text className="text-[11px] font-extrabold text-emerald-700">WhatsApp</Text>
+                    </TouchableOpacity>
                   </View>
                 ) : (
                   <View className="items-end">

@@ -14,15 +14,22 @@ export const useMembers = (searchTerm: string = '') => {
       limit(100) // Initial limit for performance
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const memberList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Member[];
-      
-      setMembers(memberList);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const memberList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Member[];
+        
+        setMembers(memberList);
+        setLoading(false);
+      },
+      (error) => {
+        console.warn('Members query quota notice:', error);
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, []);

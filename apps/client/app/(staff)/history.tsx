@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Pressable, Modal, TextInput } from 'react-native';
 import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
-import { Calendar, Users, IndianRupee, X, Search as SearchIcon, CheckCircle2, AlertCircle, UserX } from 'lucide-react-native';
+import { useMembers } from '../../src/modules/members/useMembers';
+import { Calendar, Users, IndianRupee, X, Search as SearchIcon, CheckCircle2, AlertCircle, UserX, Clock, Zap, FileText } from 'lucide-react-native';
 import { collection, query, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { formatDate } from '../../src/utils/date';
@@ -10,6 +11,8 @@ import { showAlert } from '../../src/utils/platformAlert';
 
 export default function StaffHistory() {
   const { meetings, loading } = useAllMeetings();
+  const { members } = useMembers('');
+  const totalMembersCount = members ? members.length : 0;
 
   // Attendee Modal States
   const [selectedMeeting, setSelectedMeeting] = useState<any>(null);
@@ -63,9 +66,9 @@ export default function StaffHistory() {
       const batch = writeBatch(db);
       const attendanceRef = doc(db, `meetings/${selectedMeeting.id}/attendance`, attendeeId);
       const meetingRef = doc(db, 'meetings', selectedMeeting.id);
-      
+
       const fee = selectedMeeting.entryFee || 500;
-      
+
       batch.update(attendanceRef, {
         paymentStatus: 'PAID',
         paymentMode: mode,
@@ -95,7 +98,7 @@ export default function StaffHistory() {
 
   const filteredAttendees = attendees.filter(a => {
     const term = attendeesSearch.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       (a.memberSnapshot?.fullName || '').toLowerCase().includes(term) ||
       (a.memberSnapshot?.companyName || '').toLowerCase().includes(term);
 
@@ -111,6 +114,21 @@ export default function StaffHistory() {
       return a.paymentStatus === 'ABSENT';
     }
     return true;
+  });
+
+  // Search state for meeting history
+  const [meetingSearch, setMeetingSearch] = useState('');
+
+  // Check if a meeting date is today
+  const isToday = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const todayStr = new Date().toISOString().split('T')[0];
+    return dateStr === todayStr;
+  };
+
+  const filteredMeetings = meetings.filter(m => {
+    const term = meetingSearch.toLowerCase();
+    return (m.title || '').toLowerCase().includes(term) || (m.date || '').toLowerCase().includes(term);
   });
 
   if (loading) {
@@ -129,38 +147,130 @@ export default function StaffHistory() {
   ] as const;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc', padding: 24 }}>
-      <Text style={{ fontSize: 24, fontWeight: '800', color: '#1e293b', marginBottom: 20 }}>Meeting History</Text>
-      
+    <View style={{ flex: 1, backgroundColor: '#f8fafc', padding: 20 }}>
+      {/* Header & Title */}
+      <View style={{ marginBottom: 16 }}>
+        <Text style={{ fontSize: 24, fontWeight: '800', color: '#0f172a' }}>Meeting History</Text>
+        <Text style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>Track live attendance & view past meeting ledgers</Text>
+      </View>
+
+      {/* Quick Search Bar */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, height: 44, marginBottom: 16, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4 }}>
+        <SearchIcon size={16} color="#94a3b8" />
+        <TextInput
+          style={{ flex: 1, paddingHorizontal: 10, fontSize: 14, color: '#334155' }}
+          placeholder="Search meetings by title or date..."
+          placeholderTextColor="#94a3b8"
+          value={meetingSearch}
+          onChangeText={setMeetingSearch}
+        />
+        {meetingSearch.length > 0 && (
+          <TouchableOpacity onPress={() => setMeetingSearch('')}>
+            <X size={16} color="#94a3b8" />
+          </TouchableOpacity>
+        )}
+      </View>
+
       <FlatList
-        data={meetings}
+        data={filteredMeetings}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={{ marginBottom: 16, backgroundColor: '#fff', borderColor: '#f1f5f9', borderWidth: 1, borderRadius: 16, elevation: 1, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8 }}>
-            <Pressable
-              onPress={() => handleViewAttendees(item)}
-              style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1, padding: 20 }]}
-            >
-              <Text style={{ fontSize: 17, fontWeight: '700', color: '#1e293b', lineHeight: 22 }}>{item.title}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 24 }}>
-                  <Calendar size={14} color="#94a3b8" />
-                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '500' }}>{formatDate(item.date)}</Text>
+        renderItem={({ item }) => {
+          const live = isToday(item.date);
+          const totalAttended = item.metrics?.totalAttendees || 0;
+          const totalCollected = item.metrics?.totalCollected || 0;
+
+          return (
+            <View style={{
+              marginBottom: 16,
+              backgroundColor: '#fff',
+              borderColor: live ? '#cbd5e1' : '#f1f5f9',
+              borderWidth: live ? 1.5 : 1,
+              borderRadius: 16,
+              elevation: 2,
+              shadowColor: '#0f172a',
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.05,
+              shadowRadius: 10,
+              padding: 18
+            }}>
+              {/* Top Status & Title Row */}
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Text style={{ fontSize: 17, fontWeight: '800', color: '#0f172a', lineHeight: 22 }}>{item.title}</Text>
                 </View>
+
+                {/* Status Badge */}
+                {live ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 }}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#22c55e', marginRight: 6 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#15803d', textTransform: 'uppercase' }}>Live Today</Text>
+                  </View>
+                ) : (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 }}>
+                    <CheckCircle2 size={12} color="#64748b" style={{ marginRight: 4 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748b' }}>Completed</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Date, Time & Stats Row */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', itemsCenter: 'center', gap: 14, borderTopWidth: 1, borderColor: '#f8fafc', paddingTop: 12, marginBottom: 14 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Calendar size={14} color="#94a3b8" />
+                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '600' }}>{formatDate(item.date)}</Text>
+                </View>
+
+                {item.startTime ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Clock size={14} color="#94a3b8" />
+                    <Text style={{ color: '#4f46e5', fontSize: 12, marginLeft: 6, fontWeight: '700' }}>{item.startTime}</Text>
+                  </View>
+                ) : null}
+
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Users size={14} color="#94a3b8" />
-                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '500' }}>
-                    {item.metrics?.totalAttendees || 0} attended
+                  <Text style={{ color: '#64748b', fontSize: 12, marginLeft: 6, fontWeight: '600' }}>
+                    {totalMembersCount > 0 ? `${totalAttended} / ${totalMembersCount} Attended` : `${totalAttended} Attended`}
                   </Text>
                 </View>
+
+                {totalCollected > 0 && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <IndianRupee size={13} color="#166534" />
+                    <Text style={{ color: '#166534', fontSize: 12, marginLeft: 2, fontWeight: '700' }}>
+                      {formatRupees(totalCollected)}
+                    </Text>
+                  </View>
+                )}
               </View>
-            </Pressable>
-          </View>
-        )}
+
+              {/* Action Buttons Row */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                {live ? (
+                  <TouchableOpacity
+                    onPress={() => router.push({ pathname: '/(staff)/check-in', params: { meetingId: item.id } })}
+                    style={{ flex: 1, backgroundColor: '#4f46e5', paddingVertical: 10, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Zap size={14} color="#ffffff" style={{ marginRight: 6 }} />
+                    <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>Open Check-In</Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                <TouchableOpacity
+                  onPress={() => handleViewAttendees(item)}
+                  style={{ flex: 1, backgroundColor: '#f1f5f9', paddingVertical: 10, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#e2e8f0' }}
+                >
+                  <FileText size={14} color="#334155" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#334155', fontWeight: '700', fontSize: 13 }}>View Ledger</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        }}
         ListEmptyComponent={() => (
           <View style={{ alignItems: 'center', padding: 32, backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#f1f5f9' }}>
-            <Text style={{ color: '#64748b', textAlign: 'center', fontWeight: '500' }}>No past meetings found.</Text>
+            <Text style={{ color: '#64748b', textAlign: 'center', fontWeight: '500' }}>No meetings found matching "{meetingSearch}".</Text>
           </View>
         )}
       />
@@ -182,7 +292,7 @@ export default function StaffHistory() {
                   {formatDate(selectedMeeting.date)} • {selectedMeeting.venue}
                 </Text>
               </View>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setSelectedMeeting(null)}
                 style={{ backgroundColor: '#f1f5f9', padding: 8, borderRadius: 20 }}
               >
@@ -272,7 +382,7 @@ export default function StaffHistory() {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {
                   const isItemAbsent = item.paymentStatus === 'ABSENT';
-                  
+
                   // Setup custom styling for row badges
                   let badgeBg = '#fff7ed';
                   let badgeText = '#ea580c';

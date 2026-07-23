@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Slot, Tabs, useRouter, usePathname, Redirect } from 'expo-router';
-import { LayoutDashboard, Users, CalendarDays, TrendingUp, LogOut, Bell, User as UserIcon } from 'lucide-react-native';
+import { LayoutDashboard, Users, CalendarDays, TrendingUp, LogOut, Bell, User as UserIcon, CreditCard } from 'lucide-react-native';
 import { Platform, View, Text, Pressable, useWindowDimensions, useColorScheme, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { auth } from '../../src/services/firebase';
@@ -50,6 +50,12 @@ export default function AdminLayout() {
       label: 'Members',
       icon: Users,
       path: '/(admin)/members',
+    },
+    {
+      name: 'dues',
+      label: 'Dues & Payments',
+      icon: CreditCard,
+      path: '/(admin)/dues',
     },
     {
       name: 'reports',
@@ -274,6 +280,13 @@ export default function AdminLayout() {
           }}
         />
         <Tabs.Screen
+          name="dues"
+          options={{
+            title: 'Dues',
+            tabBarIcon: ({ color }) => <CreditCard size={22} color={color} />,
+          }}
+        />
+        <Tabs.Screen
           name="reports"
           options={{
             title: 'Reports',
@@ -292,6 +305,13 @@ export default function AdminLayout() {
           options={{
             href: null,
             title: 'Create Meeting',
+          }}
+        />
+        <Tabs.Screen
+          name="member-analytics"
+          options={{
+            href: null,
+            title: 'Member 360°',
           }}
         />
       </Tabs>

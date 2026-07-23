@@ -6,7 +6,7 @@ import {
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Search, X, UserCheck, UserX, Clock, ChevronRight } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 
 export default function CheckInSearchScreen() {
@@ -15,12 +15,28 @@ export default function CheckInSearchScreen() {
   const router = useRouter();
   const { meetingId } = useLocalSearchParams<{ meetingId: string }>();
 
+  // Live meeting metadata
+  const [meetingInfo, setMeetingInfo] = useState<{ title?: string; date?: string; startTime?: string } | null>(null);
+
   // Live attendance map: memberId -> paymentStatus
   const [attendanceMap, setAttendanceMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!meetingId) return;
-    const unsub = onSnapshot(
+
+    // Fetch meeting details (title, date, startTime)
+    const unsubMeeting = onSnapshot(doc(db, 'meetings', meetingId), (d) => {
+      if (d.exists()) {
+        const data = d.data();
+        setMeetingInfo({
+          title: data.title || 'General Meeting',
+          date: data.date || '',
+          startTime: data.startTime || ''
+        });
+      }
+    });
+
+    const unsubAttendance = onSnapshot(
       collection(db, `meetings/${meetingId}/attendance`),
       (snap) => {
         const map: Record<string, string> = {};
@@ -28,10 +44,15 @@ export default function CheckInSearchScreen() {
         setAttendanceMap(map);
       }
     );
-    return () => unsub();
+    return () => {
+      unsubMeeting();
+      unsubAttendance();
+    };
   }, [meetingId]);
 
-  const checkedInCount = Object.values(attendanceMap).filter(val => val !== 'ABSENT').length;
+  const presentCount = Object.values(attendanceMap).filter(val => val !== 'ABSENT').length;
+  const absentCount = Object.values(attendanceMap).filter(val => val === 'ABSENT').length;
+  const pendingCount = Math.max(0, members.length - (presentCount + absentCount));
 
   const getStatusInfo = (memberId: string) => {
     if (!(memberId in attendanceMap)) return null;
@@ -44,16 +65,16 @@ export default function CheckInSearchScreen() {
       style={{ flex: 1, backgroundColor: '#f8fafc' }}
     >
       {/* Header */}
-      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f1f5f9', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 }}>
+      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f1f5f9', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Text style={{ fontSize: 20, fontWeight: '800', color: '#0f172a' }}>Member Check-in</Text>
           <View style={{ backgroundColor: '#eff6ff', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#4f46e5' }}>{checkedInCount} present</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#4f46e5' }}>{presentCount} present</Text>
           </View>
         </View>
 
         {/* Search Bar */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, height: 46 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, height: 46, marginBottom: 14 }}>
           <Search size={16} color="#94a3b8" />
           <TextInput
             style={{ flex: 1, paddingHorizontal: 10, fontSize: 14, color: '#334155' }}
@@ -68,6 +89,48 @@ export default function CheckInSearchScreen() {
               <X size={16} color="#94a3b8" />
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* Smart Live Meeting Info Box */}
+        <View style={{ backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 16, padding: 14, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#22c55e' }} />
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#15803d', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active Meeting</Text>
+              </View>
+              <Text numberOfLines={1} style={{ fontSize: 15, fontWeight: '800', color: '#0f172a' }}>
+                {meetingInfo?.title || 'General Meeting'}
+              </Text>
+            </View>
+
+            {meetingInfo?.date || meetingInfo?.startTime ? (
+              <View style={{ alignItems: 'flex-end', backgroundColor: '#f8fafc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#f1f5f9' }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#475569' }}>{meetingInfo.date || 'Today'}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#4f46e5' }}>{meetingInfo.startTime || '09:00 AM'}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* Stat Cards Grid */}
+          <View style={{ flexDirection: 'row', gap: 8, borderTopWidth: 1, borderColor: '#f1f5f9', paddingTop: 10 }}>
+            <View style={{ flex: 1, backgroundColor: '#f8fafc', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#f1f5f9', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Total</Text>
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#0f172a', marginTop: 2 }}>{members.length}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#f0fdf4', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#166534', textTransform: 'uppercase' }}>Present</Text>
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#15803d', marginTop: 2 }}>{presentCount}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#fef2f2', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#fecaca', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#991b1b', textTransform: 'uppercase' }}>Absent</Text>
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#b91c1c', marginTop: 2 }}>{absentCount}</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#fffbeb', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 10, borderWidth: 1, borderColor: '#fde68a', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#92400e', textTransform: 'uppercase' }}>Pending</Text>
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#b45309', marginTop: 2 }}>{pendingCount}</Text>
+            </View>
+          </View>
         </View>
       </View>
 

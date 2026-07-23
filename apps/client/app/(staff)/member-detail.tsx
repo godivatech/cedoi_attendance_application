@@ -4,9 +4,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { Member, PaymentMode, PaymentStatus } from '@cedoi/shared';
-import { useAttendanceActions } from '../../src/modules/attendance/useAttendance';
+import { useAttendanceActions, calculatePunctuality } from '../../src/modules/attendance/useAttendance';
 import {
-  UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle, Edit2
+  UserCheck, UserX, Banknote, CreditCard, ChevronLeft, Clock, Phone, Briefcase, AlertCircle, Edit2, Shirt, MessageSquare, CheckCircle2
 } from 'lucide-react-native';
 import { showAlert } from '../../src/utils/platformAlert';
 
@@ -15,6 +15,7 @@ export default function MemberDetailScreen() {
   const [member, setMember] = useState<Member | null>(null);
   const [meetingFee, setMeetingFee] = useState<number>(500);
   const [meetingTitle, setMeetingTitle] = useState<string>('');
+  const [meetingStartTime, setMeetingStartTime] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -24,9 +25,11 @@ export default function MemberDetailScreen() {
     paymentMode?: PaymentMode;
     amountCollected: number;
     checkInTime?: any;
+    attireStatus?: AttireStatus;
+    punctualityStatus?: PunctualityStatus;
   } | null>(null);
 
-  const { markAttendance, processing } = useAttendanceActions(meetingId);
+  const { markAttendance, processing } = useAttendanceActions(meetingId, meetingStartTime);
   const router = useRouter();
 
   // Time editing modal states
@@ -81,17 +84,55 @@ export default function MemberDetailScreen() {
       baseDate.setSeconds(0);
       baseDate.setMilliseconds(0);
 
+      // Import calculatePunctuality helper
+      const newPunctuality = calculatePunctuality(meetingStartTime, baseDate);
+
       const attendanceRef = doc(db, `meetings/${meetingId}/attendance`, memberId);
       await updateDoc(attendanceRef, {
-        checkInTime: baseDate
+        checkInTime: baseDate,
+        punctualityStatus: newPunctuality
       });
       
-      setToast('Check-in time updated');
+      setToast('Check-in time & punctuality updated');
       setIsEditingTime(false);
     } catch (error: any) {
       showAlert('Error', error.message);
     }
   };
+
+  // Attire status state
+  const [attireStatus, setAttireStatus] = useState<AttireStatus>('PERFECT');
+
+  // WhatsApp Reminder launcher
+  const handleSendWhatsAppReminder = () => {
+    if (!member) return;
+    const cleanPhone = member.mobileNumber.replace(/\D/g, '');
+    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    const text = `Hello ${member.fullName}, Greetings from CEDOI! This is a polite reminder regarding your pending fee of ₹${meetingFee} for ${meetingTitle || 'our meeting'}. Kindly clear your dues at your earliest convenience. Thank you!`;
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    }
+  };
+
+  // Membership 1-Year Renewal Calculator
+  const renewalInfo = React.useMemo(() => {
+    if (!member?.joinDate) return { isExpired: false, isDueSoon: false, days: 365 };
+    try {
+      const join = new Date(member.joinDate);
+      const anniversary = new Date(join);
+      anniversary.setFullYear(join.getFullYear() + 1);
+      const now = new Date();
+      const diffDays = Math.ceil((anniversary.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        isExpired: diffDays < 0,
+        isDueSoon: diffDays >= 0 && diffDays <= 30,
+        days: diffDays
+      };
+    } catch (e) {
+      return { isExpired: false, isDueSoon: false, days: 365 };
+    }
+  }, [member?.joinDate]);
 
   useEffect(() => {
     if (toast) {
@@ -118,6 +159,7 @@ export default function MemberDetailScreen() {
             const d = meetingSnap.data();
             setMeetingFee(d.entryFee ?? 500);
             setMeetingTitle(d.title || '');
+            setMeetingStartTime(d.startTime || '');
           }
 
           // Live listen to this member's attendance status
@@ -129,8 +171,11 @@ export default function MemberDetailScreen() {
                 paymentStatus: attData.paymentStatus,
                 paymentMode: attData.paymentMode,
                 amountCollected: attData.amountCollected || 0,
-                checkInTime: attData.checkInTime
+                checkInTime: attData.checkInTime,
+                attireStatus: attData.attireStatus || 'PERFECT',
+                punctualityStatus: attData.punctualityStatus || 'ON_TIME'
               });
+              if (attData.attireStatus) setAttireStatus(attData.attireStatus);
             } else {
               setAttendance(null);
             }
@@ -151,13 +196,12 @@ export default function MemberDetailScreen() {
     if (!member) return;
     try {
       if (status === 'ABSENT') {
-        await markAttendance(member, 'ABSENT', undefined, 0, attendance);
+        await markAttendance(member, 'ABSENT', undefined, 0, attendance, attireStatus);
         setToast('Marked as Absent');
       } else {
-        // Mark as Present with default PENDING payment status (if not already present)
         if (!attendance || attendance.paymentStatus === 'ABSENT') {
-          await markAttendance(member, 'PENDING', undefined, 0, attendance);
-          setToast('Marked as Present');
+          await markAttendance(member, 'PENDING', undefined, 0, attendance, attireStatus);
+          setToast('Marked as Present (Pending Payment)');
         }
       }
     } catch (error: any) {
@@ -168,8 +212,19 @@ export default function MemberDetailScreen() {
   const handleUpdatePayment = async (status: PaymentStatus, mode?: PaymentMode, amount: number = 0) => {
     if (!member) return;
     try {
-      await markAttendance(member, status, mode, amount, attendance);
+      await markAttendance(member, status, mode, amount, attendance, attireStatus);
       setToast('Payment status updated');
+    } catch (error: any) {
+      showAlert('Error', error.message);
+    }
+  };
+
+  const handleToggleAttire = async (newAttire: AttireStatus) => {
+    setAttireStatus(newAttire);
+    if (!member || !attendance || attendance.paymentStatus === 'ABSENT') return;
+    try {
+      await markAttendance(member, attendance.paymentStatus, attendance.paymentMode, attendance.amountCollected, attendance, newAttire);
+      setToast(`Attire marked as ${newAttire === 'PERFECT' ? 'Perfect' : 'Imperfect'}`);
     } catch (error: any) {
       showAlert('Error', error.message);
     }
@@ -248,6 +303,27 @@ export default function MemberDetailScreen() {
           </Text>
         </TouchableOpacity>
 
+        {/* 1-Year Membership Renewal Warning Banner */}
+        {renewalInfo.isExpired && (
+          <View style={{ backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fca5a5', padding: 12, borderRadius: 14, marginBottom: 14, flexDirection: 'row', alignItems: 'center' }}>
+            <AlertCircle size={18} color="#dc2626" />
+            <View style={{ marginLeft: 10, flex: 1 }}>
+              <Text style={{ color: '#991b1b', fontWeight: '800', fontSize: 13 }}>Membership Expired</Text>
+              <Text style={{ color: '#b91c1c', fontSize: 12, marginTop: 1 }}>Member has completed 1 year (Joined: {member.joinDate || 'N/A'}). Renewal payment required.</Text>
+            </View>
+          </View>
+        )}
+
+        {renewalInfo.isDueSoon && (
+          <View style={{ backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fde68a', padding: 12, borderRadius: 14, marginBottom: 14, flexDirection: 'row', alignItems: 'center' }}>
+            <AlertCircle size={18} color="#d97706" />
+            <View style={{ marginLeft: 10, flex: 1 }}>
+              <Text style={{ color: '#92400e', fontWeight: '800', fontSize: 13 }}>Membership Renewal Due Soon</Text>
+              <Text style={{ color: '#b45309', fontSize: 12, marginTop: 1 }}>Renewal due in {renewalInfo.days} days (Joined: {member.joinDate}).</Text>
+            </View>
+          </View>
+        )}
+
         {/* Member Info Card */}
         <View style={{ backgroundColor: '#fff', borderRadius: 18, borderWidth: 1, borderColor: '#f1f5f9', padding: 20, marginBottom: 16, shadowColor: '#0f172a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
@@ -261,14 +337,45 @@ export default function MemberDetailScreen() {
           </View>
 
           <View style={{ borderTopWidth: 1, borderColor: '#f8fafc', gap: 8, paddingTop: 12, marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Phone size={14} color="#94a3b8" />
-              <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.mobileNumber}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Phone size={14} color="#94a3b8" />
+                <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.mobileNumber}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const telUrl = `tel:${member.mobileNumber.replace(/\D/g, '')}`;
+                    if (typeof window !== 'undefined') window.open(telUrl, '_self');
+                  }}
+                  style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 }}
+                >
+                  <Phone size={12} color="#475569" style={{ marginRight: 4 }} />
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#475569' }}>Call</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleSendWhatsAppReminder}
+                  style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#dcfce7', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 }}
+                >
+                  <MessageSquare size={12} color="#166534" style={{ marginRight: 4 }} />
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#166534' }}>WhatsApp</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Briefcase size={14} color="#94a3b8" />
               <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>{member.businessCategory}</Text>
             </View>
+            
+            {member.joinDate ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Clock size={14} color="#94a3b8" />
+                <Text style={{ fontSize: 13, color: '#64748b', marginLeft: 8 }}>Joined: {member.joinDate}</Text>
+              </View>
+            ) : null}
+
             {member.notes ? (
               <View style={{ borderTopWidth: 1, borderColor: '#f1f5f9', paddingTop: 12, marginTop: 8 }}>
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
@@ -286,27 +393,83 @@ export default function MemberDetailScreen() {
             <Text style={[styles.statusBadgeText, statusTextStyle]}>{statusText}</Text>
           </View>
 
-          {/* Time Badge (Only for present members) */}
+          {/* Time, Punctuality & Attire Badges */}
           {isPresent && attendance?.checkInTime ? (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={handleOpenTimeEditor}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, gap: 6 }}
-            >
-              <Clock size={14} color="#64748b" />
-              <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '600' }}>
-                Checked in at {formatTime(attendance.checkInTime)}
-              </Text>
-              <Edit2 size={12} color="#4f46e5" style={{ marginLeft: 2 }} />
-            </TouchableOpacity>
+            <View style={{ marginTop: 12, alignItems: 'center', gap: 6 }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleOpenTimeEditor}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+              >
+                <Clock size={14} color="#64748b" />
+                <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '600' }}>
+                  Checked in at {formatTime(attendance.checkInTime)}
+                </Text>
+                <Edit2 size={12} color="#4f46e5" style={{ marginLeft: 2 }} />
+              </TouchableOpacity>
+
+              {/* Automated Punctuality & Attire Badges Row */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginTop: 4 }}>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  backgroundColor: attendance.punctualityStatus === 'ON_TIME' ? '#f0fdf4' : attendance.punctualityStatus === 'GRACE_PERIOD' ? '#fffbeb' : '#fef2f2',
+                  borderColor: attendance.punctualityStatus === 'ON_TIME' ? '#bbf7d0' : attendance.punctualityStatus === 'GRACE_PERIOD' ? '#fde68a' : '#fecaca'
+                }}>
+                  <View style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    marginRight: 6,
+                    backgroundColor: attendance.punctualityStatus === 'ON_TIME' ? '#22c55e' : attendance.punctualityStatus === 'GRACE_PERIOD' ? '#f59e0b' : '#ef4444'
+                  }} />
+                  <Text style={{
+                    fontSize: 11,
+                    fontWeight: '700',
+                    color: attendance.punctualityStatus === 'ON_TIME' ? '#15803d' : attendance.punctualityStatus === 'GRACE_PERIOD' ? '#b45309' : '#b91c1c'
+                  }}>
+                    {attendance.punctualityStatus === 'ON_TIME' ? 'On Time' : attendance.punctualityStatus === 'GRACE_PERIOD' ? 'Slightly Late (Within 30m)' : 'Late Arrival'}
+                  </Text>
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  backgroundColor: attireStatus === 'PERFECT' ? '#f0fdf4' : '#fff7ed',
+                  borderColor: attireStatus === 'PERFECT' ? '#bbf7d0' : '#fed7aa'
+                }}>
+                  <View style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    marginRight: 6,
+                    backgroundColor: attireStatus === 'PERFECT' ? '#22c55e' : '#f97316'
+                  }} />
+                  <Text style={{
+                    fontSize: 11,
+                    fontWeight: '700',
+                    color: attireStatus === 'PERFECT' ? '#15803d' : '#c2410c'
+                  }}>
+                    {attireStatus === 'PERFECT' ? 'Perfect Attire' : 'Imperfect Attire'}
+                  </Text>
+                </View>
+              </View>
+            </View>
           ) : null}
         </View>
 
-        {/* SECTION 1: Attendance Controls */}
-        <View style={{ marginBottom: 24 }}>
+        {/* SECTION 1: Attendance Status */}
+        <View style={{ marginBottom: 20 }}>
           <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 12 }}>1. Attendance Status</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            {/* Present Option Toggle */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleSetAttendance('PRESENT')}
@@ -321,7 +484,6 @@ export default function MemberDetailScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Absent Option Toggle */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleSetAttendance('ABSENT')}
@@ -338,17 +500,67 @@ export default function MemberDetailScreen() {
           </View>
         </View>
 
-        {/* SECTION 2: Payment Option Grid (Only interactable if present) */}
-        <View>
-          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>2. Payment Mode</Text>
+        {/* SECTION 2: Attire Compliance Marking */}
+        {isPresent && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>2. Attire Compliance</Text>
+            <Text style={{ fontSize: 12, color: '#94a3b8', marginBottom: 10 }}>Track proper meeting dress code compliance:</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => handleToggleAttire('PERFECT')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
+                  borderRadius: 14,
+                  borderWidth: 1.5,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  backgroundColor: attireStatus === 'PERFECT' ? '#f0fdf4' : '#ffffff',
+                  borderColor: attireStatus === 'PERFECT' ? '#22c55e' : '#e2e8f0',
+                }}
+              >
+                <Shirt size={14} color={attireStatus === 'PERFECT' ? '#15803d' : '#64748b'} style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: attireStatus === 'PERFECT' ? '#15803d' : '#64748b' }}>
+                  Perfect Attire
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => handleToggleAttire('IMPERFECT')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
+                  borderRadius: 14,
+                  borderWidth: 1.5,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  backgroundColor: attireStatus === 'IMPERFECT' ? '#fff7ed' : '#ffffff',
+                  borderColor: attireStatus === 'IMPERFECT' ? '#f97316' : '#e2e8f0',
+                }}
+              >
+                <Shirt size={14} color={attireStatus === 'IMPERFECT' ? '#c2410c' : '#64748b'} style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: attireStatus === 'IMPERFECT' ? '#c2410c' : '#64748b' }}>
+                  Imperfect Attire
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* SECTION 3: Payment Mode Grid */}
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 }}>3. Payment Mode</Text>
           <Text style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14 }}>
             {isPresent
-              ? `Manage entry fee (₹${meetingFee}) details below:`
-              : 'Mark member as Present to configure payment mode.'}
+              ? `Select payment collection method (Entry Fee: ₹${meetingFee}):`
+              : 'Mark member as Present to select payment mode.'}
           </Text>
 
           <View style={{ opacity: isPresent ? 1 : 0.45 }} pointerEvents={isPresent ? 'auto' : 'none'}>
-            {/* Option cards */}
             <View style={{ gap: 10 }}>
               {/* Cash */}
               <TouchableOpacity
@@ -385,6 +597,24 @@ export default function MemberDetailScreen() {
                   <Text style={styles.payCardSub}>Paid online/UPI directly</Text>
                 </View>
               </TouchableOpacity>
+
+              {/* Keep Pending */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handleUpdatePayment('PENDING', undefined, 0)}
+                style={[
+                  styles.payCard,
+                  (isPresent && attendance?.paymentStatus === 'PENDING') ? styles.payCardPendingActive : styles.payCardInactive
+                ]}
+              >
+                <View style={[styles.payCardIconBg, { backgroundColor: '#fffbeb' }]}>
+                  <Clock size={20} color="#d97706" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.payCardTitle}>Keep Pending</Text>
+                  <Text style={styles.payCardSub}>Payment pending for later collection</Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -396,7 +626,8 @@ export default function MemberDetailScreen() {
           </View>
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, gap: 6 }}>
-            <Text style={{ color: '#059669', fontSize: 13, fontWeight: '600' }}>✓ Changes saved automatically</Text>
+            <CheckCircle2 size={15} color="#059669" />
+            <Text style={{ color: '#059669', fontSize: 13, fontWeight: '600' }}>Changes saved automatically</Text>
           </View>
         )}
 

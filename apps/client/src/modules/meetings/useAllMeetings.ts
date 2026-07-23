@@ -10,15 +10,22 @@ export const useAllMeetings = () => {
   useEffect(() => {
     const q = query(collection(db, 'meetings'), orderBy('date', 'desc'));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const meetingList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Meeting[];
-      
-      setMeetings(meetingList);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const meetingList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Meeting[];
+        
+        setMeetings(meetingList);
+        setLoading(false);
+      },
+      (error) => {
+        console.warn('Meetings query quota notice:', error);
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, []);

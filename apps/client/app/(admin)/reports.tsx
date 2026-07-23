@@ -4,14 +4,14 @@ import { useAllMeetings } from '../../src/modules/meetings/useAllMeetings';
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { IndianRupee, Users, Calendar, Download, Search, ChevronRight, CheckCircle2, Clock, AlertCircle } from 'lucide-react-native';
+import { IndianRupee, Users, Calendar, Download, Search, ChevronRight, CheckCircle2, Clock, AlertCircle, BarChart2, MessageSquare } from 'lucide-react-native';
 import { formatRupees } from '../../src/utils/currency';
 import { collectionGroup, query, where, getDocs, doc, writeBatch, increment } from 'firebase/firestore';
 import { db } from '../../src/services/firebase';
 import { showAlert } from '../../src/utils/platformAlert';
 
 export default function ReportsScreen() {
-  const [activeTab, setActiveTab] = useState<'meetings' | 'members' | 'pending'>('meetings');
+  const [activeTab, setActiveTab] = useState<'meetings' | 'members'>('meetings');
   const { meetings, loading: meetingsLoading } = useAllMeetings();
 
   // Meeting Filter States
@@ -366,12 +366,6 @@ export default function ReportsScreen() {
         >
           <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'members' ? 'text-slate-800' : 'text-slate-500'}`}>Members</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setActiveTab('pending')}
-          className={`flex-1 py-3 rounded-xl items-center ${activeTab === 'pending' ? 'bg-white shadow-sm' : 'bg-transparent'}`}
-        >
-          <Text className={`font-bold text-xs sm:text-sm ${activeTab === 'pending' ? 'text-slate-800' : 'text-slate-500'}`}>Pending</Text>
-        </TouchableOpacity>
       </View>      {activeTab === 'meetings' && (
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Filters Row */}
@@ -650,8 +644,19 @@ export default function ReportsScreen() {
             {selectedMember ? (
               <Card className="flex-1 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
                 <View className="border-b border-slate-100 pb-4 mb-4">
-                  <Text className="text-lg font-bold text-slate-800">{selectedMember.fullName}</Text>
-                  <Text className="text-xs text-slate-500 mt-1">{selectedMember.companyName} • {selectedMember.businessCategory}</Text>
+                  <View className="flex-row items-start justify-between">
+                    <View style={{ flex: 1, marginRight: 8 }}>
+                      <Text className="text-lg font-bold text-slate-800">{selectedMember.fullName}</Text>
+                      <Text className="text-xs text-slate-500 mt-1">{selectedMember.companyName} • {selectedMember.businessCategory}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => router.push({ pathname: '/(admin)/member-analytics', params: { memberId: selectedMember.id } })}
+                      className="bg-indigo-600 hover:bg-indigo-700 p-2 px-3.5 rounded-xl shadow-xs flex-row items-center"
+                    >
+                      <BarChart2 size={13} color="#ffffff" style={{ marginRight: 6 }} />
+                      <Text className="text-xs font-extrabold text-white">Member 360°</Text>
+                    </TouchableOpacity>
+                  </View>
                   
                   {/* Selected Member Metrics */}
                   <View style={{ flexDirection: 'row', backgroundColor: '#f8fafc', borderRadius: 16, padding: 12, marginTop: 14, gap: 12 }}>
@@ -857,13 +862,29 @@ export default function ReportsScreen() {
                     </View>
 
                     <View className="items-end">
-                      <Text className="font-extrabold text-amber-600 text-lg mb-2">₹{item.entryFee || 500}</Text>
-                      <TouchableOpacity
-                        onPress={() => handleResolvePending(item)}
-                        className="bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3.5 rounded-xl flex-row items-center justify-center shadow-sm"
-                      >
-                        <Text className="text-[10px] font-extrabold text-white">COLLECT FEE</Text>
-                      </TouchableOpacity>
+                      <Text className="font-extrabold text-amber-600 text-lg mb-1.5">₹{item.entryFee || 500}</Text>
+                      <View className="flex-row items-center gap-1.5">
+                        <TouchableOpacity
+                          onPress={() => {
+                            const cleanPhone = (item.memberSnapshot?.mobileNumber || '').replace(/\D/g, '');
+                            const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+                            const text = `Hello ${item.memberSnapshot?.fullName || 'Member'}, Greetings from CEDOI! This is a polite reminder regarding your pending fee of ₹${item.entryFee || 500} for ${item.meetingTitle || 'our meeting'}. Kindly clear your dues at your earliest convenience. Thank you!`;
+                            const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(text)}`;
+                            if (typeof window !== 'undefined') window.open(url, '_blank');
+                          }}
+                          className="bg-emerald-50 hover:bg-emerald-100 py-1.5 px-2.5 rounded-xl flex-row items-center justify-center border border-emerald-200"
+                        >
+                          <MessageSquare size={12} color="#047857" style={{ marginRight: 4 }} />
+                          <Text className="text-[10px] font-extrabold text-emerald-700">WhatsApp</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          onPress={() => handleResolvePending(item)}
+                          className="bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3 rounded-xl flex-row items-center justify-center shadow-sm"
+                        >
+                          <Text className="text-[10px] font-extrabold text-white">COLLECT</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </Card>
                 ))}

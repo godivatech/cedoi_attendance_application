@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { memberSchema, MemberFormValues, generateSearchKeywords } from '@cedoi/shared';
@@ -113,11 +113,12 @@ export default function AddMemberScreen() {
       contentContainerStyle={{ padding: 24, paddingBottom: 60 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text className="text-2xl font-extrabold text-slate-800 mb-6">
-        {isEditMode ? 'Edit Member Profile' : 'Register New Member'}
-      </Text>
-      
-      <Card className="space-y-4 mb-10 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+      <View style={{ maxWidth: 880, width: '100%', alignSelf: 'center' }}>
+        <Text className="text-2xl font-extrabold text-slate-800 mb-6">
+          {isEditMode ? 'Edit Member Profile' : 'Register New Member'}
+        </Text>
+        
+        <Card className="space-y-5 mb-10 p-8 bg-white border border-slate-100 rounded-2xl shadow-sm">
         <View>
           <Text className="text-sm font-bold text-slate-600 mb-1.5">Full Name</Text>
           <Controller
@@ -158,15 +159,15 @@ export default function AddMemberScreen() {
           )}
         </View>
 
-        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Mobile</Text>
+        <View style={{ flexDirection: Platform.OS === 'web' ? 'row' : 'column', gap: 16, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Mobile</Text>
             <Controller
               control={control}
               name="mobileNumber"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.mobileNumber ? 'border-red-500' : 'border-slate-200'}`}
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: errors.mobileNumber ? '#ef4444' : '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   keyboardType="phone-pad"
                   placeholder="Enter mobile number"
                   placeholderTextColor="#94a3b8"
@@ -179,14 +180,15 @@ export default function AddMemberScreen() {
               <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.mobileNumber.message}</Text>
             )}
           </View>
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Category</Text>
+
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Category</Text>
             <Controller
               control={control}
               name="businessCategory"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.businessCategory ? 'border-red-500' : 'border-slate-200'}`}
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: errors.businessCategory ? '#ef4444' : '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   placeholder="Enter business category"
                   placeholderTextColor="#94a3b8"
                   onChangeText={onChange}
@@ -200,15 +202,15 @@ export default function AddMemberScreen() {
           </View>
         </View>
 
-        <View className="flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-slate-600 mb-1.5">Email</Text>
+        <View style={{ flexDirection: Platform.OS === 'web' ? 'row' : 'column', gap: 16, marginBottom: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#475569', marginBottom: 6 }}>Email</Text>
             <Controller
               control={control}
               name="email"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.email ? 'border-red-500' : 'border-slate-200'}`}
+                  style={{ height: 48, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: errors.email ? '#ef4444' : '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, fontSize: 14, color: '#1e293b' }}
                   keyboardType="email-address"
                   placeholder="Enter email address"
                   placeholderTextColor="#94a3b8"
@@ -242,6 +244,50 @@ export default function AddMemberScreen() {
           </View>
         </View>
 
+        {/* Joining Date Field */}
+        <View>
+          <Text className="text-sm font-bold text-slate-600 mb-1.5">Joining Date (YYYY-MM-DD)</Text>
+          <Controller
+            control={control}
+            name="joinDate"
+            render={({ field: { onChange, value } }) => (
+              Platform.OS === 'web' ? (
+                <input
+                  type="date"
+                  min="2000-01-01"
+                  max="2099-12-31"
+                  value={value ? value.substring(0, 10) : ''}
+                  onChange={(e) => onChange(e.target.value)}
+                  style={{
+                    padding: '14px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              ) : (
+                <TextInput
+                  maxLength={10}
+                  className={`p-4 bg-slate-50 border rounded-xl text-slate-800 text-sm ${errors.joinDate ? 'border-red-500' : 'border-slate-200'}`}
+                  placeholder="YYYY-MM-DD (e.g. 2025-07-22)"
+                  placeholderTextColor="#94a3b8"
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )
+            )}
+          />
+          {errors.joinDate && (
+            <Text className="text-rose-500 text-xs mt-1.5 font-medium">{errors.joinDate.message}</Text>
+          )}
+        </View>
+
 
         <View>
           <Text className="text-sm font-bold text-slate-600 mb-1.5">Notes (Optional)</Text>
@@ -269,6 +315,7 @@ export default function AddMemberScreen() {
           className="mt-4"
         />
       </Card>
-    </ScrollView>
-  );
+    </View>
+  </ScrollView>
+);
 }

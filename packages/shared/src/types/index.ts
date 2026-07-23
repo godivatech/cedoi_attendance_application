@@ -29,6 +29,8 @@ export interface Meeting {
 
 export type PaymentStatus = 'PAID' | 'PENDING' | 'WAIVED' | 'PARTIAL' | 'ABSENT';
 export type PaymentMode = 'CASH' | 'UPI' | 'CARD' | 'COMPLIMENTARY';
+export type AttireStatus = 'PERFECT' | 'IMPERFECT';
+export type PunctualityStatus = 'ON_TIME' | 'GRACE_PERIOD' | 'LATE';
 
 export interface Member {
   id: string;
@@ -57,4 +59,6 @@ export interface Attendance {
   amountCollected: number;
   checkedInBy: string; // User UID
   isAbsent?: boolean;
+  attireStatus?: AttireStatus;
+  punctualityStatus?: PunctualityStatus;
 }
