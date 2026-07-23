@@ -2,15 +2,66 @@ import { View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator } 
 import { useMembers } from '../../src/modules/members/useMembers';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2, Calendar } from 'lucide-react-native';
+import { Plus, Search, Mail, Phone, Briefcase, MessageCircle, BarChart2, Edit2, Calendar, AlertCircle } from 'lucide-react-native';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { Pagination } from '../../src/components/ui/Pagination';
+import { collectionGroup, getDocs, query } from 'firebase/firestore';
+import { db } from '../../src/services/firebase';
 
 export default function AdminMembers() {
   const [searchTerm, setSearchTerm] = useState('');
   const { members, loading } = useMembers(searchTerm);
   const router = useRouter();
+  const [duesMap, setDuesMap] = useState<Record<string, number>>({});
+
+  // Fetch pending dues for each member across meetings (100% aligned with Member Analytics)
+  useEffect(() => {
+    const fetchMemberDues = async () => {
+      try {
+        const meetingsSnap = await getDocs(query(collectionGroup(db, 'meetings')));
+        const meetingsList = meetingsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        const attSnap = await getDocs(query(collectionGroup(db, 'attendance')));
+        const attendanceList: any[] = [];
+        attSnap.forEach(d => {
+          const meetingId = d.ref.parent?.parent?.id;
+          attendanceList.push({
+            id: d.id,
+            meetingId,
+            ...d.data()
+          });
+        });
+
+        // Compute total pending dues per member for ALL meetings
+        const map: Record<string, number> = {};
+        members.forEach(m => {
+          let memberDues = 0;
+          meetingsList.forEach(mtg => {
+            const att = attendanceList.find(a => a.meetingId === mtg.id && (a.memberId === m.id || a.id === m.id));
+            const entryFee = (mtg as any).entryFee || 1040;
+            if (att) {
+              if (att.paymentStatus === 'PENDING' || att.paymentStatus === 'ABSENT') {
+                memberDues += Number(att.entryFee || entryFee);
+              }
+            } else {
+              // Unmarked / Absent meeting carries entry fee as pending dues
+              memberDues += Number(entryFee);
+            }
+          });
+          map[m.id] = memberDues;
+        });
+
+        setDuesMap(map);
+      } catch (err) {
+        console.log('Error fetching dues for members:', err);
+      }
+    };
+
+    if (members.length > 0) {
+      fetchMemberDues();
+    }
+  }, [members]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -133,6 +184,14 @@ export default function AdminMembers() {
                           return null;
                         }
                       })()}
+
+                      {/* Pending Dues Badge */}
+                      {Boolean(duesMap[item.id] && duesMap[item.id] > 0) && (
+                        <View className="bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full flex-row items-center">
+                          <AlertCircle size={10} color="#be123c" style={{ marginRight: 3 }} />
+                          <Text className="text-[10px] font-black text-rose-700">₹{duesMap[item.id].toLocaleString('en-IN')} Dues</Text>
+                        </View>
+                      )}
                     </View>
                     <Text numberOfLines={1} className="text-xs text-slate-500 font-medium truncate mt-0.5">
                       {item.companyName || 'Member'}
