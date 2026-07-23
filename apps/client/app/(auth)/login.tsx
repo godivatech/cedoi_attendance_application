@@ -8,7 +8,7 @@ import { auth } from '../../src/services/firebase';
 import { showAlert } from '../../src/utils/platformAlert';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
-import { Mail, Lock } from 'lucide-react-native';
+import { Mail, Lock, Key, Shield, UserCheck } from 'lucide-react-native';
 import { Card } from '../../src/components/ui/Card';
 import { BRAND_COLORS } from '../../src/theme/colors';
 
@@ -23,8 +23,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const { user, role } = useAuthStore();
   const router = useRouter();
-  
-  const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -54,6 +54,11 @@ export default function LoginScreen() {
     }
   };
 
+  const handleAutofill = (email: string, pass: string) => {
+    setValue('email', email, { shouldValidate: true });
+    setValue('password', pass, { shouldValidate: true });
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -65,8 +70,8 @@ export default function LoginScreen() {
         style={{ width: '100%', maxWidth: 440, alignSelf: 'center' }}
         showsVerticalScrollIndicator={false}
       >
-        <Card className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 w-full my-4">
-          
+        <Card className="bg-white p-6 sm:p-8 rounded-3xl shadow-lg border border-slate-100 w-full my-4">
+
           {/* Official Brand Logo & Header */}
           <View className="items-center mb-8">
             <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: BRAND_COLORS.primary, justifyContent: 'center', alignItems: 'center', shadowColor: BRAND_COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, marginBottom: 16 }}>
@@ -77,10 +82,10 @@ export default function LoginScreen() {
               Meeting & Attendance Management
             </Text>
           </View>
- 
+
           {/* Form */}
           <View style={{ width: '100%', gap: 16 }}>
-            
+
             {/* Email Field */}
             <View style={{ width: '100%' }}>
               <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</Text>
@@ -109,7 +114,7 @@ export default function LoginScreen() {
                 <Text className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.email.message}</Text>
               )}
             </View>
- 
+
             {/* Password Field */}
             <View style={{ width: '100%' }}>
               <Text className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</Text>
@@ -137,10 +142,10 @@ export default function LoginScreen() {
                 <Text className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.password.message}</Text>
               )}
             </View>
- 
+
             {/* Submit Button */}
             <TouchableOpacity
-              style={{ width: '100%', height: 50, backgroundColor: BRAND_COLORS.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 12 }}
+              style={{ width: '100%', height: 50, backgroundColor: BRAND_COLORS.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 8 }}
               onPress={handleSubmit(onSubmit)}
               disabled={loading}
             >
@@ -150,6 +155,63 @@ export default function LoginScreen() {
                 <Text className="text-white font-extrabold text-base">Sign In</Text>
               )}
             </TouchableOpacity>
+
+            {/* Demo Accounts / Development Credentials Box */}
+            <View style={{ backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderWidth: 1, borderRadius: 16, padding: 14, marginTop: 12 }}>
+              <View className="flex-row items-center mb-2.5">
+                <Key size={14} color="#475569" style={{ marginRight: 6 }} />
+                <Text className="text-xs font-black text-slate-700 uppercase tracking-wide">
+                  Development Demo Credentials
+                </Text>
+              </View>
+
+              {/* Admin Creds */}
+              <View className="bg-white p-2.5 rounded-xl border border-slate-200 mb-2 flex-row items-center justify-between">
+                <View className="flex-1 min-w-0 mr-2">
+                  <View className="flex-row items-center">
+                    <Shield size={12} color="#0d5984" style={{ marginRight: 4 }} />
+                    <Text className="text-xs font-black text-slate-800">Admin Account</Text>
+                  </View>
+                  <Text className="text-[11px] text-slate-600 font-semibold mt-0.5" numberOfLines={1}>
+                    Email: admin@godivatech.com
+                  </Text>
+                  <Text className="text-[11px] text-slate-600 font-semibold" numberOfLines={1}>
+                    Password: Password@123
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleAutofill('admin@godivatech.com', 'Password@123')}
+                  activeOpacity={0.8}
+                  style={{ backgroundColor: '#0d5984', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }}
+                >
+                  <Text className="text-[11px] font-extrabold text-white">Use Admin</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Staff Creds */}
+              <View className="bg-white p-2.5 rounded-xl border border-slate-200 flex-row items-center justify-between">
+                <View className="flex-1 min-w-0 mr-2">
+                  <View className="flex-row items-center">
+                    <UserCheck size={12} color="#16a34a" style={{ marginRight: 4 }} />
+                    <Text className="text-xs font-black text-slate-800">Staff Account</Text>
+                  </View>
+                  <Text className="text-[11px] text-slate-600 font-semibold mt-0.5" numberOfLines={1}>
+                    Email: staff@godivatech.com
+                  </Text>
+                  <Text className="text-[11px] text-slate-600 font-semibold" numberOfLines={1}>
+                    Password: Password@123
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleAutofill('staff@godivatech.com', 'Password@123')}
+                  activeOpacity={0.8}
+                  style={{ backgroundColor: '#16a34a', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }}
+                >
+                  <Text className="text-[11px] font-extrabold text-white">Use Staff</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
           </View>
         </Card>
 
